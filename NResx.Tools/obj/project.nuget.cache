@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "hFcpex4Sn3T6DRD3XOwcR4Idmo4ReVLwuMZGAaon0u96fSDWKbuQvioZf/qhPrmkqbCR1R+xZDF0L2Go0zk9TA==",
+  "success": true,
+  "projectFilePath": "C:\\_Projects\\nresx.tools\\NResx.Tools\\NResx.Tools.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\svjat\\.nuget\\packages\\aspose.cells\\21.3.0\\aspose.cells.21.3.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\system.drawing.common\\4.7.0\\system.drawing.common.4.7.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.7.0\\system.runtime.compilerservices.unsafe.4.7.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\system.text.encoding.codepages\\4.7.0\\system.text.encoding.codepages.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,73 @@
+
+ // ------------------------------------------------------------------------------
+ // v1.0
+ // ------------------------------------------------------------------------------
+
+    .   features
+
+        .   validate resources in solution
+
+            .   missing ones (bi-directional)
+
+            .   duplicates
+
+            .   statistics
+
+        .   add/remove prefix/postfix
+
+        .   find resource
+
+        .   convert
+
+            .   yaml / yml
+
+            .   
+
+    --
+
+    ?   do we need a site
+
+        nresx.tools
+        nresx.com
+
+        nresx.exe
+
+
+    .   v1.0
+
+        .   validate solution
+
+        .   list resources (in file)
+
+        ?   command line response to use in solution/command line build procedure
+
+        .   integration with xunit tools
+
+        .   find duplicated texts (mark/save allowed ones, help to group)
+
+        .   resw
+
+        .   resx
+
+
+        // https://github.com/translate/translate
+        //   "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\"ResGen.exe 
+
+
+    .   ResourceDocument
+
+        .   load( string path )
+
+        .   load( stream )
+
+        .   Add()
+
+        .   AddRange()
+
+        .   
+
+        .   Save()
+
+        .   SaveAs()
+
+ // ------------------------------------------------------------------------------

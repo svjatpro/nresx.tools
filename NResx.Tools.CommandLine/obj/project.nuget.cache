@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "ZpeicwvwL4d/gGgY59ng5TYIQdW9qVCMXgE5ipfOfHfercx0YDzCnajCtJShBQbe1lhSvogGV6azF/Ehc0Q90A==",
+  "success": true,
+  "projectFilePath": "C:\\_Projects\\nresx.tools\\NResx.Tools.CommandLine\\NResx.Tools.CommandLine.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\svjat\\.nuget\\packages\\aspose.cells\\21.3.0\\aspose.cells.21.3.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\microsoft.win32.systemevents\\4.7.0\\microsoft.win32.systemevents.4.7.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\system.drawing.common\\4.7.0\\system.drawing.common.4.7.0.nupkg.sha512",
+    "C:\\Users\\svjat\\.nuget\\packages\\system.text.encoding.codepages\\4.7.0\\system.text.encoding.codepages.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

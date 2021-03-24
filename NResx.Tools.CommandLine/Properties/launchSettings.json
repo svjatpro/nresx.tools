@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "nresx.tools": {
+      "commandName": "Project",
+      "commandLineArgs": "add --clear"
+    }
+  }
+}
