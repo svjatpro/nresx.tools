@@ -2,10 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspose.Cells" Version="21.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Formatters\" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,0 @@
-C:\_Projects\nresx.tools\NResx.Tools\bin\Debug\netstandard2.0\NResx.Tools.deps.json
-C:\_Projects\nresx.tools\NResx.Tools\bin\Debug\netstandard2.0\NResx.Tools.dll
-C:\_Projects\nresx.tools\NResx.Tools\bin\Debug\netstandard2.0\NResx.Tools.pdb
-C:\_Projects\nresx.tools\NResx.Tools\obj\Debug\netstandard2.0\NResx.Tools.csprojAssemblyReference.cache
-C:\_Projects\nresx.tools\NResx.Tools\obj\Debug\netstandard2.0\NResx.Tools.AssemblyInfoInputs.cache
-C:\_Projects\nresx.tools\NResx.Tools\obj\Debug\netstandard2.0\NResx.Tools.AssemblyInfo.cs
-C:\_Projects\nresx.tools\NResx.Tools\obj\Debug\netstandard2.0\NResx.Tools.csproj.CoreCompileInputs.cache
-C:\_Projects\nresx.tools\NResx.Tools\obj\Debug\netstandard2.0\NResx.Tools.dll
-C:\_Projects\nresx.tools\NResx.Tools\obj\Debug\netstandard2.0\NResx.Tools.pdb

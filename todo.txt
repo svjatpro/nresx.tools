@@ -1,7 +1,22 @@
 
  // ------------------------------------------------------------------------------
+ // v1.1
+ // ------------------------------------------------------------------------------
+
+    .   add common formats
+
+        .   *.yaml
+
+        .   *.json
+
+        .   *.txt plain
+
+        .   
+
+ // ------------------------------------------------------------------------------
  // v1.0
  // ------------------------------------------------------------------------------
+
 
     .   features
 
@@ -54,20 +69,20 @@
         //   "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\"ResGen.exe 
 
 
+    .   improve *.yaml formatter
+
     .   ResourceDocument
 
-        .   load( string path )
+        *   load( string path )
 
-        .   load( stream )
+        *   load( stream )
 
-        .   Add()
+        *   *.yml
 
-        .   AddRange()
+        *   Add()
 
-        .   
+        +   Save() new
 
-        .   Save()
-
-        .   SaveAs()
+        .   SaveAs() (convert to another format)
 
  // ------------------------------------------------------------------------------
