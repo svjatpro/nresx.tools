@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Resources;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Aspose.Cells;
-using NResx.Tools.Winforms;
+using NResx.Tools.Formatters;
 
 namespace NResx.Tools
 {
@@ -30,84 +28,6 @@ namespace NResx.Tools
         public string Key { get; set; }
         public string Value { get; set; }
         public string Comment { get; set; }
-    }
-
-    internal interface IFileFormatter
-    {
-        bool LoadResourceFile( Stream stream, out List<ResourceElement> elements );
-        void SaveResourceFile( Stream stream, List<ResourceElement> elements );
-    }
-
-    internal class FileFormatterResx : IFileFormatter
-    {
-        public bool LoadResourceFile( Stream stream, out List<ResourceElement> elements )
-        {
-            using var reader = new ResXResourceReader( stream );
-            reader.UseResXDataNodes = true;
-            var result = new List<ResourceElement>();
-            foreach ( DictionaryEntry item in reader )
-            {
-                var node = item.Value as ResXDataNode;
-                var nodeInfo = node?.GetDataNodeInfo();
-                result.Add( new ResourceElement
-                {
-                    Key = item.Key.ToString(),
-                    Value = nodeInfo?.ValueData ?? item.Value.ToString(),
-                    Comment = nodeInfo?.Comment
-                } );
-            }
-            elements = result;
-            return true;
-        }
-
-        public void SaveResourceFile( Stream stream, List<ResourceElement> elements )
-        {
-            using var writer = new ResXResourceWriter( stream );
-            elements.ForEach( el =>
-            {
-                writer.AddResource( new ResXDataNode( el.Key, el.Value ){ Comment = el.Comment } );
-            } );
-            writer.Generate();
-            writer.Close();
-        }
-    }
-
-    internal class FileFormatterYaml : IFileFormatter
-    {
-        public bool LoadResourceFile( Stream stream, out List<ResourceElement> elements )
-        {
-            // todo: replace stub implementation
-            var resRegex = new Regex( @"^\s*([a-zA-Z0-9_.]+)\s*:\s*""([^""]*)""\s*$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
-
-            elements = new List<ResourceElement>();
-            using var reader = new StreamReader( stream );
-            while ( !reader.EndOfStream )
-            {
-                var line = reader.ReadLine();
-                if ( string.IsNullOrWhiteSpace( line ) )
-                    continue;
-                var match = resRegex.Match( line );
-                if ( match.Success && match.Groups.Count > 1 )
-                {
-                    elements.Add( new ResourceElement
-                    {
-                        Key = match.Groups[1].Value,
-                        Value = match.Groups.Count > 2 ? match.Groups[2].Value : string.Empty
-                    } );
-                }
-            }
-
-            return true;
-        }
-
-        public void SaveResourceFile( Stream stream, List<ResourceElement> elements )
-        {
-            using var writer = new StreamWriter( stream );
-            foreach ( var element in elements )
-            {
-                writer.WriteLine( $"{element.Key}: \"{element.Value}\"" );
-            }
-        }
     }
 
     public class ResourceFile
@@ -173,7 +93,7 @@ namespace NResx.Tools
         public ResourceFormatType ResourceFormat { get; }
 
         public IEnumerable<ResourceElement> Elements => ElementsList;
-
+        
         public ResourceFile( string path )
         {
             if( GetTypeInfo( path, out var type ) )
@@ -196,11 +116,18 @@ namespace NResx.Tools
             }
         }
 
-        public ResourceFile( Stream stream )
+        public ResourceFile( Stream stream, ResourceFormatType resourceFormat = ResourceFormatType.NA )
         {
-            if ( GetTypeInfo( stream, out var type ) )
+            IFileFormatter parser;
+            if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
+            {
+                ResourceFormat = resourceFormat;
+                parser = t1.formatter();
+            }
+            else if ( GetTypeInfo( stream, out var type ) )
             {
                 ResourceFormat = type.type;
+                parser = type.formatter();
             }
             else
             {
@@ -208,13 +135,17 @@ namespace NResx.Tools
                 throw new FileLoadException( "the file is in unknown format" );
             }
 
-            var parser = type.formatter();
             if ( parser.LoadResourceFile( stream, out var elements ) )
             {
                 ElementsList = elements;
             }
         }
 
+        public ResourceFile()
+        {
+            ResourceFormat = ResourceFormatType.NA;
+            ElementsList = new List<ResourceElement>();
+        }
         public ResourceFile( ResourceFormatType resourceFormat )
         {
             ResourceFormat = resourceFormat;
@@ -231,9 +162,11 @@ namespace NResx.Tools
             } );
         }
 
+        #region Save
+
         public void Save( string path )
         {
-
+            Save( path, ResourceFormat );
         }
         public void Save( string path, ResourceFormatType type )
         {
@@ -249,5 +182,26 @@ namespace NResx.Tools
                 new FileStream( targetPath, FileMode.CreateNew ),
                 ElementsList );
         }
+
+        public void Save( Stream stream )
+        {
+            Save( stream, ResourceFormat );
+        }
+
+        public void Save( Stream stream, ResourceFormatType type )
+        {
+            if ( !GetTypeInfo( t => t.type == type, out var tinfo ) )
+            {
+                throw new InvalidOperationException( "Unknown format" );
+            }
+            var formatter = tinfo.formatter();
+
+            formatter.SaveResourceFile( stream, ElementsList );
+        }
+
+        #endregion
+        // (path, options)
+        // (stream, options)
+
     }
 }

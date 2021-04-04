@@ -42,6 +42,10 @@
 
     ?   do we need a site
 
+        online converter/parser
+
+        resource.converter.com/
+        
         nresx.tools
         nresx.com
 
@@ -49,6 +53,15 @@
 
 
     .   v1.0
+
+        .   documentation for classes
+
+        .   check duplicated keys
+
+            <data name="SearchPage_OfflineMessage.Text" xml:space="preserve">
+                <value>SearchPage_OfflineMessage.TextYou are offline. Please check your internet connection.</value>
+            </data>
+
 
         .   validate solution
 
@@ -66,12 +79,23 @@
 
 
         // https://github.com/translate/translate
-        //   "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\"ResGen.exe 
+        //   "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\"ResGen.exe
 
+    .   
 
-    .   improve *.yaml formatter
+    ?   command line: get r. file info (el ammount, metadate etc.)
 
-    .   ResourceDocument
+    .   command line: convert resource (add / remove prefix)
+
+    .   convert resources (for add / remove prefixes etc.)
+
+    .   command line: create resource / add remove resource / add comment
+
+    .   command line: convert to another format
+
+    .   investigate / improve *.yaml formatter
+
+    +   ResourceDocument
 
         *   load( string path )
 
@@ -81,8 +105,10 @@
 
         *   Add()
 
-        +   Save() new
+        *   Save() new
 
         .   SaveAs() (convert to another format)
+
+        .   SaveToStream
 
  // ------------------------------------------------------------------------------

@@ -9,8 +9,4 @@
     <PackageReference Include="Aspose.Cells" Version="21.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Formatters\" />
-  </ItemGroup>
-
 </Project>
