@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using FluentAssertions;
+﻿using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace NResx.Tools.Tests.ResourceFile
@@ -7,51 +7,49 @@ namespace NResx.Tools.Tests.ResourceFile
     [TestFixture]
     public class SaveResourceFileTests : TestBase
     {
-        [TestCase( ResourceFormatType.Resx, @".resx" )]
-        [TestCase( ResourceFormatType.Resw, @".resw" )]
-        [TestCase( ResourceFormatType.Yml, @".yml" )]
-        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveNewFile( ResourceFormatType targetType, string extension )
-        {
-            var example = GetExampleResourceFile();
-            var name = UniqueKey();
-            var path = $"{name}{extension}";
-
-            var res = new Tools.ResourceFile( targetType );
-            foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
-            
-            res.Save( path, targetType );
-
-            var saved = new Tools.ResourceFile( path );
-            saved.ResourceFormat.Should().Be( targetType );
-            ValidateElements( saved );
-        }
-
-        [TestCase( @"Files\Resources.resx", ResourceFormatType.Resx )]
-        [TestCase( @"Files\Resources.resw", ResourceFormatType.Resw )]
-        [TestCase( @"Files\Resources.yml",  ResourceFormatType.Yml )]
-        [TestCase( @"Files\Resources.yaml", ResourceFormatType.Yaml )]
-        public async Task SaveAsFile( string sourcePath, ResourceFormatType targetType )
+        [TestCase( @"Files\Resources.resx" )]
+        [TestCase( @"Files\Resources.resw" )]
+        [TestCase( @"Files\Resources.yml" )]
+        [TestCase( @"Files\Resources.yaml" )]
+        public async Task SaveAsFileInAnotherPath( string sourcePath )
         {
             var source = new Tools.ResourceFile( sourcePath );
 
-            //var name = UniqueKey();
-            //var path = $"{name}{extension}";
+            var newPath = $"{UniqueKey()}{Path.GetExtension( sourcePath )}";
+            source.Save( newPath );
 
-            //source.Save(  );
+            var saved = new Tools.ResourceFile( newPath );
+            ValidateElements( saved );
+        }
 
-            
+        [TestCase( @"Files\Resources.yml",  @".resx", ResourceFormatType.Resx )]
+        [TestCase( @"Files\Resources.yaml", @".resw", ResourceFormatType.Resw )]
+        [TestCase( @"Files\Resources.resx", @".yml",  ResourceFormatType.Yml )]
+        [TestCase( @"Files\Resources.resw", @".yaml", ResourceFormatType.Yaml )]
+        public async Task SaveAsFile( string sourcePath, string targetExt, ResourceFormatType targetType )
+        {
+            var source = new Tools.ResourceFile( sourcePath );
 
-            //var res = new Tools.ResourceFile( targetType );
-            //foreach ( var el in example.Elements )
-            //    res.AddElement( el.Key, el.Value, el.Comment );
+            var targetPath = $"{UniqueKey()}{targetExt}";
+            source.Save( targetPath, targetType );
 
-            //res.Save( path, targetType );
+            var saved = new Tools.ResourceFile( targetPath );
+            ValidateElements( saved );
+        }
 
-            //var saved = new Tools.ResourceFile( path );
-            //saved.ResourceFormat.Should().Be( targetType );
-            //ValidateElements( saved );
+        [TestCase( @"Files\Resources.yml",  @".resx", ResourceFormatType.Resx )]
+        [TestCase( @"Files\Resources.yaml", @".resw", ResourceFormatType.Resw )]
+        [TestCase( @"Files\Resources.resx", @".yml",  ResourceFormatType.Yml )]
+        [TestCase( @"Files\Resources.resw", @".yaml", ResourceFormatType.Yaml )]
+        public async Task SaveAsStream( string sourcePath, string targetExt, ResourceFormatType targetType )
+        {
+            var source = new Tools.ResourceFile( sourcePath );
+
+            var ms = new MemoryStream();
+            source.Save( ms, targetType );
+
+            var saved = new Tools.ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            ValidateElements( saved );
         }
     }
 }

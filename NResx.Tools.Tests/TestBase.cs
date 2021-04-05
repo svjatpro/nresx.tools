@@ -32,5 +32,12 @@ namespace NResx.Tools.Tests
             var example = new Tools.ResourceFile( @"Files\Resources.resx" );
             return example;
         }
+
+        protected void AddExampleElements( Tools.ResourceFile res )
+        {
+            var example = GetExampleResourceFile();
+            foreach ( var el in example.Elements )
+                res.AddElement( el.Key, el.Value, el.Comment );
+        }
     }
 }

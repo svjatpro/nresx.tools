@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using Aspose.Cells;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -15,13 +14,11 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
         public async Task SaveNewFile( ResourceFormatType targetType, string extension )
         {
-            var example = GetExampleResourceFile();
             var name = UniqueKey();
             var path = $"{name}{extension}";
 
             var res = new Tools.ResourceFile( targetType );
-            foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
+            AddExampleElements( res );
 
             res.Save( path );
 
@@ -36,14 +33,12 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
         public async Task SaveNewFileAs( ResourceFormatType targetType, string extension )
         {
-            var example = GetExampleResourceFile();
             var name = UniqueKey();
             var path = $"{name}{extension}";
 
             var res = new Tools.ResourceFile();
-            foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
-            
+            AddExampleElements( res );
+
             res.Save( path, targetType );
 
             var saved = new Tools.ResourceFile( path );
@@ -57,11 +52,8 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
         public async Task SaveNewStream( ResourceFormatType targetType, string extension )
         {
-            var example = GetExampleResourceFile();
-
             var res = new Tools.ResourceFile( targetType );
-            foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
+            AddExampleElements( res );
 
             var ms = new MemoryStream();
             res.Save( ms );
@@ -75,15 +67,10 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Resw, @".resw" )]
         [TestCase( ResourceFormatType.Yml, @".yml" )]
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveNewSteamAs( ResourceFormatType targetType, string extension )
+        public async Task SaveNewStreamAs( ResourceFormatType targetType, string extension )
         {
-            var example = GetExampleResourceFile();
-            var name = UniqueKey();
-            var path = $"{name}{extension}";
-
             var res = new Tools.ResourceFile();
-            foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
+            AddExampleElements( res );
 
             var ms = new MemoryStream();
             res.Save( ms, targetType );
@@ -93,28 +80,20 @@ namespace NResx.Tools.Tests.ResourceFile
             ValidateElements( saved );
         }
 
+        [TestCase( ResourceFormatType.Resx, @".resx" )]
+        [TestCase( ResourceFormatType.Resw, @".resw" )]
+        [TestCase( ResourceFormatType.Yml, @".yml" )]
+        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
+        public async Task SaveToStream( ResourceFormatType targetType, string extension )
+        {
+            var res = new Tools.ResourceFile( targetType );
+            AddExampleElements( res );
 
+            var ms = res.SaveToStream();
 
-        // ----- new file
-
-        //// (path), full path
-
-        // (stream) // for new file
-
-        //// (path, format)
-        // (stream, format)
-
-        // SaveToStream()
-
-
-        // --------
-        // (path), just new directory
-
-        // (stream) // for new file
-
-        // (path, format)
-        // (stream, format)
-
-        // SaveToStream()
+            var saved = new Tools.ResourceFile( ms, targetType );
+            saved.ResourceFormat.Should().Be( targetType );
+            ValidateElements( saved );
+        }
     }
 }

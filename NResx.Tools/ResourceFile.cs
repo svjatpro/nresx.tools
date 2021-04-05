@@ -199,6 +199,14 @@ namespace NResx.Tools
             formatter.SaveResourceFile( stream, ElementsList );
         }
 
+        public Stream SaveToStream()
+        {
+            var ms = new MemoryStream();
+            Save( ms );
+            
+            return new MemoryStream( ms.GetBuffer() );
+        }
+
         #endregion
         // (path, options)
         // (stream, options)
