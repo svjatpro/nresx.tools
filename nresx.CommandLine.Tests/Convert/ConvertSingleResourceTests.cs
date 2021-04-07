@@ -18,7 +18,22 @@ namespace nresx.CommandLine.Tests.Convert
         [TestCase( @"convert --source [Files]\Resources.resw --destination [Output]\[UniqueKey].yml --format yml", ResourceFormatType.Yml )]
         [TestCase( @"convert -s [Files]\Resources.resw --destination [Output]\[UniqueKey].yml --format yml", ResourceFormatType.Yml )]
         [TestCase( @"convert -s [Files]\Resources.resw -d [Output]\[UniqueKey].yml -f yml", ResourceFormatType.Yml )]
+        [TestCase( @"convert -s [Files]\Resources.yaml -d [Output]\[UniqueKey].resx -f resx", ResourceFormatType.Resx )]
         public void ConvertFile( string commandLine, ResourceFormatType type )
+        {
+            Run( commandLine, out var fileName );
+            var outputPath = GetOutputPath( fileName, type );
+
+            var res = new ResourceFile( outputPath );
+            res.ResourceFormat.Should().Be( type );
+            ValidateElements( res );
+        }
+
+        [TestCase( @"convert --source [Files]\Resources.resw --destination [Output]\[UniqueKey].yaml", ResourceFormatType.Yaml )]
+        [TestCase( @"convert -s [Files]\Resources.resw --destination [Output]\[UniqueKey].yaml", ResourceFormatType.Yaml )]
+        [TestCase( @"convert -s [Files]\Resources.resw -d [Output]\[UniqueKey].yaml", ResourceFormatType.Yaml )]
+        [TestCase( @"convert -s [Files]\Resources.yaml -d [Output]\[UniqueKey].resx", ResourceFormatType.Yaml )]
+        public void ConverFileByDestinationExtension( string commandLine, ResourceFormatType type )
         {
             Run( commandLine, out var fileName );
             var outputPath = GetOutputPath( fileName, type );
