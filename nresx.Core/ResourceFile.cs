@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Resources;
 using System.Xml.Linq;
-using Aspose.Cells;
 using NResx.Tools.Formatters;
 
 namespace NResx.Tools

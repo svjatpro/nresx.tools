@@ -15,7 +15,7 @@ namespace NResx.Tools.Tests
                 .Should().BeEquivalentTo(
                     (key: "Entry1.Text", val: "Value1"),
                     (key: "Entry2", val: "Value2"),
-                    (key: "Entry3", val: "Value3") );
+                    (key: "Entry3", val: "Value3\r\nmultiline") );
         }
 
         protected string UniqueKey( int length = 8 )

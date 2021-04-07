@@ -125,6 +125,7 @@
     <comment>Comment2</comment>
   </data>
   <data name="Entry3" xml:space="preserve">
-    <value>Value3</value>
+    <value>Value3
+multiline</value>
   </data>
 </root>
