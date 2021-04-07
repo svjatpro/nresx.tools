@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace NResx.Tools
+namespace nresx.Tools.Helpers
 {
     public class ResourceFormatHelper
     {
@@ -14,6 +14,15 @@ namespace NResx.Tools
                 { ".yaml", ResourceFormatType.Yaml }
             };
 
+        private static readonly Dictionary<ResourceFormatType, string> ExtensionsMap =
+            new Dictionary<ResourceFormatType, string>
+            {
+                { ResourceFormatType.Resx, ".resx" },
+                { ResourceFormatType.Resw, ".resw" },
+                { ResourceFormatType.Yml,  ".yml" } ,
+                { ResourceFormatType.Yaml, ".yaml" }
+            };
+
         public static bool DetectFormatByExtension( string path, out ResourceFormatType type )
         {
             var ext = Path.GetExtension( path ).ToLower();
@@ -24,6 +33,18 @@ namespace NResx.Tools
             }
 
             type = TypeMap[ext];
+            return true;
+        }
+
+        public static bool GetExtension( ResourceFormatType type, out string extension )
+        {
+            if ( !ExtensionsMap.ContainsKey( type ) )
+            {
+                extension = null;
+                return false;
+            }
+
+            extension = ExtensionsMap[type];
             return true;
         }
     }

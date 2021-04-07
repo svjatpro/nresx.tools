@@ -8,7 +8,7 @@ using System;
 using System.ComponentModel.Design;
 using System.Runtime.Serialization;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     // This class implements a partial type resolver for the BinaryFormatter.
     // This is needed to be able to read binary serialized content from older

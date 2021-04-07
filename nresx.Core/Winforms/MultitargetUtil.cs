@@ -6,7 +6,7 @@ using System;
 
 #nullable disable
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     /// <summary>
     ///  Helper class supporting Multitarget type assembly qualified name resolution for ResX API.

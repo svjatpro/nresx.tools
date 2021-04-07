@@ -16,7 +16,7 @@ using System.Resources;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     /// <summary>
     ///  ResX resource reader.
@@ -44,13 +44,13 @@ namespace NResx.Tools.Winforms
         private ResXResourceReader(ITypeResolutionService typeResolver)
         {
             _typeResolver = typeResolver;
-            _aliasResolver = new ReaderAliasResolver();
+            _aliasResolver = new ResXResourceReader.ReaderAliasResolver();
         }
 
         private ResXResourceReader(AssemblyName[] assemblyNames)
         {
             _assemblyNames = assemblyNames;
-            _aliasResolver = new ReaderAliasResolver();
+            _aliasResolver = new ResXResourceReader.ReaderAliasResolver();
         }
 
         public ResXResourceReader(string fileName) : this(fileName, (ITypeResolutionService)null, null)
@@ -65,7 +65,7 @@ namespace NResx.Tools.Winforms
         {
             _fileName = fileName;
             _typeResolver = typeResolver;
-            _aliasResolver = aliasResolver ?? new ReaderAliasResolver();
+            _aliasResolver = aliasResolver ?? new ResXResourceReader.ReaderAliasResolver();
         }
 
         public ResXResourceReader(TextReader reader) : this(reader, (ITypeResolutionService)null, null)
@@ -80,7 +80,7 @@ namespace NResx.Tools.Winforms
         {
             _reader = reader;
             _typeResolver = typeResolver;
-            _aliasResolver = aliasResolver ?? new ReaderAliasResolver();
+            _aliasResolver = aliasResolver ?? new ResXResourceReader.ReaderAliasResolver();
         }
 
         public ResXResourceReader(Stream stream) : this(stream, (ITypeResolutionService)null, (IAliasResolver)null)
@@ -95,7 +95,7 @@ namespace NResx.Tools.Winforms
         {
             _stream = stream;
             _typeResolver = typeResolver;
-            _aliasResolver = aliasResolver ?? new ReaderAliasResolver();
+            _aliasResolver = aliasResolver ?? new ResXResourceReader.ReaderAliasResolver();
         }
 
         public ResXResourceReader(Stream stream, AssemblyName[] assemblyNames) : this(stream, assemblyNames, (IAliasResolver)null)
@@ -106,7 +106,7 @@ namespace NResx.Tools.Winforms
         {
             _stream = stream;
             _assemblyNames = assemblyNames;
-            _aliasResolver = aliasResolver ?? new ReaderAliasResolver();
+            _aliasResolver = aliasResolver ?? new ResXResourceReader.ReaderAliasResolver();
         }
 
         public ResXResourceReader(TextReader reader, AssemblyName[] assemblyNames) : this(reader, assemblyNames, (IAliasResolver)null)
@@ -117,7 +117,7 @@ namespace NResx.Tools.Winforms
         {
             _reader = reader;
             _assemblyNames = assemblyNames;
-            _aliasResolver = aliasResolver ?? new ReaderAliasResolver();
+            _aliasResolver = aliasResolver ?? new ResXResourceReader.ReaderAliasResolver();
         }
 
         public ResXResourceReader(string fileName, AssemblyName[] assemblyNames) : this(fileName, assemblyNames, (IAliasResolver)null)
@@ -128,7 +128,7 @@ namespace NResx.Tools.Winforms
         {
             _fileName = fileName;
             _assemblyNames = assemblyNames;
-            _aliasResolver = aliasResolver ?? new ReaderAliasResolver();
+            _aliasResolver = aliasResolver ?? new ResXResourceReader.ReaderAliasResolver();
         }
 
         ~ResXResourceReader()

@@ -6,7 +6,7 @@
 
 using System.Drawing;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     internal class DataNodeInfo
     {

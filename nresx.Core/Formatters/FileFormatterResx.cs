@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using NResx.Tools.Winforms;
+using nresx.Winforms;
 
-namespace NResx.Tools.Formatters
+namespace nresx.Tools.Formatters
 {
     internal class FileFormatterResx : IFileFormatter
     {

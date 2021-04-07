@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nresx.Core", "nresx.Core\nr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nresx.Core.Tests", "nresx.Core.Tests\nresx.Core.Tests.csproj", "{2F3D0BF1-5136-4845-B174-C252E37F58F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nresx.CommandLine.Tests", "nresx.CommandLine.Tests\nresx.CommandLine.Tests.csproj", "{0BF1BF1B-D5AA-4372-BCD9-C3757D287312}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nresx.CommandLine.Tests", "nresx.CommandLine.Tests\nresx.CommandLine.Tests.csproj", "{0BF1BF1B-D5AA-4372-BCD9-C3757D287312}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

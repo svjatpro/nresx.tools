@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>9</LangVersion>
+    <RootNamespace>nresx.Tools</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

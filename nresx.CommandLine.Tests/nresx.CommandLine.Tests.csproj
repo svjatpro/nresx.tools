@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\nresx.Core.Tests\TestBase.cs" Link="TestBase.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
@@ -16,5 +20,9 @@
   <ItemGroup>
     <ProjectReference Include="..\nresx.CommandLine\nresx.CommandLine.csproj" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="xcopy &quot;$(SolutionDir).test_files\*.*&quot; &quot;$(TargetDir).test_files\&quot; /Y /I /E" />
+  </Target>
 
 </Project>

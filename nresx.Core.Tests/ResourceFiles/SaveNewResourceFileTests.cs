@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
+using nresx.Tools;
 using NUnit.Framework;
 
-namespace NResx.Tools.Tests.ResourceFile
+namespace nresx.Core.Tests.ResourceFiles
 {
     [TestFixture]
     public class SaveNewResourceFileTests : TestBase
@@ -17,12 +18,12 @@ namespace NResx.Tools.Tests.ResourceFile
             var name = UniqueKey();
             var path = $"{name}{extension}";
 
-            var res = new Tools.ResourceFile( targetType );
+            var res = new ResourceFile( targetType );
             AddExampleElements( res );
 
             res.Save( path );
 
-            var saved = new Tools.ResourceFile( path );
+            var saved = new ResourceFile( path );
             saved.ResourceFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
@@ -36,12 +37,12 @@ namespace NResx.Tools.Tests.ResourceFile
             var name = UniqueKey();
             var path = $"{name}{extension}";
 
-            var res = new Tools.ResourceFile();
+            var res = new ResourceFile();
             AddExampleElements( res );
 
             res.Save( path, targetType );
 
-            var saved = new Tools.ResourceFile( path );
+            var saved = new ResourceFile( path );
             saved.ResourceFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
@@ -52,13 +53,13 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
         public async Task SaveNewStream( ResourceFormatType targetType, string extension )
         {
-            var res = new Tools.ResourceFile( targetType );
+            var res = new ResourceFile( targetType );
             AddExampleElements( res );
 
             var ms = new MemoryStream();
             res.Save( ms );
 
-            var saved = new Tools.ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
             saved.ResourceFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
@@ -69,13 +70,13 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
         public async Task SaveNewStreamAs( ResourceFormatType targetType, string extension )
         {
-            var res = new Tools.ResourceFile();
+            var res = new ResourceFile();
             AddExampleElements( res );
 
             var ms = new MemoryStream();
             res.Save( ms, targetType );
 
-            var saved = new Tools.ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
             saved.ResourceFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
@@ -86,12 +87,12 @@ namespace NResx.Tools.Tests.ResourceFile
         [TestCase( ResourceFormatType.Yaml, @".yaml" )]
         public async Task SaveToStream( ResourceFormatType targetType, string extension )
         {
-            var res = new Tools.ResourceFile( targetType );
+            var res = new ResourceFile( targetType );
             AddExampleElements( res );
 
             var ms = res.SaveToStream();
 
-            var saved = new Tools.ResourceFile( ms, targetType );
+            var saved = new ResourceFile( ms, targetType );
             saved.ResourceFormat.Should().Be( targetType );
             ValidateElements( saved );
         }

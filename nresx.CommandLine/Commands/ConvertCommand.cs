@@ -1,7 +1,8 @@
 ﻿using System;
 using CommandLine;
+using nresx.Tools;
 
-namespace NResx.Tools.CommandLine.Commands
+namespace nresx.CommandLine.Commands
 {
     [Verb("convert", HelpText = "convert to another format")]
     public class ConvertCommand : ICommand

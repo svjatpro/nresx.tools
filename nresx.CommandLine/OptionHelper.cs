@@ -1,4 +1,7 @@
-﻿namespace NResx.Tools.CommandLine
+﻿using nresx.Tools;
+using nresx.Tools.Helpers;
+
+namespace nresx.CommandLine
 {
     public class OptionHelper
     {

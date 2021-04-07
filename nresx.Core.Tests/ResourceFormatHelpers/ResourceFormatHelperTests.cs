@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using nresx.Tools;
 using NUnit.Framework;
 
-namespace NResx.Tools.Tests.ResourceFormatHelper
+namespace nresx.Core.Tests.ResourceFormatHelpers
 {
     [TestFixture]
     public class ResourceFormatHelperTests
@@ -12,7 +13,7 @@ namespace NResx.Tools.Tests.ResourceFormatHelper
         [TestCase( @".yaml", ExpectedResult = ResourceFormatType.Yaml )]
         public async Task<ResourceFormatType> DetectFormatByExtension( string path )
         {
-            Tools.ResourceFormatHelper.DetectFormatByExtension( path, out var res );
+            nresx.Tools.Helpers.ResourceFormatHelper.DetectFormatByExtension( path, out var res );
             return res;
         }
     }

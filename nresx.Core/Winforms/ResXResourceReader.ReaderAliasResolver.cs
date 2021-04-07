@@ -7,7 +7,7 @@
 using System.Collections;
 using System.Reflection;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     public partial class ResXResourceReader
     {

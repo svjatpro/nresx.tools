@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Resources;
-using System.Xml.Linq;
-using NResx.Tools.Formatters;
+using nresx.Tools.Formatters;
 
-namespace NResx.Tools
+namespace nresx.Tools
 {
     public enum ResourceFormatType
     {

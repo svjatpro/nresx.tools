@@ -13,7 +13,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     public partial class ResXFileRef
     {

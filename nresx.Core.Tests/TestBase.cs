@@ -1,12 +1,67 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
+using nresx.Tools;
+using nresx.Tools.Helpers;
 
-namespace NResx.Tools.Tests
+namespace nresx.Core.Tests
 {
     public class TestBase
     {
-        protected void ValidateElements( Tools.ResourceFile resource )
+        private readonly string TestFileFolder = ".test_files";
+        private readonly string OutputFileFolder = ".test_output";
+
+        protected string GetOutputPath( string fileName, ResourceFormatType type )
+        {
+            if ( ResourceFormatHelper.GetExtension( type, out var extension ) )
+            {
+                var path = Path.Combine( OutputFolder, fileName );
+                path = Path.ChangeExtension( path, extension );
+                return path;
+            }
+            return null;
+        }
+
+        protected void Run( string cmdLine )
+        {
+            var args = cmdLine
+                .Replace( "[Files]", TestFileFolder )
+                .Replace( "[Output]", OutputFolder );
+            var cmd = $"/C nresx {args}";
+            System.Diagnostics.Process.Start( "CMD.exe", cmd );
+        }
+
+        protected void Run( string cmdLine, out string key )
+        {
+            key = UniqueKey();
+            var args = cmdLine
+                .Replace( "[Files]", TestFileFolder )
+                .Replace( "[Output]", OutputFolder )
+                .Replace( "[UniqueKey]", $"{key}" );
+            var cmd = $"/C nresx {args}";
+            var result = System.Diagnostics.Process.Start( "CMD.exe", cmd );
+            result?.WaitForExit( 5000 );
+        }
+
+        protected string OutputFolder
+        {
+            get
+            {
+                var dir = new DirectoryInfo( OutputFileFolder );
+                if ( !dir.Exists )
+                    dir.Create();
+
+                return OutputFileFolder;
+            }
+        }
+        
+        protected string GetTestPath( string path )
+        {
+            return $".test_files\\{path}";
+        }
+
+        protected void ValidateElements( ResourceFile resource )
         {
             var elements = resource.Elements.ToList();
 
@@ -27,13 +82,13 @@ namespace NResx.Tools.Tests
             return key.Substring( 0, Math.Min( length, key.Length ) );
         }
 
-        protected Tools.ResourceFile GetExampleResourceFile()
+        protected ResourceFile GetExampleResourceFile()
         {
-            var example = new Tools.ResourceFile( @"Files\Resources.resx" );
+            var example = new ResourceFile( GetTestPath( "Resources.resx" ) );
             return example;
         }
 
-        protected void AddExampleElements( Tools.ResourceFile res )
+        protected void AddExampleElements( ResourceFile res )
         {
             var example = GetExampleResourceFile();
             foreach ( var el in example.Elements )

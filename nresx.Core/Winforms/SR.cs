@@ -1,4 +1,4 @@
-﻿namespace NResx.Tools.Winforms
+﻿namespace nresx.Winforms
 {
     internal static class SR
     {

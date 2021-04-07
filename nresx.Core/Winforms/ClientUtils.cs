@@ -3,16 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections;
-using System.Diagnostics;
-using System.Globalization;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     static internal class ClientUtils
     {
         private static string NamespaceSystem => "System.Resources.";
-        private static string NamespaceModified => "NResx.Tools.Winforms.";
+        private static string NamespaceModified => "nresx.Winforms.";
 
         // ExecutionEngineException is obsolete and shouldn't be used (to catch, throw or reference) anymore.
         // Pragma added to prevent converting the "type is obsolete" warning into build error.

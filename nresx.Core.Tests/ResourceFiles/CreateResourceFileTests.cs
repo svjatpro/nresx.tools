@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
+using nresx.Tools;
 using NUnit.Framework;
 
-namespace NResx.Tools.Tests.ResourceFile
+namespace nresx.Core.Tests.ResourceFiles
 {
     [TestFixture]
     public class CreateResourceFileTests : TestBase
@@ -15,7 +16,7 @@ namespace NResx.Tools.Tests.ResourceFile
         {
             var example = GetExampleResourceFile();
             
-            var res = new Tools.ResourceFile( targetType );
+            var res = new ResourceFile( targetType );
             foreach ( var el in example.Elements )
                 res.AddElement( el.Key, el.Value, el.Comment );
 

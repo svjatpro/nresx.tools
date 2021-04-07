@@ -10,7 +10,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     /// <summary>
     ///  ResX File Reference class. This allows the developer to represent
@@ -41,9 +41,9 @@ namespace NResx.Tools.Winforms
             TextFileEncoding = textFileEncoding;
         }
 
-        internal NResx.Tools.Winforms.ResXFileRef Clone()
+        internal nresx.Winforms.ResXFileRef Clone()
         {
-            return new NResx.Tools.Winforms.ResXFileRef(FileName, TypeName, TextFileEncoding);
+            return new nresx.Winforms.ResXFileRef(FileName, TypeName, TextFileEncoding);
         }
 
         public string FileName { get; private set; }

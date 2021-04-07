@@ -6,7 +6,7 @@
 
 using System.Reflection;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     internal interface IAliasResolver
     {

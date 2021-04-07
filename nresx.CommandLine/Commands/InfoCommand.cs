@@ -1,7 +1,7 @@
 ﻿using System;
 using CommandLine;
 
-namespace NResx.Tools.CommandLine.Commands
+namespace nresx.CommandLine.Commands
 {
     [Verb( "info", HelpText = "get resource info" )]
     public class InfoCommand : ICommand

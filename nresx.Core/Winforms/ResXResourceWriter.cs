@@ -13,7 +13,7 @@ using System.Resources;
 using System.Text;
 using System.Xml;
 
-namespace NResx.Tools.Winforms
+namespace nresx.Winforms
 {
     /// <summary>
     ///  ResX resource writer. See the text in "ResourceSchema" for more
@@ -339,7 +339,7 @@ namespace NResx.Tools.Winforms
             // we're messing with a copy
             ResXDataNode nodeClone = node.DeepClone();
 
-            ResXFileRef fileRef = nodeClone.FileRef;
+            nresx.Winforms.ResXFileRef fileRef = nodeClone.FileRef;
             string modifiedBasePath = BasePath;
 
             if (!string.IsNullOrEmpty(modifiedBasePath))
@@ -380,7 +380,7 @@ namespace NResx.Tools.Winforms
                 case byte[] bytes:
                     AddDataRow(elementName, name, bytes);
                     break;
-                case ResXFileRef fileRef:
+                case nresx.Winforms.ResXFileRef fileRef:
                     {
                         ResXDataNode node = new ResXDataNode(name, fileRef, _typeNameConverter);
                         DataNodeInfo info = node.GetDataNodeInfo();

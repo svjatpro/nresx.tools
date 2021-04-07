@@ -1,9 +1,9 @@
 ﻿using CommandLine;
-using NResx.Tools.CommandLine.Commands;
+using nresx.CommandLine.Commands;
 
-namespace NResx.Tools.CommandLine
+namespace nresx.CommandLine
 {
-    //public class ResourceFile1
+    //public class ResourceFile
     //{
     //    public string Path { get; set; }
     //    public List<ResourceEntry> Entires { get; set; }
@@ -93,7 +93,7 @@ namespace NResx.Tools.CommandLine
             //var rootPath = @"C:\_Projects\iHeart.UWP";
             //// parse resource files
             //var resFiles = GetFiles( rootPath, "*.resw" )
-            //    .Select( f => new ResourceFile1 { Path = f } )
+            //    .Select( f => new ResourceFile { Path = f } )
             //    .ToList();
             //foreach ( var resFile in resFiles )
             //    resFile.Entires = GetResourceEntries( resFile.Path );

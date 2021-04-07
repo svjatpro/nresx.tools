@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using YamlDotNet.Serialization;
 
-namespace NResx.Tools.Formatters
+namespace nresx.Tools.Formatters
 {
     internal class FileFormatterYaml : IFileFormatter
     {

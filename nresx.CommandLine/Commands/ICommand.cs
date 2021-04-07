@@ -1,4 +1,4 @@
-﻿namespace NResx.Tools.CommandLine.Commands
+﻿namespace nresx.CommandLine.Commands
 {
     public interface ICommand
     {
