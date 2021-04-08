@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "convert -s C:\\Tmp\\1\\Resources.resw -d C:\\Tmp\\1\\Resources.yml -f yml"
+      "commandLineArgs": "convert -s .test_files\\Resources.resw -f yaml"
     }
   }
 }

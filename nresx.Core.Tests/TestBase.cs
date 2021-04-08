@@ -14,7 +14,7 @@ namespace nresx.Core.Tests
 
         protected string GetOutputPath( string fileName, ResourceFormatType type )
         {
-            if ( ResourceFormatHelper.GetExtension( type, out var extension ) )
+            if ( ResourceFormatHelper.DetectExtension( type, out var extension ) )
             {
                 var path = Path.Combine( OutputFolder, fileName );
                 path = Path.ChangeExtension( path, extension );
@@ -29,7 +29,8 @@ namespace nresx.Core.Tests
                 .Replace( "[Files]", TestFileFolder )
                 .Replace( "[Output]", OutputFolder );
             var cmd = $"/C nresx {args}";
-            System.Diagnostics.Process.Start( "CMD.exe", cmd );
+            var result = System.Diagnostics.Process.Start( "CMD.exe", cmd );
+            result?.WaitForExit( 5000 );
         }
 
         protected void Run( string cmdLine, out string key )

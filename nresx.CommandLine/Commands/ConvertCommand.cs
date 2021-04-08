@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using CommandLine;
 using nresx.Tools;
+using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
@@ -18,13 +20,38 @@ namespace nresx.CommandLine.Commands
 
         public void Execute()
         {
-            if ( !string.IsNullOrWhiteSpace( Source ) &&
-                 !string.IsNullOrWhiteSpace( Destination ) )
+            // convert single resource file
+            if ( !string.IsNullOrWhiteSpace( Source ) )
             {
-                var format = ResourceFormatType.NA;
-                if ( !string.IsNullOrWhiteSpace( Format ) && OptionHelper.DetectResourceFormat( Format, out var f ) )
-                    format = f;
-                // if( format == NA ) // detect format by destination extension
+                ResourceFormatType format;
+                if ( !string.IsNullOrWhiteSpace( Format ) && 
+                     OptionHelper.DetectResourceFormat( Format, out var f1 ) )
+                {
+                    format = f1;
+                }
+                else if ( !string.IsNullOrWhiteSpace( Destination ) &&
+                          ResourceFormatHelper.DetectFormatByExtension( Destination, out var f2 ) )
+                {
+                    format = f2;
+                }
+                else
+                {
+                    throw new ArgumentNullException();
+                }
+                
+                if ( string.IsNullOrWhiteSpace( Destination ) )
+                { 
+                    if( ResourceFormatHelper.DetectExtension( format, out var ext ) )
+                    {
+                        Destination = Path.ChangeExtension( Source, ext );
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException();
+                    }
+                }
+
+                Console.WriteLine( $"d: {Destination}  f: {Format}");
 
                 var res = new ResourceFile( Source );
                 res.Save( Destination, format );

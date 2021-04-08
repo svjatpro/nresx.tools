@@ -36,7 +36,7 @@ namespace nresx.Tools.Helpers
             return true;
         }
 
-        public static bool GetExtension( ResourceFormatType type, out string extension )
+        public static bool DetectExtension( ResourceFormatType type, out string extension )
         {
             if ( !ExtensionsMap.ContainsKey( type ) )
             {
@@ -46,6 +46,28 @@ namespace nresx.Tools.Helpers
 
             extension = ExtensionsMap[type];
             return true;
+        }
+
+        public static ResourceFormatType GetFormatType( string path )
+        {
+            var ext = Path.GetExtension( path ).ToLower();
+            if ( !TypeMap.ContainsKey( ext ) )
+            {
+                return ResourceFormatType.NA;
+            }
+
+            var type = TypeMap[ext];
+            return type;
+        }
+        public static string GetExtension( ResourceFormatType type )
+        {
+            if ( !ExtensionsMap.ContainsKey( type ) )
+            {
+                return null;
+            }
+
+            var extension = ExtensionsMap[type];
+            return extension;
         }
     }
 }

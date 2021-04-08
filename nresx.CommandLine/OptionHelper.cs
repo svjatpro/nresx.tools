@@ -13,5 +13,12 @@ namespace nresx.CommandLine
 
             return result;
         }
+
+        public static string GetFormatOption( ResourceFormatType type )
+        {
+            if( ResourceFormatHelper.DetectExtension( type, out var f ) )
+                return f.StartsWith( "." ) ? f.Substring( 1 ) : f;
+            return null;
+        }
     }
 }
