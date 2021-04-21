@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "convert -s .test_files\\Resources.resw -f yaml"
+      "commandLineArgs": "format -s C:\\Tmp\\1\\4ysiTnea.resw --start-with --pattern prefix_"
     }
   }
 }

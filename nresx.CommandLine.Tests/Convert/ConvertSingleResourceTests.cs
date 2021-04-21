@@ -47,10 +47,7 @@ namespace nresx.CommandLine.Tests.Convert
         [TestCase( ResourceFormatType.Yaml, ResourceFormatType.Resx )]
         public void ConverFileWithTheSamePath( ResourceFormatType sourceType, ResourceFormatType destType )
         {
-            // prepare source file
-            var sourceFile = Path.ChangeExtension( $"{OutputFolder}\\{UniqueKey()}", ResourceFormatHelper.GetExtension( sourceType ) );
-            var source = GetExampleResourceFile();
-            source.Save( sourceFile );
+            var sourceFile = CopyTemporaryFile( copyType: sourceType );
 
             // if there is no destination, then file will be converted to the same path, but with new format/extension
             var cmdLine = $"convert -s {sourceFile} -f {OptionHelper.GetFormatOption( destType )}";

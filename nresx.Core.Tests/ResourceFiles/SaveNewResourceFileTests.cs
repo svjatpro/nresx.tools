@@ -9,14 +9,13 @@ namespace nresx.Core.Tests.ResourceFiles
     [TestFixture]
     public class SaveNewResourceFileTests : TestBase
     {
-        [TestCase( ResourceFormatType.Resx, @".resx" )]
-        [TestCase( ResourceFormatType.Resw, @".resw" )]
-        [TestCase( ResourceFormatType.Yml, @".yml" )]
-        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveNewFile( ResourceFormatType targetType, string extension )
+        [TestCase( ResourceFormatType.Resx )]
+        [TestCase( ResourceFormatType.Resw )]
+        [TestCase( ResourceFormatType.Yml )]
+        [TestCase( ResourceFormatType.Yaml )]
+        public async Task SaveNewFile( ResourceFormatType targetType )
         {
-            var name = UniqueKey();
-            var path = $"{name}{extension}";
+            var path = GetOutputPath( UniqueKey(), targetType );
 
             var res = new ResourceFile( targetType );
             AddExampleElements( res );
@@ -28,14 +27,13 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx, @".resx" )]
-        [TestCase( ResourceFormatType.Resw, @".resw" )]
-        [TestCase( ResourceFormatType.Yml, @".yml" )]
-        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveNewFileAs( ResourceFormatType targetType, string extension )
+        [TestCase( ResourceFormatType.Resx )]
+        [TestCase( ResourceFormatType.Resw )]
+        [TestCase( ResourceFormatType.Yml )]
+        [TestCase( ResourceFormatType.Yaml )]
+        public async Task SaveNewFileAs( ResourceFormatType targetType )
         {
-            var name = UniqueKey();
-            var path = $"{name}{extension}";
+            var path = GetOutputPath( UniqueKey(), targetType );
 
             var res = new ResourceFile();
             AddExampleElements( res );
@@ -47,11 +45,11 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx, @".resx" )]
-        [TestCase( ResourceFormatType.Resw, @".resw" )]
-        [TestCase( ResourceFormatType.Yml, @".yml" )]
-        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveNewStream( ResourceFormatType targetType, string extension )
+        [TestCase( ResourceFormatType.Resx )]
+        [TestCase( ResourceFormatType.Resw )]
+        [TestCase( ResourceFormatType.Yml )]
+        [TestCase( ResourceFormatType.Yaml )]
+        public async Task SaveNewStream( ResourceFormatType targetType )
         {
             var res = new ResourceFile( targetType );
             AddExampleElements( res );
@@ -64,11 +62,11 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx, @".resx" )]
-        [TestCase( ResourceFormatType.Resw, @".resw" )]
-        [TestCase( ResourceFormatType.Yml, @".yml" )]
-        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveNewStreamAs( ResourceFormatType targetType, string extension )
+        [TestCase( ResourceFormatType.Resx )]
+        [TestCase( ResourceFormatType.Resw )]
+        [TestCase( ResourceFormatType.Yml )]
+        [TestCase( ResourceFormatType.Yaml )]
+        public async Task SaveNewStreamAs( ResourceFormatType targetType )
         {
             var res = new ResourceFile();
             AddExampleElements( res );
@@ -81,11 +79,11 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx, @".resx" )]
-        [TestCase( ResourceFormatType.Resw, @".resw" )]
-        [TestCase( ResourceFormatType.Yml, @".yml" )]
-        [TestCase( ResourceFormatType.Yaml, @".yaml" )]
-        public async Task SaveToStream( ResourceFormatType targetType, string extension )
+        [TestCase( ResourceFormatType.Resx )]
+        [TestCase( ResourceFormatType.Resw )]
+        [TestCase( ResourceFormatType.Yml )]
+        [TestCase( ResourceFormatType.Yaml )]
+        public async Task SaveToStream( ResourceFormatType targetType )
         {
             var res = new ResourceFile( targetType );
             AddExampleElements( res );

@@ -19,8 +19,15 @@ namespace nresx.Tools
         Json = 0x05,
     }
 
+    public enum ResourceElementType
+    {
+        None = 0x00,
+        String = 0x01,
+    }
+
     public class ResourceElement
     {
+        public ResourceElementType Type { get; set; }
         public string Key { get; set; }
         public string Value { get; set; }
         public string Comment { get; set; }
@@ -152,6 +159,7 @@ namespace nresx.Tools
         {
             ElementsList.Add( new ResourceElement
             {
+                Type = ResourceElementType.String,
                 Key = key,
                 Value = value,
                 Comment = comment
@@ -174,6 +182,10 @@ namespace nresx.Tools
             var targetPath = Path.ChangeExtension( path, tinfo.extensions );
             var formatter = tinfo.formatter();
 
+            var fileInfo = new FileInfo( targetPath );
+            if( fileInfo.Exists )
+                fileInfo.Delete();
+
             formatter.SaveResourceFile( 
                 new FileStream( targetPath, FileMode.CreateNew ),
                 ElementsList );
@@ -191,7 +203,6 @@ namespace nresx.Tools
                 throw new InvalidOperationException( "Unknown format" );
             }
             var formatter = tinfo.formatter();
-
             formatter.SaveResourceFile( stream, ElementsList );
         }
 
@@ -204,8 +215,5 @@ namespace nresx.Tools
         }
 
         #endregion
-        // (path, options)
-        // (stream, options)
-
     }
 }

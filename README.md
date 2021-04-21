@@ -1,4 +1,13 @@
 # nresx.tools
 Command line tool for analysing and manipulation of .net localization solution.
 
-22
+# Command line
+
+## resource converter
+
+nresx convert -s <source>
+
+## convert from 
+
+# Class library
+

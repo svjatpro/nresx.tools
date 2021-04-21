@@ -21,6 +21,7 @@ namespace nresx.Tools.Formatters
                         value = value.Replace( "\r\n", "\n" );
                     return new ResourceElement
                     {
+                        Type = ResourceElementType.String,
                         Key = el.Key,
                         Value = value.Replace( "\n", "\r\n" )
                     };

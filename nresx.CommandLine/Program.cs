@@ -3,18 +3,6 @@ using nresx.CommandLine.Commands;
 
 namespace nresx.CommandLine
 {
-    //public class ResourceFile
-    //{
-    //    public string Path { get; set; }
-    //    public List<ResourceEntry> Entires { get; set; }
-    //}
-    //public class ResourceEntry
-    //{
-    //    public string Key { get; set; }
-    //    public string Value { get; set; }
-    //    public string Comment { get; set; }
-    //}
-
     class Program
     {
         //private static List<string> GetFiles( string root, string pattern )
@@ -25,7 +13,7 @@ namespace nresx.CommandLine
         //    };
 
         //    var resFiles = new List<string>();
-            
+
         //    var files = Directory.EnumerateFiles( root, pattern ).ToList();
         //    if(files.Any())
         //        resFiles.AddRange( files );
@@ -46,7 +34,7 @@ namespace nresx.CommandLine
         //private static List<string> GetResReferencesXaml( string path )
         //{
         //    //x:Uid="SettingsPage_Title"
-        //    Regex resRegex = new ( @"x:Uid\s*=\s*""([a-zA-Z0-9_]+)""", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
+        //    Regex resRegex = new( @"x:Uid\s*=\s*""([a-zA-Z0-9_]+)""", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
 
         //    using var reader = new StreamReader( new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
 
@@ -67,28 +55,14 @@ namespace nresx.CommandLine
         //    return refs;
         //}
 
-        //private static void AddResourcePrefix( string path, string prefix, bool clear = false )
-        //{
-        //    var doc = XDocument.Load( path );
-        //    doc.Root?.Elements( "data" ).ToList().ForEach( el =>
-        //    {
-        //        var value = el.Element( "value" );
-        //        if ( value == null )
-        //            return;
-
-        //        if ( clear && value.Value.StartsWith( prefix ) )
-        //            value.SetValue( value.Value.Substring( prefix.Length ) );
-        //        else
-        //            value.SetValue( $"{prefix}{value.Value}" );
-        //    } );
-        //    doc.Save( path );
-        //}
-
-
         static void Main( string[] args )
         {
-            Parser.Default.ParseArguments<ConvertCommand, InfoCommand>( args )
+            Parser.Default
+                .ParseArguments<
+                    ConvertCommand, FormatCommand, 
+                    InfoCommand>( args )
                 .WithParsed<ICommand>( t => t.Execute() );
+
 
             //var rootPath = @"C:\_Projects\iHeart.UWP";
             //// parse resource files
@@ -108,30 +82,6 @@ namespace nresx.CommandLine
             //        return refs;
             //    } )
             //    .ToList();
-
-
-            //var command = args.Length >= 1 ? args[0] : "validate";
-            //switch ( command )
-            //{
-            //    case "add":
-            //        if(args.Length > 1 && args[1] == "--clear")
-            //            AddResourcePrefix( @"C:\_Projects\iHeart.UWP\IHeartRadio.App\Strings\en\Resources.resw", "en-", clear: true );
-            //        else
-            //            AddResourcePrefix( @"C:\_Projects\iHeart.UWP\IHeartRadio.App\Strings\en\Resources.resw", "en-" );
-
-            //        break;
-            //    case "find":
-            //        var target = args[1];
-
-            //        //List<string> result = new();
-            //        foreach ( var resFile in resFiles )
-            //        {
-            //            foreach ( var entry in resFile.Entires )
-            //            {
-            //                if(entry.Value.Contains( target ))
-            //                    Console.WriteLine( $"{resFile.Path} {entry.Key} : {entry.Value}" );
-            //            }
-            //        }
 
 
             //        break;

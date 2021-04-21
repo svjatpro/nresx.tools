@@ -18,6 +18,7 @@ namespace nresx.Tools.Formatters
                 var nodeInfo = node?.GetDataNodeInfo();
                 result.Add( new ResourceElement
                 {
+                    Type = ResourceElementType.String, // 
                     Key = item.Key.ToString(),
                     Value = nodeInfo?.ValueData ?? item.Value.ToString(),
                     Comment = nodeInfo?.Comment

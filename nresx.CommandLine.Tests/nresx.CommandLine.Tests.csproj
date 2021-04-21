@@ -7,7 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\nresx.Core.Tests\TestBase.cs" Link="TestBase.cs" />
+    <Compile Include="..\nresx.Core.Tests\TestBase\TestData.cs" Link="TestData.cs" />
+    <Compile Include="..\nresx.Core.Tests\TestBase\CommandLineTags.cs" Link="CommandLineTags.cs" />
+    <Compile Include="..\nresx.Core.Tests\TestBase\CommandLineParameters.cs" Link="CommandLineParameters.cs" />
+    <Compile Include="..\nresx.Core.Tests\TestBase\TestBase.cs" Link="TestBase.cs" />
   </ItemGroup>
 
   <ItemGroup>

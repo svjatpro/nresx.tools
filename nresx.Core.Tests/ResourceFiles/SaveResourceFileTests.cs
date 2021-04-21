@@ -14,42 +14,42 @@ namespace nresx.Core.Tests.ResourceFiles
         [TestCase( @"Resources.yaml" )]
         public async Task SaveAsFileInAnotherPath( string sourcePath )
         {
-            var source = new nresx.Tools.ResourceFile( GetTestPath( sourcePath ) );
+            var source = new ResourceFile( GetTestPath( sourcePath ) );
 
-            var newPath = $"{UniqueKey()}{Path.GetExtension( sourcePath )}";
+            var newPath = GetOutputPath( UniqueKey(), source.ResourceFormat );
             source.Save( newPath );
 
             var saved = new ResourceFile( newPath );
             ValidateElements( saved );
         }
 
-        [TestCase( @"Resources.yml",  @".resx", ResourceFormatType.Resx )]
-        [TestCase( @"Resources.yaml", @".resw", ResourceFormatType.Resw )]
-        [TestCase( @"Resources.resx", @".yml",  ResourceFormatType.Yml )]
-        [TestCase( @"Resources.resw", @".yaml", ResourceFormatType.Yaml )]
-        public async Task SaveAsFile( string sourcePath, string targetExt, ResourceFormatType targetType )
+        [TestCase( @"Resources.yml",  ResourceFormatType.Resx )]
+        [TestCase( @"Resources.yaml", ResourceFormatType.Resw )]
+        [TestCase( @"Resources.resx", ResourceFormatType.Yml )]
+        [TestCase( @"Resources.resw", ResourceFormatType.Yaml )]
+        public async Task SaveAsFile( string sourcePath, ResourceFormatType targetType )
         {
             var source = new ResourceFile( GetTestPath( sourcePath ) );
 
-            var targetPath = $"{UniqueKey()}{targetExt}";
+            var targetPath = GetOutputPath( UniqueKey(), targetType ); ;
             source.Save( targetPath, targetType );
 
             var saved = new ResourceFile( targetPath );
             ValidateElements( saved );
         }
 
-        [TestCase( @"Resources.yml",  @".resx", ResourceFormatType.Resx )]
-        [TestCase( @"Resources.yaml", @".resw", ResourceFormatType.Resw )]
-        [TestCase( @"Resources.resx", @".yml",  ResourceFormatType.Yml )]
-        [TestCase( @"Resources.resw", @".yaml", ResourceFormatType.Yaml )]
-        public async Task SaveAsStream( string sourcePath, string targetExt, ResourceFormatType targetType )
+        [TestCase( @"Resources.yml",  ResourceFormatType.Resx )]
+        [TestCase( @"Resources.yaml", ResourceFormatType.Resw )]
+        [TestCase( @"Resources.resx", ResourceFormatType.Yml )]
+        [TestCase( @"Resources.resw", ResourceFormatType.Yaml )]
+        public async Task SaveAsStream( string sourcePath, ResourceFormatType targetType )
         {
             var source = new ResourceFile( GetTestPath( sourcePath ) );
 
             var ms = new MemoryStream();
             source.Save( ms, targetType );
 
-            var saved = new nresx.Tools.ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
             ValidateElements( saved );
         }
     }
