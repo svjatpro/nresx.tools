@@ -43,6 +43,7 @@ destination file path/name, if no format is given, then format will be detected 
 destination file format
 
 <details>
+  <summary>available formats:</summary>
 - resx
 - resw
 - yaml
