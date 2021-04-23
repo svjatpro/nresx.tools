@@ -95,6 +95,10 @@ namespace nresx.Tools
 
         public ResourceFormatType ResourceFormat { get; }
 
+        public string Name { get; }
+
+        public string AbsolutePath { get; }
+
         public IEnumerable<ResourceElement> Elements => ElementsList;
         
         public ResourceFile( string path )
@@ -108,6 +112,10 @@ namespace nresx.Tools
                 // todo: detect type by content
                 throw new FileLoadException( "the file is in unknown format" );
             }
+
+            var fileInfo = new FileInfo( path );
+            Name = fileInfo.Name;
+            AbsolutePath = fileInfo.FullName;
 
             using ( var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) )
             {
@@ -136,6 +144,14 @@ namespace nresx.Tools
             {
                 // todo: detect type by content
                 throw new FileLoadException( "the file is in unknown format" );
+            }
+
+            var path = ( stream as FileStream )?.Name;
+            if ( !string.IsNullOrWhiteSpace( path ) )
+            {
+                var fileInfo = new FileInfo( path );
+                Name = fileInfo.Name;
+                AbsolutePath = fileInfo.FullName;
             }
 
             if ( parser.LoadResourceFile( stream, out var elements ) )

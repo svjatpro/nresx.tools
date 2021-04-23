@@ -1,4 +1,8 @@
-﻿using CommandLine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using CommandLine;
 using nresx.CommandLine.Commands;
 
 namespace nresx.CommandLine
@@ -55,12 +59,49 @@ namespace nresx.CommandLine
         //    return refs;
         //}
 
+        public class Option1
+        {
+            [Value(0)] public string Arg1 { get; set; }
+        }
+
         static void Main( string[] args )
         {
+            var arguments = args;
+
+            var infoCommand = ( typeof(InfoCommand).GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )?.Name ?? "info";
+            var commandInterface = typeof(ICommand);
+            var commands = commandInterface.Assembly
+                .GetTypes().Where( t => t.IsClass && !t.IsAbstract && t.IsAssignableTo( commandInterface ) )
+                .Select( t => t.GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )
+                .Where( a => a != null )
+                .Select( a => a.Name )
+                .ToList();
+            
+            if ( !args.Any() || !commands.Contains( args[0] ) )
+            {
+                switch ( args.Length )
+                {
+                    // if no args, then run info command for current dir with recursive option
+                    case 0:
+                        arguments = new[] { infoCommand };
+                        break;
+                    // single argument without command is considered as "info <filename>"
+                    case 1:
+                        // todo: check is it file or dir
+                        arguments = new[] { infoCommand, args[0] };
+                        break;
+                    // multiple arguments without command are considered as "convert -s <source file1> <source file2> ..."
+                    default:
+                        arguments = new string[args.Length + 2];
+                        arguments[0] = infoCommand;
+                        arguments[1] = "-s";
+                        args.CopyTo( arguments, 2 );
+                        break;
+                }
+            }
+
             Parser.Default
-                .ParseArguments<
-                    ConvertCommand, FormatCommand, 
-                    InfoCommand>( args )
+                .ParseArguments<InfoCommand, ConvertCommand, FormatCommand>( arguments )
                 .WithParsed<ICommand>( t => t.Execute() );
 
 

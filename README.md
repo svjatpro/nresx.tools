@@ -1,4 +1,4 @@
-Resourse files tools set (nresx.tools )
+Resourse files tools set
 ================
 
 This project helps you to 
@@ -30,27 +30,27 @@ Convert single resource file to another format.
 nresx convert [-s] <source file path> [-d <destination file path>] [-f <format>]
 ```
 
--s
---source
+-s\
+--source\
 source file path/name
 
--d
---destination
+-d\
+--destination\
 destination file path/name, if no format is given, then format will be detected by destination file extension
 
--f
---format
+-f\
+--format\
 destination file format
 
 <details>
   <summary>available formats:</summary>
-- resx
-- resw
-- yaml
-- yml
-- json
-- txt
-- po
+- resx\
+- resw\
+- yaml\
+- yml\
+- json\
+- txt\
+- po\
 </details>
 
 - Convert single resource file (res1.resx) to *.po format and save with new name (res2.po)
@@ -76,6 +76,11 @@ nresx format [-s] <source file path> [-d <destination file path>] [-f <format>] 
 ```
 nresx format [--source | -s] <source file path>
 
+### Get basic information about resource file(s).
+
+```
+nresx info [-s] <source file path> <source file path 2> ... 
+```
 
 
 ## Class library usage

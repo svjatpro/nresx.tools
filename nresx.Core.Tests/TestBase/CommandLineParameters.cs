@@ -8,5 +8,7 @@ namespace nresx.Core.Tests
         public readonly List<string> SourceFiles = new();
         public readonly List<string> DestinationFiles = new();
         public readonly List<string> TemporaryFiles = new();
+
+        public readonly List<string> ConsoleOutput = new();
     }
 }

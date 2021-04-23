@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -123,7 +124,7 @@ namespace nresx.Core.Tests
                     if ( predefinedParams != null && predefinedParams.DestinationFiles.TryTake( out var p ) )
                         return p;
                     
-                    var path = GetOutputPath( TestData.ExampleResourceFile, type );
+                    var path = GetOutputPath( UniqueKey(), type );
                     resultParams.DestinationFiles.Add( path );
                     return path;
                 } );
@@ -163,20 +164,14 @@ namespace nresx.Core.Tests
             var args = PrepareCommandLine( cmdLine, out var p, parameters );
 
             var cmd = $"/C nresx {args}";
-            var result = System.Diagnostics.Process.Start( "CMD.exe", cmd );
-            result?.WaitForExit( 5000 );
+            var process = new Process();
+            process.StartInfo = new ProcessStartInfo( "CMD.exe", cmd );
+            process.StartInfo.RedirectStandardOutput = true;
+            process.Start();
+            process.WaitForExit( 5000 );
 
-            return p;
-        }
-
-        protected CommandLineParameters Run( string cmdLine, out string key )
-        {
-            var args = PrepareCommandLine( cmdLine, out var p );
-            key = p.UniqueKeys.FirstOrDefault();
-
-            var cmd = $"/C nresx {args}";
-            var result = System.Diagnostics.Process.Start( "CMD.exe", cmd );
-            result?.WaitForExit( 5000 );
+            while ( !process.StandardOutput.EndOfStream )
+                p.ConsoleOutput.Add( process.StandardOutput.ReadLine() );
 
             return p;
         }
