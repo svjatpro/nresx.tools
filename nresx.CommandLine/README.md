@@ -43,6 +43,7 @@ nresx format [-s] <source file path> [-d <destination file path>] [-f <format>]
 
 ```
 nresx format [--source | -s] <source file path>
+```
 
 ### Get basic information about resource file(s).
 
