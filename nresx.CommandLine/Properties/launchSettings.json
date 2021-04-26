@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Tmp\\1\\Resources.resw  waqer qwetr C:\\Tmp\\1\\Resources.yml"
+      "commandLineArgs": "info C:\\Tmp\\1\\Resources.resw  qwetr.yml"
     }
   }
 }

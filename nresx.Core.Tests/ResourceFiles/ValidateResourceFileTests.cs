@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using System.Threading.Tasks;
 using nresx.Tools;
 using NUnit.Framework;
 

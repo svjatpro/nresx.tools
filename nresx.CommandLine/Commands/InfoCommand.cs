@@ -9,17 +9,17 @@ namespace nresx.CommandLine.Commands
     [Verb( "info", HelpText = "get resource info" )]
     public class InfoCommand : ICommand
     {
-        [Option('s', "source", HelpText = "")]
+        [Option( 's', "source", HelpText = "Source resource file" )]
         public IEnumerable<string> SourceFiles { get; set; }
 
-        [Value( 0 )] 
-        public string SingleFile { get; set; }
+        [Value( 0 )]
+        public IEnumerable<string> SourceFilesValues { get; set; }
 
         public void Execute()
         {
             var files = new List<string>();
-            if( !string.IsNullOrWhiteSpace( SingleFile ) ) 
-                files.Add( SingleFile );
+            if( SourceFilesValues?.Count() > 0 )
+                files.AddRange( SourceFilesValues );
             if( SourceFiles.Any() )
                 files.AddRange( SourceFiles );
 

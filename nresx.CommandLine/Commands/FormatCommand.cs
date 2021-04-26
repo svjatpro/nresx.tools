@@ -5,19 +5,8 @@ using nresx.Tools.Extensions;
 namespace nresx.CommandLine.Commands
 {
     [Verb("format", HelpText = "format resource texts")]
-    public class FormatCommand : ICommand
+    public class FormatCommand : BaseCommand, ICommand
     {
-        [Option( 's', "source", HelpText = "Source resource file" )]
-        public string Source { get; set; }
-
-        [Option( 'd', "destination", HelpText = "Destination resource file" )]
-        public string Destination { get; set; }
-
-        [Option( 'f', "format", HelpText = "New resource format" )]
-        public string Format { get; set; }
-
-
-        
         [Option( 'p', "pattern", HelpText = "Pattern to apply to all texts", Required = false )]
         public string Pattern { get; set; }
 

@@ -17,5 +17,12 @@ namespace nresx.Tools.Extensions
             item = default;
             return false;
         }
+
+        public static T Take<T>( this List<T> source )
+        {
+            if ( TryTake( source, out var item ) )
+                return item;
+            return default;
+        }
     }
 }

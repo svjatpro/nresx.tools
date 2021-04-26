@@ -1,27 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CommandLine;
 using nresx.Tools;
+using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
     [Verb("convert", HelpText = "convert to another format")]
-    public class ConvertCommand : ICommand
+    public class ConvertCommand : BaseCommand, ICommand
     {
-        [Option( 's', "source", HelpText = "Source resource file" )]
-        public string Source { get; set; }
+        [Value( 0, Hidden = true )]
+        public IEnumerable<string> Args { get; set; }
         
-        [Option( 'd', "destination", HelpText = "Destination resource file" )]
-        public string Destination { get; set; }
-
-        [Option( 'f', "format", HelpText = "New resource format" )]
-        public string Format { get; set; }
-
         public void Execute()
         {
+            var args = Args?.ToList() ?? new List<string>();
+            var source = Source ?? args.Take();
+            var destination = Destination ?? args.Take();
+
             // convert single resource file
-            if ( !string.IsNullOrWhiteSpace( Source ) )
+            if ( !string.IsNullOrWhiteSpace( source ) )
             {
                 ResourceFormatType format;
                 if ( !string.IsNullOrWhiteSpace( Format ) && 
@@ -29,8 +30,8 @@ namespace nresx.CommandLine.Commands
                 {
                     format = f1;
                 }
-                else if ( !string.IsNullOrWhiteSpace( Destination ) &&
-                          ResourceFormatHelper.DetectFormatByExtension( Destination, out var f2 ) )
+                else if ( !string.IsNullOrWhiteSpace( destination ) &&
+                          ResourceFormatHelper.DetectFormatByExtension( destination, out var f2 ) )
                 {
                     format = f2;
                 }
@@ -39,11 +40,11 @@ namespace nresx.CommandLine.Commands
                     throw new ArgumentNullException();
                 }
                 
-                if ( string.IsNullOrWhiteSpace( Destination ) )
+                if ( string.IsNullOrWhiteSpace( destination ) )
                 { 
                     if( ResourceFormatHelper.DetectExtension( format, out var ext ) )
                     {
-                        Destination = Path.ChangeExtension( Source, ext );
+                        destination = Path.ChangeExtension( source, ext );
                     }
                     else
                     {
@@ -51,13 +52,13 @@ namespace nresx.CommandLine.Commands
                     }
                 }
 
-                Console.WriteLine( $"d: {Destination}  f: {Format}");
+                Console.WriteLine( $"d: {destination}  f: {Format}");
 
-                var res = new ResourceFile( Source );
-                res.Save( Destination, format );
+                var res = new ResourceFile( source );
+                res.Save( destination, format );
             }
             
-            Console.WriteLine( $"executing convert {Source}" ); // 
+            Console.WriteLine( $"executing convert {source}" ); // 
         }
     }
 }

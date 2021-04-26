@@ -42,16 +42,6 @@ destination file path/name, if no format is given, then format will be detected 
 --format\
 destination file format
 
-<details>
-  <summary>available formats:</summary>
-- resx\
-- resw\
-- yaml\
-- yml\
-- json\
-- txt\
-- po\
-</details>
 
 - Convert single resource file (res1.resx) to *.po format and save with new name (res2.po)
 
@@ -68,7 +58,8 @@ the result will be 'path1/res1.yaml' file in yaml format
 ### Format text entries in a resource file.
 
 ```
-nresx format [-s] <source file path> [-d <destination file path>] [-f <format>] [--start-with | --end-with] [--culture-code | --language-code] [-r] [-p <pattern to be added>]
+nresx format [-s] <source file path> [-d <destination file path>] [-f <format>]  
+[--start-with | --end-with] [--culture-code | --language-code] [-r] [-p <pattern to be added>]
 ```
 
 - Add prefix to all texts in a resource file.
@@ -81,6 +72,16 @@ nresx format [--source | -s] <source file path>
 ```
 nresx info [-s] <source file path> <source file path 2> ... 
 ```
+-s\
+--source\
+source file path/name
+
+also this is default command, so one can put just list of files
+
+```
+nresx <source file path> <source file path 2> ... 
+```
+
 
 
 ## Class library usage

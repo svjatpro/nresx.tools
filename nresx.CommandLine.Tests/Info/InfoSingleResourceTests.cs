@@ -23,6 +23,7 @@ namespace nresx.CommandLine.Tests.Info
         }
 
         [TestCase( @"[TmpFile] [TmpFile] [TmpFile]" )]
+        [TestCase( @"info [TmpFile] [TmpFile] [TmpFile]" )]
         [TestCase( @"info -s [TmpFile.yaml] [TmpFile.resx]" )]
         [TestCase( @"info --source [TmpFile] [TmpFile]" )]
         public void GetMultipleFileInfo( string commandLine )
