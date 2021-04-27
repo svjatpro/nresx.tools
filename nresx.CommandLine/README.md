@@ -75,24 +75,59 @@ source file path/name
 --template\
 Output line template for each text element in a resource file,\
 possible tags are:\
-- \k - element's key
-- \v - element's value
-- \c - element's comment
+- \k - element key
+- \v - element value
+- \c - element comment
 
-the default template is '\k: \v'
+the default template is "\k: \v"
 
 
 examples: 
 
-will list all elements from the 'file1' in "<key>: <value>" format:
+will list all elements from the <file1> in "<key>: <value>" format:
+
 ```
 nresx list <file1>
 ```
 
-will list all elements from the 'file1' in "some prefix <key>: '<value>', (<comment>)" format:
+will list all elements from the <file1> in "some prefix <key>: <value>, (<comment>)" format:
 
 ```
-nresx list <file1> -t "some prefix \k: '\v', (\c)"
+nresx list <file1> -t "some prefix \k: \v, (\c)"
 ```
+
+
+### Add resource item to resource file
+
+```
+nresx add <resource file path> -k <element key> -v <element value> [-c <element comment>]
+```
+
+-k\
+--key\
+element key
+
+-v\
+--value\
+element value
+
+-c\
+--comment\
+element comment
+
+examples: 
+```nresx add file1 -k key1 -v value1```
+```nresx add file1 -k key1 -c "the comment1" -v "value1"```
+
+### Remove resource item from resource file
+
+```
+nresx remove <resource file path> [-k] <element key>
+```
+
+examples: 
+```nresx add file1 key1```
+```nresx add file1 -k key1```
+
 
 

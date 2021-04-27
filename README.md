@@ -20,6 +20,6 @@ Command line tool for analysing and manipulation of .net localization solution.
 
 ### Installing the command line tool
 
-[Command line documentation](nresx.CommandLine/README.md)
+[Command line documentation](nresx.CommandLine)
                       
 ## Class library usage
