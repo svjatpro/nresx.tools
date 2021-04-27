@@ -171,7 +171,7 @@ namespace nresx.Tools
             ElementsList = new List<ResourceElement>();
         }
 
-        public void AddElement( string key, string value, string comment )
+        public void AddElement( string key, string value, string comment = null )
         {
             ElementsList.Add( new ResourceElement
             {
@@ -180,6 +180,15 @@ namespace nresx.Tools
                 Value = value,
                 Comment = comment
             } );
+        }
+
+        public void RemoveElement( string key )
+        {
+            var element = ElementsList.FirstOrDefault( el => el.Key == key );
+            if ( element != null )
+            {
+                ElementsList.Remove( element );
+            }
         }
 
         #region Save

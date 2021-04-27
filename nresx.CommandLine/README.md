@@ -130,4 +130,24 @@ examples:
 ```nresx add file1 -k key1```
 
 
+### Update resource item in resource file
 
+```
+nresx update <resource file path> -k <element key> [-v <element value>] [-c <element comment>]
+```
+
+-k\
+--key\
+element key
+
+-v\
+--value\
+element value
+
+-c\
+--comment\
+element comment
+
+examples: 
+```nresx update file1 -k key1 -v value1```
+```nresx update file1 -k key1 -c "the comment1" -v "value1"```

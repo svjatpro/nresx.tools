@@ -9,6 +9,9 @@ namespace nresx.CommandLine.Tests.ElementManagement
     public class AddElementTests : TestBase
     {
         [TestCase( @"add [TmpFile] -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"add [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"add [TmpFile] --key [UniqueKey] --value [UniqueKey]" )]
+        [TestCase( @"add [TmpFile] --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
         public void AddSingleElement( string commandLine )
         {
             var args = Run( commandLine );
