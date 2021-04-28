@@ -18,7 +18,7 @@ namespace nresx.Core.Tests.ResourceFiles
             
             var res = new ResourceFile( targetType );
             foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
+                res.Elements.Add( el.Key, el.Value, el.Comment );
 
             res.ResourceFormat.Should().Be( targetType );
             ValidateElements( res );

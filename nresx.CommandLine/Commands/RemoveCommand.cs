@@ -18,7 +18,7 @@ namespace nresx.CommandLine.Commands
             if ( !string.IsNullOrWhiteSpace( source ) )
             {
                 var res = new ResourceFile( source );
-                res.RemoveElement( Key );
+                res.Elements.Remove( Key );
                 res.Save( source );
             }
         }

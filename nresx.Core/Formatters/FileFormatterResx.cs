@@ -7,7 +7,7 @@ namespace nresx.Tools.Formatters
 {
     internal class FileFormatterResx : IFileFormatter
     {
-        public bool LoadResourceFile( Stream stream, out List<ResourceElement> elements )
+        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
         {
             using var reader = new ResXResourceReader( stream );
             reader.UseResXDataNodes = true;
@@ -28,13 +28,11 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, List<ResourceElement> elements )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
         {
             using var writer = new ResXResourceWriter( stream );
-            elements.ForEach( el =>
-            {
-                writer.AddResource( new ResXDataNode( el.Key, el.Value ){ Comment = el.Comment } );
-            } );
+            foreach ( var el in elements )
+                writer.AddResource( new ResXDataNode( el.Key, el.Value ) { Comment = el.Comment } );
             writer.Generate();
             writer.Close();
         }

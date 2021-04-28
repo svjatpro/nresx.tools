@@ -116,7 +116,9 @@ element value
 element comment
 
 examples: 
+
 ```nresx add file1 -k key1 -v value1```
+
 ```nresx add file1 -k key1 -c "the comment1" -v "value1"```
 
 ### Remove resource item from resource file
@@ -126,7 +128,9 @@ nresx remove <resource file path> [-k] <element key>
 ```
 
 examples: 
+
 ```nresx add file1 key1```
+
 ```nresx add file1 -k key1```
 
 
@@ -149,5 +153,7 @@ element value
 element comment
 
 examples: 
+
 ```nresx update file1 -k key1 -v value1```
+
 ```nresx update file1 -k key1 -c "the comment1" -v "value1"```

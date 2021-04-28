@@ -7,7 +7,7 @@ namespace nresx.Tools.Formatters
 {
     internal class FileFormatterYaml : IFileFormatter
     {
-        public bool LoadResourceFile( Stream stream, out List<ResourceElement> elements )
+        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
         {
             using var reader = new StreamReader( stream );
             var deserializer = new DeserializerBuilder()
@@ -31,7 +31,7 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, List<ResourceElement> elements )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
         {
             using var writer = new StreamWriter( stream );
             var serializer = new SerializerBuilder()

@@ -209,7 +209,7 @@ namespace nresx.Core.Tests
         {
             var example = GetExampleResourceFile();
             foreach ( var el in example.Elements )
-                res.AddElement( el.Key, el.Value, el.Comment );
+                res.Elements.Add( el.Key, el.Value, el.Comment );
         }
     }
 }

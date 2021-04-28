@@ -25,7 +25,7 @@ namespace nresx.CommandLine.Commands
             if ( !string.IsNullOrWhiteSpace( source ) )
             {
                 var res = new ResourceFile( source );
-                res.AddElement( Key, Value, Comment );
+                res.Elements.Add( Key, Value, Comment );
                 res.Save( source );
             }
         }
