@@ -59,34 +59,34 @@ namespace nresx.Tools.Extensions
 
             foreach ( var element in resourceFile.Elements )
             {
-                // detect duplicates
-                if ( keys.Contains( element.Key ) )
-                {
-                    result.Add( new ResourceElementError( ResourceElementErrorType.Duplicate, element.Key ) );
-                    continue;
-                }
-                else
-                {
-                    keys.Add( element.Key );
-                }
+                // detect duplicates - not applicable, because formatter don't allow to parse duplicates or silently merge it
+                //if ( keys.Contains( element.Key ) )
+                //{
+                //    result.Add( new ResourceElementError( ResourceElementErrorType.Duplicate, element.Key ) );
+                //    continue;
+                //}
+                //else
+                //{
+                //    keys.Add( element.Key );
+                //}
 
                 // detect possible duplicates: i.e. "Key.Content" vs "Key.Text"
-                var baseIndex = element.Key.LastIndexOf( '.' );
-                var keyBase = baseIndex switch
-                {
-                    -1 => element.Key,
-                    0 => element.Key,
-                    > 0 => element.Key.Substring( 0, baseIndex ),
-                    _ => element.Key
-                };
-                if ( !keyBases.Contains( keyBase ) )
-                {
-                    keyBases.Add( keyBase );
-                }
-                else
-                {
-                    result.Add( new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, element.Key ) );
-                }
+                //var baseIndex = element.Key.LastIndexOf( '.' );
+                //var keyBase = baseIndex switch
+                //{
+                //    -1 => element.Key,
+                //    0 => element.Key,
+                //    > 0 => element.Key.Substring( 0, baseIndex ),
+                //    _ => element.Key
+                //};
+                //if ( !keyBases.Contains( keyBase ) )
+                //{
+                //    keyBases.Add( keyBase );
+                //}
+                //else
+                //{
+                //    result.Add( new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, element.Key ) );
+                //}
 
                 // detect empty key
                 if ( string.IsNullOrWhiteSpace( element.Key ) )
@@ -116,7 +116,6 @@ namespace nresx.Tools.Extensions
         PossibleDuplicate = 0x02,
         EmptyKey = 0x03,
         EmptyValue = 0x04,
-
     }
     public class ResourceElementError
     {

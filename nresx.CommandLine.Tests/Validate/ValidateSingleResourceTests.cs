@@ -12,19 +12,17 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate [TmpFile]" )]
         [TestCase( @"validate -s [TmpFile]" )]
         [TestCase( @"validate --source [TmpFile]" )]
-        public void ValidateDuplicatedElements( string commandLine )
+        public void ValidateEmptyValueElements( string commandLine )
         {
             PrepareCommandLine( commandLine, out var preArgs );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
-            res.Elements.Add( res.Elements[1].Key, UniqueKey() ); // add duplicated element
+            res.Elements[1].Value = string.Empty;
             res.Save( file );
 
             var args = Run( commandLine, new CommandLineParameters{ TemporaryFiles = { file }} );
             
-            args.ConsoleOutput[0].Should().Be( $"Resource file name: \"{res.Name}\", (\"{res.AbsolutePath})\"" );
-            args.ConsoleOutput[1].Should().Be( $"resource format type: {res.ResourceFormat}" );
-            args.ConsoleOutput[2].Should().Be( $"text elements: {res.Elements.Count()}" );
+            args.ConsoleOutput[0].Should().Be( $"EmptyValue: {res.Elements[1].Key}; " );
         }
     }
 }
