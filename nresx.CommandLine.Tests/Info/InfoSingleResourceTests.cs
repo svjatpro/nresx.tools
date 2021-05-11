@@ -22,24 +22,6 @@ namespace nresx.CommandLine.Tests.Info
             args.ConsoleOutput[2].Should().Be( $"text elements: {res.Elements.Count()}" );
         }
 
-        [TestCase( @"[TmpFile] [TmpFile] [TmpFile]" )]
-        [TestCase( @"info [TmpFile] [TmpFile] [TmpFile]" )]
-        [TestCase( @"info -s [TmpFile.yaml] [TmpFile.resx]" )]
-        [TestCase( @"info --source [TmpFile] [TmpFile]" )]
-        public void GetMultipleFileInfo( string commandLine )
-        {
-            var args = Run( commandLine );
-
-            for ( var i = 0; i < args.TemporaryFiles.Count; i++ )
-            {
-                var res = new ResourceFile( args.TemporaryFiles[i] );
-
-                args.ConsoleOutput[i * 4 + 0].Should().Be( $"Resource file name: \"{res.Name}\", (\"{res.AbsolutePath})\"" );
-                args.ConsoleOutput[i * 4 + 1].Should().Be( $"resource format type: {res.ResourceFormat}" );
-                args.ConsoleOutput[i * 4 + 2].Should().Be( $"text elements: {res.Elements.Count()}" );
-            }
-        }
-
         [TestCase( @"[TmpFile] nonexisting.resx [TmpFile]" )]
         public void GetWrongFileInfo( string commandLine )
         {

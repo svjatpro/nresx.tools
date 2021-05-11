@@ -17,6 +17,7 @@ namespace nresx.Tools
                 ( extensions: ".resw", type: ResourceFormatType.Resw, typeof(FileFormatterResx) ),
                 ( extensions: ".yml", type: ResourceFormatType.Yml, typeof(FileFormatterYaml) ),
                 ( extensions: ".yaml", type: ResourceFormatType.Yaml, typeof(FileFormatterYaml) ),
+                ( extensions: ".txt", type: ResourceFormatType.PlainText, typeof(FileFormatterPlainText) ),
             };
 
         #endregion

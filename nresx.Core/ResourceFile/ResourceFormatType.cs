@@ -11,5 +11,7 @@
         Yaml = 0x04,
 
         Json = 0x05,
+
+        PlainText = 0x06,
     }
 }

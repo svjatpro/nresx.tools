@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "validate C:\\Tmp\\1\\Resources.resw"
+      "commandLineArgs": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output\\Y00sqNBn*.resx"
     }
   }
 }

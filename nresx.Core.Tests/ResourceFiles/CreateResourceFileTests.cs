@@ -8,10 +8,7 @@ namespace nresx.Core.Tests.ResourceFiles
     [TestFixture]
     public class CreateResourceFileTests : TestBase
     {
-        [TestCase( ResourceFormatType.Resx )]
-        [TestCase( ResourceFormatType.Resw )]
-        [TestCase( ResourceFormatType.Yml )]
-        [TestCase( ResourceFormatType.Yaml )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
         public async Task CreateResourceFile( ResourceFormatType targetType )
         {
             var example = GetExampleResourceFile();

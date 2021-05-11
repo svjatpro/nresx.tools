@@ -15,12 +15,15 @@ namespace nresx.Core.Tests
     {
         public static void CleanOutputDir()
         {
-            void RemoveFiles( DirectoryInfo dir )
+            void RemoveFiles( DirectoryInfo dir, bool removeDir )
             {
                 foreach ( var fileInfo in dir.GetFiles() )
                     fileInfo.Delete();
                 foreach ( var subDir in dir.GetDirectories() )
-                    RemoveFiles( subDir );
+                    RemoveFiles( subDir, true );
+                
+                if( removeDir )
+                    dir.Delete();
             }
 
             var root = new DirectoryInfo( TestData.OutputFolder );
@@ -30,7 +33,7 @@ namespace nresx.Core.Tests
             }
             else
             {
-                RemoveFiles( root );
+                RemoveFiles( root, false );
             }
         }
 
@@ -194,10 +197,14 @@ namespace nresx.Core.Tests
             return example;
         }
 
-        protected string CopyTemporaryFile( string sourcePath = null, ResourceFormatType copyType = ResourceFormatType.Resx )
+        protected string CopyTemporaryFile( 
+            string sourcePath = null, 
+            string destPath = null,
+            ResourceFormatType copyType = ResourceFormatType.Resx )
         {
             var key = UniqueKey();
-            var destPath = GetOutputPath( key, copyType );
+            if( string.IsNullOrWhiteSpace( destPath ) )
+                destPath = GetOutputPath( key, copyType );
 
             var resx = new ResourceFile( sourcePath ?? GetTestPath( TestData.ExampleResourceFile ) );
             resx.Save( destPath, copyType );

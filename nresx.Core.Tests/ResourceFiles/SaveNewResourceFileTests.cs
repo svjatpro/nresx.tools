@@ -9,10 +9,7 @@ namespace nresx.Core.Tests.ResourceFiles
     [TestFixture]
     public class SaveNewResourceFileTests : TestBase
     {
-        [TestCase( ResourceFormatType.Resx )]
-        [TestCase( ResourceFormatType.Resw )]
-        [TestCase( ResourceFormatType.Yml )]
-        [TestCase( ResourceFormatType.Yaml )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
         public async Task SaveNewFile( ResourceFormatType targetType )
         {
             var path = GetOutputPath( UniqueKey(), targetType );
@@ -27,10 +24,7 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx )]
-        [TestCase( ResourceFormatType.Resw )]
-        [TestCase( ResourceFormatType.Yml )]
-        [TestCase( ResourceFormatType.Yaml )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
         public async Task SaveNewFileAs( ResourceFormatType targetType )
         {
             var path = GetOutputPath( UniqueKey(), targetType );
@@ -45,10 +39,7 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx )]
-        [TestCase( ResourceFormatType.Resw )]
-        [TestCase( ResourceFormatType.Yml )]
-        [TestCase( ResourceFormatType.Yaml )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
         public async Task SaveNewStream( ResourceFormatType targetType )
         {
             var res = new ResourceFile( targetType );
@@ -62,10 +53,7 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx )]
-        [TestCase( ResourceFormatType.Resw )]
-        [TestCase( ResourceFormatType.Yml )]
-        [TestCase( ResourceFormatType.Yaml )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
         public async Task SaveNewStreamAs( ResourceFormatType targetType )
         {
             var res = new ResourceFile();
@@ -79,10 +67,7 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( saved );
         }
 
-        [TestCase( ResourceFormatType.Resx )]
-        [TestCase( ResourceFormatType.Resw )]
-        [TestCase( ResourceFormatType.Yml )]
-        [TestCase( ResourceFormatType.Yaml )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
         public async Task SaveToStream( ResourceFormatType targetType )
         {
             var res = new ResourceFile( targetType );
