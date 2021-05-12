@@ -14,14 +14,13 @@ namespace nresx.Tools.Helpers
         {
             var rootPath = Path.GetDirectoryName( filePattern );
             var rootDir = new DirectoryInfo( string.IsNullOrWhiteSpace( rootPath ) ? Environment.CurrentDirectory : rootPath );
-            if ( !rootDir.Exists )
-            {
-                throw new DirectoryNotFoundException(); // todo: format exception
-            }
+            if ( !rootDir.Exists ) throw new DirectoryNotFoundException();
             var mask = filePattern.Split( new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries ).Last();
 
+            var filesProcessed = 0;
             foreach ( var file in Directory.EnumerateFiles( rootDir.FullName, mask, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly ) )
             {
+                filesProcessed++;
                 var fileInfo = new FileInfo( file );
                 try
                 {
@@ -31,11 +30,17 @@ namespace nresx.Tools.Helpers
                 catch ( Exception ex )
                 {
                     if ( errorHandler != null )
+                    {
                         errorHandler( fileInfo, ex );
+                    }
                     else
-                        throw ex;
+                    {
+                        throw;
+                    }
                 }
             }
+
+            if ( filesProcessed == 0 ) throw new FileNotFoundException();
         }
     }
 }

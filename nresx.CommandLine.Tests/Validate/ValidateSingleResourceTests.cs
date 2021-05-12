@@ -1,4 +1,3 @@
-using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
