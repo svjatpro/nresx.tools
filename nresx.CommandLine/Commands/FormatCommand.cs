@@ -1,5 +1,4 @@
 ﻿using CommandLine;
-using nresx.Tools;
 using nresx.Tools.Extensions;
 
 namespace nresx.CommandLine.Commands
@@ -22,65 +21,32 @@ namespace nresx.CommandLine.Commands
         [Option( 'c', "culture-code", HelpText = "Use culture code as prefix or postfix", Required = false )]
         public bool CultureCode { get; set; }
 
-        [Option( 'r', "remove", HelpText = "Remove prefix or postfix", Required = false)]
-        public bool Remove { get; set; }
+        [Option( "delete", HelpText = "Remove prefix or postfix", Required = false)]
+        public bool Delete { get; set; }
 
         public void Execute()
         {
-            // format single resource file entries
-            if ( !string.IsNullOrWhiteSpace( Source ) )
-            {
-                //    ResourceFormatType format;
-                //    if ( !string.IsNullOrWhiteSpace( Format ) && 
-                //         OptionHelper.DetectResourceFormat( Format, out var f1 ) )
-                //    {
-                //        format = f1;
-                //    }
-                //    else if ( !string.IsNullOrWhiteSpace( Destination ) &&
-                //              ResourceFormatHelper.DetectFormatByExtension( Destination, out var f2 ) )
-                //    {
-                //        format = f2;
-                //    }
-                //    else
-                //    {
-                //        throw new ArgumentNullException();
-                //    }
-
-                //    if ( string.IsNullOrWhiteSpace( Destination ) )
-                //    { 
-                //        if( ResourceFormatHelper.DetectExtension( format, out var ext ) )
-                //        {
-                //            Destination = Path.ChangeExtension( Source, ext );
-                //        }
-                //        else
-                //        {
-                //            throw new ArgumentNullException();
-                //        }
-                //    }
-
-                //    Console.WriteLine( $"d: {Destination}  f: {Format}");
-
-                var res = new ResourceFile( Source );
-                if ( Remove ) // remove
+            ForEachSourceFile(
+                GetSourceFiles(),
+                resource =>
                 {
-                    if ( StartWith )
-                        res.RemovePrefix( Pattern );
-                    else if ( EndWith )
-                        res.RemovePostfix( Pattern );
-                }
-                else // append
-                {
-                    if ( StartWith )
-                        res.AddPrefix( Pattern );
-                    else if ( EndWith )
-                        res.AddPostfix( Pattern );
-                }
-                res.Save( Source );
+                    if ( Delete ) // remove
+                    {
+                        if ( StartWith )
+                            resource.RemovePrefix( Pattern );
+                        else if ( EndWith )
+                            resource.RemovePostfix( Pattern );
+                    }
+                    else // append
+                    {
+                        if ( StartWith )
+                            resource.AddPrefix( Pattern );
+                        else if ( EndWith )
+                            resource.AddPostfix( Pattern );
+                    }
 
-                //res.Save( Destination, format );
-            }
-
-            //Console.WriteLine( $"executing convert {Source}" ); // 
+                    resource.Save( resource.AbsolutePath );
+                } );
         }
     }
 }

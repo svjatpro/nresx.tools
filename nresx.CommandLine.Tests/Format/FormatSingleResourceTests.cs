@@ -21,10 +21,10 @@ namespace nresx.CommandLine.Tests.Format
             res.Elements.Where( el => el.Value.StartsWith( prefix ) ).Should().HaveCount( res.Elements.Count() );
         }
 
-        [TestCase( @"format --source [TmpFile] --remove --start-with --pattern prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile] -r --start-with -p prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile.resw] -r --start-with -p prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile.Yaml] -r --start-with -p prefix_", "prefix_" )]
+        [TestCase( @"format --source [TmpFile] --delete --start-with --pattern prefix_", "prefix_" )]
+        [TestCase( @"format -s [TmpFile] --delete --start-with -p prefix_", "prefix_" )]
+        [TestCase( @"format -s [TmpFile.resw] --delete --start-with -p prefix_", "prefix_" )]
+        [TestCase( @"format -s [TmpFile.Yaml] --delete --start-with -p prefix_", "prefix_" )]
         public void RemovePrefixToTheSameFile( string commandLine, string prefix )
         {
             // prepare tmp file with prefix

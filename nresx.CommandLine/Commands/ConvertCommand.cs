@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using CommandLine;
 using nresx.Tools;
-using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
@@ -12,14 +9,9 @@ namespace nresx.CommandLine.Commands
     [Verb("convert", HelpText = "convert to another format")]
     public class ConvertCommand : BaseCommand, ICommand
     {
-        [Value( 0, Hidden = true )]
-        public IEnumerable<string> Args { get; set; }
-        
         public void Execute()
         {
-            var args = Args?.ToList() ?? new List<string>();
-            var source = Source ?? args.Take();
-            var destination = Destination ?? args.Take();
+            GetSourceDestinationPair( out var source, out var destination );
 
             // convert single resource file
             if ( !string.IsNullOrWhiteSpace( source ) )

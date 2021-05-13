@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "asdf*.resx"
+      "commandLineArgs": "remove C:\\Tmp\\1\\md88XAB8.resx  --k Entry2 --dry-run "
     }
   }
 }

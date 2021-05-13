@@ -3,7 +3,7 @@ using nresx.Tools;
 using nresx.Tools.Helpers;
 using NUnit.Framework;
 
-namespace nresx.Core.Tests.ResourceFormatHelpers
+namespace nresx.Core.Tests.Helpers
 {
     [TestFixture]
     public class ResourceFormatHelperTests

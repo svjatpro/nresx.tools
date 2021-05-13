@@ -7,8 +7,8 @@ namespace nresx.Tools.Helpers
     public class FilesHelper
     {
         public static void SearchResourceFiles( 
-            string filePattern, 
-            Action<ResourceFile> action, 
+            string filePattern,
+            Action<ResourceFile> action,
             Action<FileInfo, Exception> errorHandler = null,
             bool recursive = false )
         {
