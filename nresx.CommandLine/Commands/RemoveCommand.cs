@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using nresx.Tools.Extensions;
@@ -9,7 +10,7 @@ namespace nresx.CommandLine.Commands
     public class RemoveCommand : BaseCommand, ICommand
     {
         [Option( 'k', "key", HelpText = "element key" )]
-        public string Key { get; set; }
+        public IEnumerable<string> Keys { get; set; }
 
 
         [Option( "empty", HelpText = "Remove all empty elements - key or value" )]
@@ -32,43 +33,41 @@ namespace nresx.CommandLine.Commands
                 resource =>
                 {
                     var shortFilePath = resource.AbsolutePath.GetShortPath();
+                    var elementsToDelete = new List<string>();
+
                     // remove element by key
-                    if ( !string.IsNullOrWhiteSpace( Key ) )
+                    if ( Keys?.Count() > 0 )
                     {
-                        if ( DryRun )
-                        {
-                            Console.WriteLine( $"{shortFilePath}: '{Key}' have been removed" );
-                        }
-                        else
-                        {
-                            resource.Elements.Remove( Key );
-                        }
+                        elementsToDelete.AddRange( Keys );
                     }
 
                     // remove all elements with empty key
                     if ( EmptyKey || EmptyValue || Empty )
                     {
-                        //foreach ( var element in res.Elements )
-                        for ( var i = resource.Elements.Count() - 1; i >= 0; i-- )
+                        elementsToDelete.AddRange( resource
+                            .Elements
+                            .Where( element =>
+                                ( ( EmptyKey || Empty ) && string.IsNullOrWhiteSpace( element.Key ) ) ||
+                                ( ( EmptyValue || Empty ) && string.IsNullOrWhiteSpace( element.Value ) ) )
+                            .Select( element => element.Key ) );
+                    }
+
+                    foreach ( var key in elementsToDelete )
+                    {
+                        if ( DryRun )
                         {
-                            var element = resource.Elements[i];
-                            if ( ( ( EmptyKey || Empty ) && string.IsNullOrWhiteSpace( element.Key ) ) ||
-                                 ( ( EmptyValue || Empty ) && string.IsNullOrWhiteSpace( element.Value ) ) )
-                            {
-                                if ( DryRun )
-                                {
-                                    Console.WriteLine( $"{shortFilePath}: '{element.Key}' have been removed" );
-                                }
-                                else
-                                {
-                                    resource.Elements.Remove( element.Key );
-                                }
-                            }
+                            Console.WriteLine( $"{shortFilePath}: '{key}' have been removed" );
+                        }
+                        else
+                        {
+                            resource.Elements.Remove( key );
                         }
                     }
 
-                    if( !DryRun )
+                    if ( !DryRun )
+                    {
                         resource.Save( resource.AbsolutePath );
+                    }
                 });
         }
     }

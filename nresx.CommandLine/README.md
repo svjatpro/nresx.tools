@@ -121,17 +121,22 @@ examples:
 
 ```nresx add file1 -k key1 -c "the comment1" -v "value1"```
 
-### Remove resource item from resource file
+### Remove resource item(s) from resource file(s)
 
 ```
-nresx remove <resource file path> [-k] <element key>
+nresx remove [-s] <resource file path..> [-k <element keys..>] [--empty | --empty-key | --empty-value] [--dry-run]
 ```
 
 examples: 
 
-```nresx add file1 key1```
+```
+# will remove single element with "key1" key from the "file1" resource file
+nresx remove file1 -k key1```
 
-```nresx add file1 -k key1```
+```
+# will remove from "file1" all items, which have empty value
+nresx remove file1 --empty
+```
 
 
 ### Update resource item in resource file
