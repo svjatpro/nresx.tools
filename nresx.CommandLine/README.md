@@ -1,6 +1,9 @@
 Command line tool
 ================
 
+- [Info](#info)
+- [Remove](#remove)
+
 ## Convert resource file(s) to another format
 
 ```
