@@ -51,25 +51,33 @@ nresx format [--source | -s] <source file path>
 ## Info
 Get basic information about resource file(s).
 
-```
-nresx info [-s] <source file path> <source file path 2> ... 
-```
--s\
---source\
-source file path/name
 
-also this is default command, so one can put just list of files
-
+```sh
+nresx [info] [-s] <resource file path..> [-r]
 ```
-nresx <source file path> <source file path 2> ... 
+
+#### Options
+
+**-s | --source** Resource file(s) to process, can be a pathspec\
+**-r | --recursive** Process resource files in subdirectories\
+
+#### Examples
+
+```sh
+# Will put information about two files to the stdout
+nresx <file1> <file2>
+
+# Will put to the stdout information about all *.yaml files in the current directory, including all subdirectories
+nresx info *.resx -r
 ```
 
 
 ## List text elements from resource file.
 
-```
+```sh
 nresx list [-s] <source file path> [-t <output template>]
 ```
+
 -s\
 --source\
 source file path/name
