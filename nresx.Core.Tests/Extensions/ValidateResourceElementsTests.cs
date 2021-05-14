@@ -4,7 +4,7 @@ using FluentAssertions;
 using nresx.Tools.Extensions;
 using NUnit.Framework;
 
-namespace nresx.Core.Tests.ResourceFileExtensions
+namespace nresx.Core.Tests.Extensions
 {
     [TestFixture]
     public class ValidateResourceElementsTests : TestBase

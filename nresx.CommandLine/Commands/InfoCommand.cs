@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using CommandLine;
+using nresx.Tools.Extensions;
 
 namespace nresx.CommandLine.Commands
 {
@@ -15,7 +18,12 @@ namespace nresx.CommandLine.Commands
                 {
                     Console.WriteLine( $"Resource file name: \"{resource.Name}\", (\"{resource.AbsolutePath})\"" );
                     Console.WriteLine( $"resource format type: {resource.ResourceFormat}" );
+                    
+                    if ( resource.AbsolutePath.TryToGetCulture( out var culture ) )
+                        Console.WriteLine( $"resource culture: {culture.DisplayName}" );
+
                     Console.WriteLine( $"text elements: {resource.Elements.Count()}" );
+
                     Console.WriteLine( new string( '-', 30 ) );
                 } );
         }
