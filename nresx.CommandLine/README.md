@@ -136,12 +136,16 @@ examples:
 
 ```sh
 # will remove single element with "key1" key from the "file1" resource file
-nresx remove file1 -k key1
-```
+nresx remove <file1> -k <key1>
 
-```bash
+# will remove two elements by key from the "file1" and "file2" resource file
+nresx remove -s <file1> <file2> -k <key1> <key2>
+
 # will remove from "file1" all items, which have empty value
-nresx remove file1 --empty
+nresx remove <file1> --empty-value
+
+# will remove from all *.yaml files in current dir, including subirectories all items, which have empty key or value
+nresx remove -s *.yaml -r --empt
 ```
 
 
