@@ -1,7 +1,7 @@
 Command line tool
 ================
 
-### Convert resource file(s) to another format
+## Convert resource file(s) to another format
 
 ```
 nresx convert [-s] <source file path> [-d <destination file path>] [-f <format>]
@@ -32,7 +32,7 @@ nresx convert -s path1/res1.resx -f yaml
 the result will be 'path1/res1.yaml' file in yaml format
 
 
-### Format text entries in a resource file.
+## Format text entries in a resource file.
 
 ```
 nresx format [-s] <source file path> [-d <destination file path>] [-f <format>]  
@@ -45,7 +45,7 @@ nresx format [-s] <source file path> [-d <destination file path>] [-f <format>]
 nresx format [--source | -s] <source file path>
 ```
 
-### Get basic information about resource file(s).
+## Get basic information about resource file(s).
 
 ```
 nresx info [-s] <source file path> <source file path 2> ... 
@@ -61,7 +61,7 @@ nresx <source file path> <source file path 2> ...
 ```
 
 
-### List text elements from resource file.
+## List text elements from resource file.
 
 ```
 nresx list [-s] <source file path> [-t <output template>]
@@ -97,7 +97,7 @@ nresx list <file1> -t "some prefix \k: \v, (\c)"
 ```
 
 
-### Add resource item to resource file
+## Add resource item to resource file
 
 ```
 nresx add <resource file path> -k <element key> -v <element value> [-c <element comment>]
@@ -121,25 +121,25 @@ examples:
 
 ```nresx add file1 -k key1 -c "the comment1" -v "value1"```
 
-### Remove resource item(s) from resource file(s)
+## Remove resource item(s) from resource file(s)
 
-```
+```bash
 nresx remove [-s] <resource file path..> [-k <element keys..>] [--empty | --empty-key | --empty-value] [--dry-run]
 ```
 
 examples: 
 
-```
+```sh
 # will remove single element with "key1" key from the "file1" resource file
 nresx remove file1 -k key1```
 
-```
+```bash
 # will remove from "file1" all items, which have empty value
 nresx remove file1 --empty
 ```
 
 
-### Update resource item in resource file
+## Update resource item in resource file
 
 ```
 nresx update <resource file path> -k <element key> [-v <element value>] [-c <element comment>]
