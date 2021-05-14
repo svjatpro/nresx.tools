@@ -134,13 +134,13 @@ nresx remove [-s] <resource file path..> [-k <element keys..>] [--empty | --empt
 
 #### Options
 
-*-s | --source* Resource file(s) to process, can be a pathspec
-*-r | --recursive* Process resource files in subdirectories
-*-k | --key* element keys
-*--empty* Will remove all elements with empty key OR value
-*--empty-key* Will remove all elements with empty key
-*--empty-value* Will remove all elements with empty value
-*--dry-run* 
+**-s | --source** Resource file(s) to process, can be a pathspec\
+**-r | --recursive** Process resource files in subdirectories\
+**-k | --key** element keys\
+**--empty** Will remove all elements with empty key OR value\
+**--empty-key** Will remove all elements with empty key\
+**--empty-value** Will remove all elements with empty value\
+**--dry-run** 
 
 #### Examples
 
