@@ -126,13 +126,23 @@ examples:
 ```nresx add file1 -k key1 -c "the comment1" -v "value1"```
 
 ## Remove
-resource item(s) from resource file(s)
+Remove resource elements(s) from resource file(s)
 
 ```bash
 nresx remove [-s] <resource file path..> [-k <element keys..>] [--empty | --empty-key | --empty-value] [--dry-run]
 ```
 
-examples: 
+#### Options
+
+*-s | --source* Resource file(s) to process, can be a pathspec
+*-r | --recursive* Process resource files in subdirectories
+*-k | --key* element keys
+*--empty* Will remove all elements with empty key OR value
+*--empty-key* Will remove all elements with empty key
+*--empty-value* Will remove all elements with empty value
+*--dry-run* 
+
+#### Examples
 
 ```sh
 # will remove single element with "key1" key from the "file1" resource file
@@ -145,7 +155,7 @@ nresx remove -s <file1> <file2> -k <key1> <key2>
 nresx remove <file1> --empty-value
 
 # will remove from all *.yaml files in current dir, including subirectories all items, which have empty key or value
-nresx remove -s *.yaml -r --empt
+nresx remove *.yaml -r --empty
 ```
 
 
