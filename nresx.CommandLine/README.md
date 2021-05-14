@@ -48,7 +48,8 @@ nresx format [-s] <source file path> [-d <destination file path>] [-f <format>]
 nresx format [--source | -s] <source file path>
 ```
 
-## Get basic information about resource file(s).
+## Info
+Get basic information about resource file(s).
 
 ```
 nresx info [-s] <source file path> <source file path 2> ... 
@@ -124,7 +125,8 @@ examples:
 
 ```nresx add file1 -k key1 -c "the comment1" -v "value1"```
 
-## Remove resource item(s) from resource file(s)
+## Remove
+resource item(s) from resource file(s)
 
 ```bash
 nresx remove [-s] <resource file path..> [-k <element keys..>] [--empty | --empty-key | --empty-value] [--dry-run]
