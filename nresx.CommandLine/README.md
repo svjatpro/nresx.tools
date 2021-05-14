@@ -136,7 +136,8 @@ examples:
 
 ```sh
 # will remove single element with "key1" key from the "file1" resource file
-nresx remove file1 -k key1```
+nresx remove file1 -k key1
+```
 
 ```bash
 # will remove from "file1" all items, which have empty value
@@ -144,7 +145,8 @@ nresx remove file1 --empty
 ```
 
 
-## Update resource item in resource file
+## Update
+resource item in resource file
 
 ```
 nresx update <resource file path> -k <element key> [-v <element value>] [-c <element comment>]
