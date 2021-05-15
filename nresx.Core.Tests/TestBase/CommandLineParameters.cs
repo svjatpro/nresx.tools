@@ -10,5 +10,6 @@ namespace nresx.Core.Tests
         public readonly List<string> TemporaryFiles = new();
 
         public readonly List<string> ConsoleOutput = new();
+        public int ExitCode { get; set; }
     }
 }

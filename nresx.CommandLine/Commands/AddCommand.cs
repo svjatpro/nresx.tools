@@ -1,10 +1,12 @@
-﻿using CommandLine;
+﻿using System.IO;
+using CommandLine;
 using nresx.Tools;
+using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
     [Verb( "add", HelpText = "Add new element to the resource file" )]
-    public class AddCommand : ICommand
+    public class AddCommand : BaseCommand, ICommand
     {
         [Value( 0, HelpText = "Source resource file" )]
         public string SourceFileValue { get; set; }
@@ -19,14 +21,22 @@ namespace nresx.CommandLine.Commands
         [Option( 'c', "comment", HelpText = "element comment" )]
         public string Comment { get; set; }
 
-        public void Execute()
+
+        [Option( "new", HelpText = "Create new resource file, if it is not exits yet" )]
+        public bool New { get; set; }
+        
+        public override void Execute()
         {
             var source = SourceFileValue;
-            if ( !string.IsNullOrWhiteSpace( source ) )
+            if ( TryOpenResourceFile( source, out var res, createNonExisting: New ) )
             {
-                var res = new ResourceFile( source );
                 res.Elements.Add( Key, Value, Comment );
                 res.Save( source );
+            }
+            else
+            {
+                Successful = false;
+                //
             }
         }
     }

@@ -24,7 +24,7 @@ namespace nresx.CommandLine.Commands
         [Option( "delete", HelpText = "Remove prefix or postfix", Required = false)]
         public bool Delete { get; set; }
 
-        public void Execute()
+        public override void Execute()
         {
             ForEachSourceFile(
                 GetSourceFiles(),

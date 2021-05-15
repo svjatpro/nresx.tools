@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using CommandLine;
 using nresx.CommandLine.Commands;
 
@@ -64,7 +65,7 @@ namespace nresx.CommandLine
             [Value(0)] public string Arg1 { get; set; }
         }
 
-        static void Main( string[] args )
+        static int Main( string[] args )
         {
             var arguments = args;
 
@@ -100,14 +101,18 @@ namespace nresx.CommandLine
                 }
             }
 
-            Parser.Default
+            return Parser.Default
                 .ParseArguments<
                     InfoCommand, ListCommand,
                     ConvertCommand, FormatCommand,
                     AddCommand, RemoveCommand, UpdateCommand,
                     ValidateCommand>( arguments )
-                .WithParsed<ICommand>( t => t.Execute() );
+                .WithParsed<ICommand>( t => t.Execute() )
+                .MapResult( 
+                    cmd => ((ICommand)cmd).Successful ? 0 : -1,
+                    err => -1 );
 
+            //return 0;
 
             //var rootPath = @"C:\_Projects\iHeart.UWP";
             //// parse resource files

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using CommandLine;
 using nresx.Tools;
 
@@ -34,5 +35,8 @@ namespace nresx.CommandLine.Commands
                 }
             }
         }
+
+        public bool Successful { get; } = true;
+        public Exception Exception { get; } = null;
     }
 }

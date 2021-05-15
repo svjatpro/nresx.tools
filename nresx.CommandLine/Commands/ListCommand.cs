@@ -33,5 +33,8 @@ namespace nresx.CommandLine.Commands
                 }
             }
         }
+
+        public bool Successful { get; } = true;
+        public Exception Exception { get; } = null;
     }
 }

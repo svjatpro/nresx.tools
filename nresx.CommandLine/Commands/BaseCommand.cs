@@ -9,8 +9,18 @@ using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
-    public class BaseCommand
+    public abstract class BaseCommand : ICommand
     {
+        #region private fields
+
+        protected const string FileNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";
+        protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
+        protected const string PathNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
+
+        #endregion
+
+        #region Common options
+
         [Option( 's', "source", HelpText = "Source resource file(s)" )]
         public IEnumerable<string> SourceFiles { get; set; }
 
@@ -33,6 +43,13 @@ namespace nresx.CommandLine.Commands
 
         [Option( "dry-run", HelpText = "Test remove command without actual performing" )]
         public bool DryRun { get; set; }
+
+        #endregion
+
+        public abstract void Execute();
+
+        public bool Successful { get; protected set; } = true;
+        public Exception Exception { get; protected set; } = null;
 
         protected List<string> GetSourceFiles()
         {
@@ -69,11 +86,11 @@ namespace nresx.CommandLine.Commands
                                 switch ( exception )
                                 {
                                     case FileNotFoundException:
-                                        Console.WriteLine( $"fatal: path mask '{sourcePattern}' did not match any files" );
+                                        Console.WriteLine( FileNotFoundErrorMessage, sourcePattern );
                                         break;
                                     case FileLoadException:
                                     default:
-                                        Console.WriteLine( $"fatal: invalid file: '{fileInfo.FullName}' can't load resource file" );
+                                        Console.WriteLine( FileLoadErrorMessage, fileInfo.FullName );
                                         break;
                                 }
                                 Console.WriteLine( new string( '-', 30 ) );
@@ -82,12 +99,12 @@ namespace nresx.CommandLine.Commands
                     }
                     catch ( FileNotFoundException ex )
                     {
-                        Console.WriteLine( $"fatal: path mask '{sourcePattern}' did not match any files" );
+                        Console.WriteLine( FileNotFoundErrorMessage, sourcePattern );
                         Console.WriteLine( new string( '-', 30 ) );
                     }
                     catch ( DirectoryNotFoundException ex )
                     {
-                        Console.WriteLine( $"fatal: Invalid path: '{sourcePattern}': no such file or directory" );
+                        Console.WriteLine( PathNotFoundErrorMessage, sourcePattern );
                         Console.WriteLine( new string( '-', 30 ) );
                     }
                     catch ( Exception e )
@@ -99,6 +116,36 @@ namespace nresx.CommandLine.Commands
                     }
                 }
             }
+        }
+
+        protected bool TryOpenResourceFile( string path, out ResourceFile resourceFile, bool createNonExisting = false )
+        {
+            if ( string.IsNullOrWhiteSpace( path ) || ( !new FileInfo( path ).Exists && !createNonExisting ) )
+            {
+                Console.WriteLine( FileNotFoundErrorMessage, path );
+                resourceFile = null;
+                return false;
+            }
+
+            try
+            {
+                resourceFile = 
+                    ( !new FileInfo( path ).Exists && createNonExisting ) ?
+                    new ResourceFile( ResourceFormatHelper.GetFormatType( path ) ) :
+                    new ResourceFile( path );
+                return true;
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine( FileNotFoundErrorMessage, path );
+            }
+            catch ( FileLoadException )
+            {
+                Console.WriteLine( FileLoadErrorMessage, path );
+            }
+
+            resourceFile = null;
+            return false;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace nresx.CommandLine.Commands
     [Verb("convert", HelpText = "convert to another format")]
     public class ConvertCommand : BaseCommand, ICommand
     {
-        public void Execute()
+        public override void Execute()
         {
             GetSourceDestinationPair( out var source, out var destination );
 

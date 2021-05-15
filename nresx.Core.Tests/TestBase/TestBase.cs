@@ -173,9 +173,10 @@ namespace nresx.Core.Tests
             process.Start();
             process.WaitForExit( 5000 );
 
+            p.ExitCode = process.ExitCode;
             while ( !process.StandardOutput.EndOfStream )
                 p.ConsoleOutput.Add( process.StandardOutput.ReadLine() );
-
+            
             return p;
         }
 

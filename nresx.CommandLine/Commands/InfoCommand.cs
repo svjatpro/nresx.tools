@@ -10,7 +10,7 @@ namespace nresx.CommandLine.Commands
     [Verb( "info", HelpText = "get resource info" )]
     public class InfoCommand : BaseCommand, ICommand
     {
-        public void Execute()
+        public override void Execute()
         {
             ForEachSourceFile(
                 GetSourceFiles(),

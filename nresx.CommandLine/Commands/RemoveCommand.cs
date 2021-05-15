@@ -26,7 +26,7 @@ namespace nresx.CommandLine.Commands
         //[Option( "duplicates", HelpText = "Remove all empty elements - key or value" )]
         //public bool Duplicates { get; set; }
         
-        public void Execute()
+        public override void Execute()
         {
             ForEachSourceFile(
                 GetSourceFiles(),
