@@ -28,9 +28,10 @@ namespace nresx.CommandLine.Commands
         
         public override void Execute()
         {
+            var sourceFiles = GetSourceFiles();
             ForEachSourceFile(
-                GetSourceFiles(),
-                resource =>
+                sourceFiles,
+                ( file, resource ) =>
                 {
                     var shortFilePath = resource.AbsolutePath.GetShortPath();
                     var elementsToDelete = new List<string>();

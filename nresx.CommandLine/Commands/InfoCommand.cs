@@ -14,12 +14,12 @@ namespace nresx.CommandLine.Commands
         {
             ForEachSourceFile(
                 GetSourceFiles(),
-                resource =>
+                ( file, resource ) =>
                 {
                     Console.WriteLine( $"Resource file name: \"{resource.Name}\", (\"{resource.AbsolutePath})\"" );
                     Console.WriteLine( $"resource format type: {resource.ResourceFormat}" );
                     
-                    if ( resource.AbsolutePath.TryToGetCulture( out var culture ) )
+                    if ( resource.AbsolutePath.TryToExtractCultureFromPath( out var culture ) )
                         Console.WriteLine( $"resource culture: {culture.DisplayName}" );
 
                     Console.WriteLine( $"text elements: {resource.Elements.Count()}" );

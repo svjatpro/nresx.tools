@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using CommandLine;
 using nresx.Tools;
+using nresx.Tools.Exceptions;
 using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
 
@@ -16,6 +17,7 @@ namespace nresx.CommandLine.Commands
         protected const string FileNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";
         protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
         protected const string PathNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
+        protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
 
         #endregion
 
@@ -35,6 +37,9 @@ namespace nresx.CommandLine.Commands
 
         [Option( 'r', "recursive", HelpText = "Search source files recursively" )]
         public bool Recursive { get; set; }
+
+        [Option( 'n', "new", HelpText = "Create new file, if it not exists" )]
+        public bool CreateNewFile { get; set; }
 
         [Option( 'f', "format", HelpText = "New resource format" )]
         public string Format { get; set; }
@@ -70,7 +75,10 @@ namespace nresx.CommandLine.Commands
             destination = SourceFiles?.Skip( 1 ).FirstOrDefault() ?? Destination ?? args.Take();
         }
 
-        protected void ForEachSourceFile( List<string> sourceFiles, Action<ResourceFile> action, Action<FileInfo, Exception> errorHandler = null )
+        protected void ForEachSourceFile(
+            List<string> sourceFiles, 
+            Action<FileInfo, ResourceFile> resourceAction,
+            Action<FileInfo, Exception> errorHandler = null )
         {
             if ( sourceFiles?.Count > 0 )
             {
@@ -79,9 +87,10 @@ namespace nresx.CommandLine.Commands
                     try
                     {
                         FilesHelper.SearchResourceFiles(
-                            sourcePattern, action,
-                            errorHandler ?? 
-                            (( fileInfo, exception ) =>
+                            sourcePattern,
+                            resourceAction,
+                            errorHandler ??
+                            ( ( fileInfo, exception ) =>
                             {
                                 switch ( exception )
                                 {
@@ -93,9 +102,11 @@ namespace nresx.CommandLine.Commands
                                         Console.WriteLine( FileLoadErrorMessage, fileInfo.FullName );
                                         break;
                                 }
+
                                 Console.WriteLine( new string( '-', 30 ) );
-                            }),
-                            recursive: Recursive );
+                            } ),
+                            recursive: Recursive,
+                            createNew: CreateNewFile );
                     }
                     catch ( FileNotFoundException ex )
                     {
@@ -105,6 +116,11 @@ namespace nresx.CommandLine.Commands
                     catch ( DirectoryNotFoundException ex )
                     {
                         Console.WriteLine( PathNotFoundErrorMessage, sourcePattern );
+                        Console.WriteLine( new string( '-', 30 ) );
+                    }
+                    catch ( UnknownResourceFormatException ex )
+                    {
+                        Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
                         Console.WriteLine( new string( '-', 30 ) );
                     }
                     catch ( Exception e )

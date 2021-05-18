@@ -14,9 +14,24 @@ namespace nresx.Core.Tests.Extensions
         [TestCase( "dir1\\resource.resx", ExpectedResult = null )]
         public async Task<string> TryToGetCulture( string path )
         {
-            if ( path.TryToGetCulture( out var culture ) )
+            if ( path.TryToExtractCultureFromPath( out var culture ) )
                 return culture.Name;
             return null;
+        }
+
+        [TestCase( "dir1\\dir2\\file1.po", ExpectedResult = true )]
+        [TestCase( "file1.po", ExpectedResult = true )]
+        
+        [TestCase( null, ExpectedResult = false )]
+        [TestCase( " ", ExpectedResult = false )]
+        [TestCase( "*.po", ExpectedResult = false )]
+        [TestCase( "dir1\\dir2\\*.po", ExpectedResult = false )]
+        [TestCase( "dir1\\dir2\\file*.po", ExpectedResult = false )]
+        [TestCase( "dir1\\dir2\\file1.*", ExpectedResult = false )]
+        [TestCase( "dir1\\dir2\\file?.yml", ExpectedResult = false )]
+        public async Task<bool> IsFileName( string path )
+        {
+            return path.IsFileName();
         }
     }
 }

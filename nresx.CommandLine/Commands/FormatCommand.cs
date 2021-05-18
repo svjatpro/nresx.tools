@@ -28,7 +28,7 @@ namespace nresx.CommandLine.Commands
         {
             ForEachSourceFile(
                 GetSourceFiles(),
-                resource =>
+                ( file, resource ) =>
                 {
                     if ( Delete ) // remove
                     {

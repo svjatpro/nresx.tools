@@ -53,7 +53,7 @@ namespace nresx.Tools.Extensions
 
         public static bool ValidateElements( this ResourceFile resourceFile, out IEnumerable<ResourceElementError> errors )
         {
-            var result = new List<ResourceElementError>();
+            var result = new List<ResourceElementError>(); 
             var keys = new HashSet<string>();
             var keyBases = new HashSet<string>();
 

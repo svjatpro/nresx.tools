@@ -37,7 +37,7 @@ namespace nresx.Core.Tests.Helpers
 
             FilesHelper.SearchResourceFiles(
                 $"{TestData.OutputFolder}\\{fileKey}*.resx",
-                f => actualProcessed.Add( f.Name ),
+                (file, res ) => actualProcessed.Add( res.Name ),
                 (f, ex) => actualFailed.Add( f.Name ),
                 recursive: recursive);
 

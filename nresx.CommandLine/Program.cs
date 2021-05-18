@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands;
+using nresx.Tools;
+using nresx.Tools.Extensions;
+using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine
 {
@@ -60,11 +66,6 @@ namespace nresx.CommandLine
         //    return refs;
         //}
 
-        public class Option1
-        {
-            [Value(0)] public string Arg1 { get; set; }
-        }
-
         static int Main( string[] args )
         {
             var arguments = args;
@@ -112,7 +113,55 @@ namespace nresx.CommandLine
                     cmd => ((ICommand)cmd).Successful ? 0 : -1,
                     err => -1 );
 
-            //return 0;
+            /*FilesHelper.SearchFiles( "*.xaml",
+                file =>
+                {
+                    if ( file.FullName.ContainsDir( "bin", "obj" ) )
+                        return;
+
+
+                    //x:Uid="SettingsPage_Title"
+                    //Regex resRegex = new( @"x:Uid\s*=\s*""([a-zA-Z0-9_]+)""", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
+                    //Regex resRegex = new( @"\sText|Header|Content|CommandText|OffContent|OnContent|PlaceholderText\s*=\s*""([a-zA-Z0-9_]*)""", 
+                    //Regex resRegex = new( @"\sText|Header|Content|CommandText|OffContent|OnContent|PlaceholderText\s*=\s*""([\w\W^""]*)""", 
+                    Regex resRegex = new( @"\s(Text|Header|Content|CommandText|OffContent|OnContent|PlaceholderText)\s*=\s*""([\w\W^""]*)""",
+                        RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
+
+                        //| Content | CommandText | OffContent | OnContent | PlaceholderText
+                    // Header Content CommandText OffContent OnContent PlaceholderText
+
+                    using var reader = new StreamReader( new FileStream( file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
+                    var refs = new List<string>();
+                    while ( !reader.EndOfStream )
+                    {
+                        var line = reader.ReadLine();
+                        if ( string.IsNullOrWhiteSpace( line ) )
+                            continue;
+                        var match = resRegex.Match( line );
+                        if ( match.Success && 
+                             match.Groups.Count > 2 && 
+                             !string.IsNullOrWhiteSpace( match.Groups[2].Value ) &&
+                             !match.Groups[2].Value.StartsWith( '{' ) &&
+                             !match.Groups[2].Value.EndsWith( '}' ) )
+                        {
+                            Console.WriteLine( $"{file.Name}: {line}" );
+
+                            //refs.AddRange( match.Groups.Values.Skip( 1 ).Select( g => g.Value ) );
+                            //refs.Add( await reader.ReadLineAsync() );
+                        }
+                    }
+
+
+                    //Console.WriteLine( file.FullName );
+                },
+                ( file, ex ) =>
+                {
+
+                },
+                recursive: true );
+            */
+
+            // return 0;
 
             //var rootPath = @"C:\_Projects\iHeart.UWP";
             //// parse resource files

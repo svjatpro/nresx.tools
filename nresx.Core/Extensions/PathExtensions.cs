@@ -27,7 +27,7 @@ namespace nresx.Tools.Extensions
             return dir != null ? new DirectoryInfo( dir ).Name : null;
         }
 
-        public static bool TryToGetCulture( this string path, out CultureInfo culture )
+        public static bool TryToExtractCultureFromPath( this string path, out CultureInfo culture )
         {
             CultureInfo TryGetCulture( Func<bool> validator, Func<string> getCode )
             {
@@ -53,6 +53,21 @@ namespace nresx.Tools.Extensions
                 TryGetCulture( () => dir != null && ( dir.Length == 5 || dir.Length == 2 ), () => dir );
 
             return culture != null;
+        }
+        
+        public static bool IsFileName( this string path )
+        {
+            return
+                !string.IsNullOrWhiteSpace( path ) &&
+                !path.Contains( '*' ) &&
+                !path.Contains( '?' );
+        }
+
+        public static bool ContainsDir( this string path, params string[] containsDir )
+        {
+            return Path.GetDirectoryName( path )?
+                .Split( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar )
+                .Any( containsDir.Contains ) ?? false;
         }
     }
 }

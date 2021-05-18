@@ -4,7 +4,7 @@ using nresx.Core.Tests;
 using nresx.Tools;
 using NUnit.Framework;
 
-namespace nresx.CommandLine.Tests.ElementManagement
+namespace nresx.CommandLine.Tests.Update
 {
     [TestFixture]
     public class UpdateElementTests : TestBase

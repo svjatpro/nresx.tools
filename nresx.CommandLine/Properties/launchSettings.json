@@ -2,7 +2,8 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "add C:\\Tmp\\1\\res1.resx -k key1 -v val1"
+      "commandLineArgs": "add c:\\tmp\\1\\2\\3\\res1.resx -k key1 -v value1 -n",
+      "workingDirectory": "C:\\_Projects\\iHeart.UWP.Localize\\IHeartRadio.App"
     }
   }
 }

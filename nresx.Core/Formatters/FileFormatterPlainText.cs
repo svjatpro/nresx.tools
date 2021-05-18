@@ -31,6 +31,11 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
+        public bool LoadElements( Stream stream, out IEnumerable<ResourceElement> elements )
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
         {
             using var writer = new StreamWriter( stream );
