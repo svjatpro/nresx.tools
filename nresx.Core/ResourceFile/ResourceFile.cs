@@ -66,6 +66,7 @@ namespace nresx.Tools
         #endregion
 
         public ResourceFormatType ResourceFormat { get; }
+        public bool NewFile { get; }
         public string Name { get; }
         public string AbsolutePath { get; }
         public readonly ResourceElements Elements;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -212,12 +213,39 @@ namespace nresx.Core.Tests
 
             return destPath;
         }
-
+         
         protected void AddExampleElements( ResourceFile res )
         {
             var example = GetExampleResourceFile();
             foreach ( var el in example.Elements )
                 res.Elements.Add( el.Key, el.Value, el.Comment );
+        }
+
+        protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey )
+        {
+            fileKey = UniqueKey();
+            var result = new List<string>();
+
+            for ( var i = 0; i < rootFiles; i++ )
+            {
+                var filePath = GetOutputPath( $"{fileKey}_{UniqueKey()}.resx" );
+                CopyTemporaryFile( destPath: filePath );
+
+                result.Add( filePath );
+            }
+
+            for ( var i = 0; i < firstDirFiles; i++ )
+            {
+                var dirKey = UniqueKey();
+                new DirectoryInfo( Path.Combine( TestData.OutputFolder, dirKey ) ).Create();
+
+                var filePath = GetOutputPath( $"{dirKey}\\{fileKey}_{UniqueKey()}.resx" );
+                CopyTemporaryFile( destPath: filePath );
+
+                result.Add( filePath );
+            }
+
+            return result;
         }
     }
 }

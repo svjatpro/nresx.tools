@@ -2,6 +2,7 @@ Command line tool
 ================
 
 - [Info](#info)
+- [Add](#add)
 - [Remove](#remove)
 
 ## Convert resource file(s) to another format
@@ -53,7 +54,7 @@ Get basic information about resource file(s).
 
 
 ```sh
-nresx [info] [-s] <resource file path..> [-r]
+nresx [info] [-s] <pathspec> [-r]
 ```
 
 #### Options
@@ -108,46 +109,54 @@ will list all elements from the <file1> in "some prefix <key>: <value>, (<commen
 nresx list <file1> -t "some prefix \k: \v, (\c)"
 ```
 
+## Add
+Add resource item to resource file(s)
 
-## Add resource item to resource file
-
-```
-nresx add <resource file path> -k <element key> -v <element value> [-c <element comment>]
-```
-
--k\
---key\
-element key
-
--v\
---value\
-element value
-
--c\
---comment\
-element comment
-
-examples: 
-
-```nresx add file1 -k key1 -v value1```
-
-```nresx add file1 -k key1 -c "the comment1" -v "value1"```
-
-## Remove
-Remove resource elements(s) from resource file(s)
-
-```bash
-nresx remove [-s] <resource file path..> [-k <element keys..>] [--empty | --empty-key | --empty-value] [--dry-run]
+```sh
+nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comment>] [--dry-run] [--recursive]
 ```
 
 #### Options
 
-**-s | --source** Resource file(s) to process, can be a pathspec\
-**-r | --recursive** Process resource files in subdirectories\
-**-k | --key** element keys\
-**--empty** Will remove all elements with empty key OR value\
-**--empty-key** Will remove all elements with empty key\
-**--empty-value** Will remove all elements with empty value\
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-k | --key**  Element key\
+**-v | --value**  Element value\
+**-c | --comment**  Element comment\
+**-n | --new** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)
+**--dry-run**
+
+#### Examples
+
+```sh
+# will insert single element with "key1" key and "value1" value to the "file1" resource file
+nresx add file1 -k key1 -v value1
+
+# will insert single element with a comment
+nresx add file1 -k key1 -v value1 -c "the comment1"
+
+# will insert single element to two resource files
+nresx add file1 file2 -k key1 -v value1
+
+# will insert single element to all resource files, which match the pathspec, beginning from current directory, including all subdirectories
+nresx add *.resw -r file2 -k key1 -v value1
+```
+
+## Remove
+Remove resource elements(s) from resource file(s)
+
+```sh
+nresx remove [-s] <pathspec> [<pathspec> ..] [-k <element key> [<element key> ..]] [--empty | --empty-key | --empty-value] [--dry-run] [--recursive]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-k | --key**  element keys\
+**--empty**  Will remove all elements with empty key OR value\
+**--empty-key**  Will remove all elements with empty key\
+**--empty-value**  Will remove all elements with empty value\
 **--dry-run** 
 
 #### Examples

@@ -106,7 +106,8 @@ namespace nresx.CommandLine.Commands
                                 Console.WriteLine( new string( '-', 30 ) );
                             } ),
                             recursive: Recursive,
-                            createNew: CreateNewFile );
+                            createNew: CreateNewFile,
+                            dryRun: DryRun );
                     }
                     catch ( FileNotFoundException ex )
                     {

@@ -10,17 +10,22 @@ namespace nresx.Tools.Helpers
         public static void SearchResourceFiles( string filePattern,
             Action<FileInfo, ResourceFile> action,
             Action<FileInfo, Exception> errorHandler = null,
-            bool recursive = false, 
+            bool recursive = false,
             bool createNew = false,
-            ResourceFormatType? type = null)
+            bool dryRun = false,
+            ResourceFormatType? type = null )
         {
+            var isFileName = filePattern.IsFileName();
             var rootPath = Path.GetDirectoryName( filePattern );
             var rootDir = new DirectoryInfo( string.IsNullOrWhiteSpace( rootPath ) ? Environment.CurrentDirectory : rootPath );
             if ( !rootDir.Exists )
             {
-                if ( createNew && recursive )
+                if ( isFileName && createNew && recursive )
                 {
-                    Directory.CreateDirectory( rootDir.FullName );
+                    if ( !dryRun )
+                    {
+                        Directory.CreateDirectory( rootDir.FullName );
+                    }
                 }
                 else
                 {
@@ -53,7 +58,7 @@ namespace nresx.Tools.Helpers
                 }
             }
             
-            if ( filePattern.IsFileName() && !new FileInfo( filePattern ).Exists )
+            if ( isFileName && !new FileInfo( filePattern ).Exists )
             {
                 if ( createNew )
                 {

@@ -1,4 +1,6 @@
-﻿using CommandLine;
+﻿using System;
+using CommandLine;
+using nresx.Tools.Extensions;
 
 namespace nresx.CommandLine.Commands
 {
@@ -22,8 +24,16 @@ namespace nresx.CommandLine.Commands
                 sourceFiles,
                 ( file, resource ) =>
                 {
-                    resource.Elements.Add( Key, Value, Comment );
-                    resource.Save( file.FullName );
+                    if ( DryRun )
+                    {
+                        var shortFilePath = resource.AbsolutePath?.GetShortPath() ?? file.FullName.GetShortPath();
+                        Console.WriteLine( $"'{Key}:{Value}' element have been add to '{shortFilePath}'" );
+                    }
+                    else
+                    {
+                        resource.Elements.Add( Key, Value, Comment );
+                        resource.Save( file.FullName );
+                    }
                 } );
         }
     }
