@@ -113,7 +113,8 @@ nresx list <file1> -t "some prefix \k: \v, (\c)"
 Add resource item to resource file(s)
 
 ```sh
-nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comment>] [--dry-run] [--recursive]
+nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comment>] 
+[--dry-run] [--recursive]
 ```
 
 #### Options
@@ -123,7 +124,7 @@ nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comme
 **-k | --key**  Element key\
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
-**-n | --new** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)
+**-n | --new** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **--dry-run**
 
 #### Examples
@@ -138,7 +139,8 @@ nresx add file1 -k key1 -v value1 -c "the comment1"
 # will insert single element to two resource files
 nresx add file1 file2 -k key1 -v value1
 
-# will insert single element to all resource files, which match the pathspec, beginning from current directory, including all subdirectories
+# will insert single element to all resource files, which match the pathspec, 
+#  beginning from current directory, including all subdirectories
 nresx add *.resw -r file2 -k key1 -v value1
 ```
 
@@ -146,7 +148,8 @@ nresx add *.resw -r file2 -k key1 -v value1
 Remove resource elements(s) from resource file(s)
 
 ```sh
-nresx remove [-s] <pathspec> [<pathspec> ..] [-k <element key> [<element key> ..]] [--empty | --empty-key | --empty-value] [--dry-run] [--recursive]
+nresx remove [-s] <pathspec> [<pathspec> ..] [-k <element key> [<element key> ..]] 
+ [--empty | --empty-key | --empty-value] [--dry-run] [--recursive]
 ```
 
 #### Options

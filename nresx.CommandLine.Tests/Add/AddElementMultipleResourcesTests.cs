@@ -85,8 +85,10 @@ namespace nresx.CommandLine.Tests.Add
 
 
         [TestCase( @"add [Output]\[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -r" )]
+        [TestCase( @"add [Output]\[UniqueKey]*.* -r -k [UniqueKey] -v [UniqueKey]" )]
         [TestCase( @"add [Output]\[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r" )]
         [TestCase( @"add [Output]\[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --recursive" )]
+        [TestCase( @"add [Output]\[UniqueKey]*.* --recursive --key [UniqueKey] --value [UniqueKey]" )]
         [TestCase( @"add [Output]\[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive" )]
         public void AddSingleElementToByRecursiveSpec( string commandLine )
         {
