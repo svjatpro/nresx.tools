@@ -22,6 +22,8 @@ namespace nresx.CommandLine.Commands
         [Option( "empty-value", HelpText = "Remove all elements with empty value" )]
         public bool EmptyValue { get; set; }
 
+        protected override bool IsCreateNewFileAllowed => false;
+
 
         //[Option( "duplicates", HelpText = "Remove all empty elements - key or value" )]
         //public bool Duplicates { get; set; }
@@ -65,7 +67,7 @@ namespace nresx.CommandLine.Commands
                         }
                     }
 
-                    if ( !DryRun )
+                    if ( !DryRun && !resource.IsNewFile )
                     {
                         resource.Save( resource.AbsolutePath );
                     }

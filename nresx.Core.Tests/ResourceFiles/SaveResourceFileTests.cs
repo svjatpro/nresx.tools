@@ -14,7 +14,7 @@ namespace nresx.Core.Tests.ResourceFiles
         {
             var source = new ResourceFile( GetTestPath( sourcePath ) );
 
-            var newPath = GetOutputPath( UniqueKey(), source.ResourceFormat );
+            var newPath = GetOutputPath( UniqueKey(), source.FileFormat );
             source.Save( newPath );
 
             var saved = new ResourceFile( newPath );

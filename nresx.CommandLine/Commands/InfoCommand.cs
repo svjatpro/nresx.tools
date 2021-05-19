@@ -16,8 +16,8 @@ namespace nresx.CommandLine.Commands
                 GetSourceFiles(),
                 ( file, resource ) =>
                 {
-                    Console.WriteLine( $"Resource file name: \"{resource.Name}\", (\"{resource.AbsolutePath})\"" );
-                    Console.WriteLine( $"resource format type: {resource.ResourceFormat}" );
+                    Console.WriteLine( $"Resource file name: \"{resource.FileName}\", (\"{resource.AbsolutePath})\"" );
+                    Console.WriteLine( $"resource format type: {resource.FileFormat}" );
                     
                     if ( resource.AbsolutePath.TryToExtractCultureFromPath( out var culture ) )
                         Console.WriteLine( $"resource culture: {culture.DisplayName}" );

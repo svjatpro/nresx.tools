@@ -25,6 +25,12 @@ namespace nresx.Tools.Helpers
 
         public static bool DetectFormatByExtension( string path, out ResourceFormatType type )
         {
+            if ( path == null )
+            {
+                type = ResourceFormatType.NA;
+                return false;
+            }
+
             var ext = Path.GetExtension( path ).ToLower();
             if ( !TypeMap.ContainsKey( ext ) )
             {

@@ -2,7 +2,9 @@ Command line tool
 ================
 
 - [Info](#info)
+- [List](#list)
 - [Add](#add)
+- [Update](#update)
 - [Remove](#remove)
 
 ## Convert resource file(s) to another format
@@ -73,20 +75,17 @@ nresx info *.resx -r
 ```
 
 
-## List text elements from resource file.
+## List
+List text elements from resource file.
 
 ```sh
-nresx list [-s] <source file path> [-t <output template>]
+nresx list [-s] <pathspec> [-t <output template>]
 ```
 
--s\
---source\
-source file path/name
+#### Options
 
-
--t\
---template\
-Output line template for each text element in a resource file,\
+**-s | --source** Resource file(s) to process, can be a pathspec\
+**-t | --template** Output row template for each text element in a resource file,\
 possible tags are:\
 - \k - element key
 - \v - element value
@@ -94,18 +93,13 @@ possible tags are:\
 
 the default template is "\k: \v"
 
+#### Examples
 
-examples: 
-
-will list all elements from the <file1> in "<key>: <value>" format:
-
-```
+```sh
+# Will list all elements from the <file1> in "<key>: <value>" format:
 nresx list <file1>
-```
 
-will list all elements from the <file1> in "some prefix <key>: <value>, (<comment>)" format:
-
-```
+# will list all elements from the <file1> in "some prefix <key>: <value>, (<comment>)" format:
 nresx list <file1> -t "some prefix \k: \v, (\c)"
 ```
 
@@ -124,7 +118,7 @@ nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comme
 **-k | --key**  Element key\
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
-**-n | --new** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
+**-n | --new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **--dry-run**
 
 #### Examples
@@ -141,8 +135,43 @@ nresx add file1 file2 -k key1 -v value1
 
 # will insert single element to all resource files, which match the pathspec, 
 #  beginning from current directory, including all subdirectories
-nresx add *.resw -r file2 -k key1 -v value1
+nresx add *.resw -r -k key1 -v value1
 ```
+
+## Update
+Update resource item in resource file
+
+```sh
+nresx update [-s] <pathspec> -k <element key> [-v <element value>] [-c <element comment>]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-k | --key**  Element key\
+**-v | --value**  Element value\
+**-c | --comment**  Element comment\
+**-n | --new-element** Will create new element, if it not exist\
+**--dry-run**
+
+#### Examples
+
+```sh
+# will update single element with new value in the "file1" resource file
+nresx update file1 -k key1 -v value1
+
+# will update single element with new value and comment resource file
+nresx update file1 -k key1 -c "the comment1" -v "value1"
+
+# will update single element value in two resource files
+nresx update file1 file2 -k key1 -v value1
+
+# will update single element in all resource files, which match the pathspec, 
+#  beginning from current directory, including all subdirectories
+nresx update *.resw -r -k key1 -v value1
+```
+
 
 ## Remove
 Remove resource elements(s) from resource file(s)
@@ -177,29 +206,3 @@ nresx remove <file1> --empty-value
 # will remove from all *.yaml files in current dir, including subirectories all items, which have empty key or value
 nresx remove *.yaml -r --empty
 ```
-
-
-## Update
-resource item in resource file
-
-```
-nresx update <resource file path> -k <element key> [-v <element value>] [-c <element comment>]
-```
-
--k\
---key\
-element key
-
--v\
---value\
-element value
-
--c\
---comment\
-element comment
-
-examples: 
-
-```nresx update file1 -k key1 -v value1```
-
-```nresx update file1 -k key1 -c "the comment1" -v "value1"```

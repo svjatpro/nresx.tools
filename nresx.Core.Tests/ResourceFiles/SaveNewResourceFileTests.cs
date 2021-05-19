@@ -20,7 +20,7 @@ namespace nresx.Core.Tests.ResourceFiles
             res.Save( path );
 
             var saved = new ResourceFile( path );
-            saved.ResourceFormat.Should().Be( targetType );
+            saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
 
@@ -35,7 +35,7 @@ namespace nresx.Core.Tests.ResourceFiles
             res.Save( path, targetType );
 
             var saved = new ResourceFile( path );
-            saved.ResourceFormat.Should().Be( targetType );
+            saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
 
@@ -49,7 +49,7 @@ namespace nresx.Core.Tests.ResourceFiles
             res.Save( ms );
 
             var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
-            saved.ResourceFormat.Should().Be( targetType );
+            saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
 
@@ -63,7 +63,7 @@ namespace nresx.Core.Tests.ResourceFiles
             res.Save( ms, targetType );
 
             var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
-            saved.ResourceFormat.Should().Be( targetType );
+            saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
 
@@ -76,7 +76,7 @@ namespace nresx.Core.Tests.ResourceFiles
             var ms = res.SaveToStream();
 
             var saved = new ResourceFile( ms, targetType );
-            saved.ResourceFormat.Should().Be( targetType );
+            saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
     }

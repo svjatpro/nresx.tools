@@ -14,12 +14,12 @@ namespace nresx.Core.Tests.ResourceFiles
         public async Task ParsedResourceFileShouldContainsFileNameAndPath( string path )
         {
             var res = new ResourceFile( GetTestPath( path ) );
-            var targetPath = GetOutputPath( UniqueKey(), res.ResourceFormat );
+            var targetPath = GetOutputPath( UniqueKey(), res.FileFormat );
             res.Save( targetPath );
 
             res = new ResourceFile( targetPath );
 
-            res.Name.Should().Be( Path.GetFileName( targetPath ) );
+            res.FileName.Should().Be( Path.GetFileName( targetPath ) );
             res.AbsolutePath.Should().Be( Path.GetFullPath( targetPath ) );
         }
 
@@ -27,13 +27,13 @@ namespace nresx.Core.Tests.ResourceFiles
         public async Task StreamParsedResourceFileShouldContainsFileNameAndPath( string path )
         {
             var res = new ResourceFile( GetTestPath( path ) );
-            var targetPath = GetOutputPath( UniqueKey(), res.ResourceFormat );
+            var targetPath = GetOutputPath( UniqueKey(), res.FileFormat );
             res.Save( targetPath );
 
             await using var stream = new FileStream( targetPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
             res = new ResourceFile( stream );
 
-            res.Name.Should().Be( Path.GetFileName( targetPath ) );
+            res.FileName.Should().Be( Path.GetFileName( targetPath ) );
             res.AbsolutePath.Should().Be( Path.GetFullPath( targetPath ) );
         }
 
@@ -43,7 +43,7 @@ namespace nresx.Core.Tests.ResourceFiles
             ResourceFormatHelper.DetectFormatByExtension( path, out var targetType );
             var res = new ResourceFile( GetTestPath( path ) );
 
-            res.ResourceFormat.Should().Be( targetType );
+            res.FileFormat.Should().Be( targetType );
             ValidateElements( res );
         }
 
@@ -54,7 +54,7 @@ namespace nresx.Core.Tests.ResourceFiles
             await using var stream = new FileStream( GetTestPath( path ), FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
             var res = new ResourceFile( stream );
 
-            res.ResourceFormat.Should().Be( targetType );
+            res.FileFormat.Should().Be( targetType );
             ValidateElements( res );
         }
     }

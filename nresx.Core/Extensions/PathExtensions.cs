@@ -69,5 +69,12 @@ namespace nresx.Tools.Extensions
                 .Split( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar )
                 .Any( containsDir.Contains ) ?? false;
         }
+
+        public static string ToExtension( this string path, int maxExtLength = 5 )
+        {
+            var file = path == null ? null : Path.GetFileName( path ).Trim();
+            var ext = ( file != null && !file.Contains( '.' ) && file.Length <= maxExtLength ) ? $".{file}" : file;
+            return ext;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using nresx.Tools;
+using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine
@@ -7,7 +8,7 @@ namespace nresx.CommandLine
     {
         public static bool DetectResourceFormat( string formatOption, out ResourceFormatType format )
         {
-            var ext = formatOption?.StartsWith( "." ) ?? false ? formatOption : $".{formatOption}";
+            var ext = formatOption.ToExtension();
             var result = ResourceFormatHelper.DetectFormatByExtension( ext, out var f );
             format = f;
 

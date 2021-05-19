@@ -17,8 +17,8 @@ namespace nresx.CommandLine.Tests.Info
             var args = Run( commandLine );
             var res = new ResourceFile( args.TemporaryFiles[0] );
 
-            args.ConsoleOutput[0].Should().Be( $"Resource file name: \"{res.Name}\", (\"{res.AbsolutePath})\"" );
-            args.ConsoleOutput[1].Should().Be( $"resource format type: {res.ResourceFormat}" );
+            args.ConsoleOutput[0].Should().Be( $"Resource file name: \"{res.FileName}\", (\"{res.AbsolutePath})\"" );
+            args.ConsoleOutput[1].Should().Be( $"resource format type: {res.FileFormat}" );
             args.ConsoleOutput[2].Should().Be( $"text elements: {res.Elements.Count()}" );
         }
     }

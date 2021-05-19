@@ -13,7 +13,7 @@ namespace nresx.Tools.Helpers
             bool recursive = false,
             bool createNew = false,
             bool dryRun = false,
-            ResourceFormatType? type = null )
+            string formatOption = null )
         {
             var isFileName = filePattern.IsFileName();
             var rootPath = Path.GetDirectoryName( filePattern );
@@ -62,11 +62,15 @@ namespace nresx.Tools.Helpers
             {
                 if ( createNew )
                 {
-                    if ( !ResourceFormatHelper.DetectFormatByExtension( filePattern, out var format ) && !type.HasValue )
-                    {
+                    ResourceFormatType format;
+                    if ( ResourceFormatHelper.DetectFormatByExtension( formatOption, out var formatByOption ) )
+                        format = formatByOption;
+                    else if ( ResourceFormatHelper.DetectFormatByExtension( filePattern, out var formatByExtension ) )
+                        format = formatByExtension;
+                    else
                         throw new UnknownResourceFormatException();
-                    }
-                    ProcessResourceFile( filePattern, () => new ResourceFile( type ?? format ), action, errorHandler );
+
+                    ProcessResourceFile( filePattern, () => new ResourceFile( format ), action, errorHandler );
                 }
                 else
                 {

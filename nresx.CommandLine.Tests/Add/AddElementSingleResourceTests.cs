@@ -40,7 +40,7 @@ namespace nresx.CommandLine.Tests.Add
             var key = args.UniqueKeys[0];
             var value = args.UniqueKeys[1];
 
-            args.ConsoleOutput.Should().BeEquivalentTo( $"'{key}:{value}' element have been add to '{file}'" );
+            args.ConsoleOutput.Should().BeEquivalentTo( $"'{key}: {value}' element have been add to '{file}'" );
         }
 
 
@@ -61,9 +61,9 @@ namespace nresx.CommandLine.Tests.Add
 
 
 
-        [TestCase( @"add [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new" )]
-        [TestCase( @"add [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new" )]
-        public void AddSingleElementToNonExistingResourceShoulsCreateTheResource( string commandLine )
+        [TestCase( @"add [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new-file" )]
+        [TestCase( @"add [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file" )]
+        public void AddSingleElementToNonExistingResourceShouldCreateTheResource( string commandLine )
         {
             var args = Run( commandLine );
 
@@ -76,9 +76,9 @@ namespace nresx.CommandLine.Tests.Add
             res.Elements.Should().ContainSingle( el => el.Key == key && el.Value == value );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new --dry-run" )]
-        public void AddSingleElementToNonExistingResourceShoulsCreateTheResourceDryRun( string commandLine )
+        [TestCase( @"add [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new-file --dry-run" )]
+        [TestCase( @"add [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file --dry-run" )]
+        public void AddSingleElementToNonExistingResourceShouldCreateTheResourceDryRun( string commandLine )
         {
             var args = Run( commandLine );
 
@@ -89,14 +89,14 @@ namespace nresx.CommandLine.Tests.Add
             var value = args.UniqueKeys[2];
             new FileInfo( newFile ).Exists.Should().BeFalse();
 
-            args.ConsoleOutput.Should().BeEquivalentTo( $"'{key}:{value}' element have been add to '{newFile}'" );
+            args.ConsoleOutput.Should().BeEquivalentTo( $"'{key}: {value}' element have been add to '{newFile}'" );
         }
 
 
 
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new" )]
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new" )]
-        public void AddSingleElementToNonExistingResourceShoulsNotCreateNonexistingDirectory( string commandLine )
+        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new-file" )]
+        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file" )]
+        public void AddSingleElementToNonExistingResourceShouldNotCreateNonExistingDirectory( string commandLine )
         {
             var args = Run( commandLine );
 
@@ -109,8 +109,8 @@ namespace nresx.CommandLine.Tests.Add
         }
 
         [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -n -r" )]
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new --recursive" )]
-        public void AddSingleElementToNonExistingResourceShoulsCreateDirectory( string commandLine )
+        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file --recursive" )]
+        public void AddSingleElementToNonExistingResourceShouldCreateDirectory( string commandLine )
         {
             var args = Run( commandLine );
 
@@ -124,8 +124,8 @@ namespace nresx.CommandLine.Tests.Add
         }
 
         [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -n -r --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new --recursive --dry-run" )]
-        public void AddSingleElementToNonExistingResourceShoulsCreateDirectoryDryRun( string commandLine )
+        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file --recursive --dry-run" )]
+        public void AddSingleElementToNonExistingResourceShouldCreateDirectoryDryRun( string commandLine )
         {
             var args = Run( commandLine );
 
@@ -136,7 +136,7 @@ namespace nresx.CommandLine.Tests.Add
             var value = args.UniqueKeys[3];
             new FileInfo( newFile ).Exists.Should().BeFalse();
 
-            args.ConsoleOutput.Should().BeEquivalentTo( $"'{key}:{value}' element have been add to '{newFile.GetShortPath()}'" );
+            args.ConsoleOutput.Should().BeEquivalentTo( $"'{key}: {value}' element have been add to '{newFile.GetShortPath()}'" );
         }
     }
 }

@@ -65,17 +65,21 @@ namespace nresx.Tools
 
         #endregion
 
-        public ResourceFormatType ResourceFormat { get; }
-        public bool NewFile { get; }
-        public string Name { get; }
+        public ResourceFormatType FileFormat { get; }
+        
+        public bool IsNewFile { get; }
+        public bool HasChanges { get; } = false;
+        
+        public string FileName { get; }
         public string AbsolutePath { get; }
+
         public readonly ResourceElements Elements;
         
         public ResourceFile( string path )
         {
             if( GetTypeInfo( path, out var type ) )
             {
-                ResourceFormat = type.type;
+                FileFormat = type.type;
             }
             else
             {
@@ -84,7 +88,7 @@ namespace nresx.Tools
             }
 
             var fileInfo = new FileInfo( path );
-            Name = fileInfo.Name;
+            FileName = fileInfo.Name;
             AbsolutePath = fileInfo.FullName;
 
             using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
@@ -100,12 +104,12 @@ namespace nresx.Tools
             IFileFormatter parser;
             if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
             {
-                ResourceFormat = resourceFormat;
+                FileFormat = resourceFormat;
                 parser = t1.formatter();
             }
             else if ( GetTypeInfo( stream, out var type ) )
             {
-                ResourceFormat = type.type;
+                FileFormat = type.type;
                 parser = type.formatter();
             }
             else
@@ -118,7 +122,7 @@ namespace nresx.Tools
             if ( !string.IsNullOrWhiteSpace( path ) )
             {
                 var fileInfo = new FileInfo( path );
-                Name = fileInfo.Name;
+                FileName = fileInfo.Name;
                 AbsolutePath = fileInfo.FullName;
             }
 
@@ -130,12 +134,14 @@ namespace nresx.Tools
 
         public ResourceFile()
         {
-            ResourceFormat = ResourceFormatType.NA;
+            IsNewFile = true;
+            FileFormat = ResourceFormatType.NA;
             Elements = new ResourceElements();
         }
-        public ResourceFile( ResourceFormatType resourceFormat )
+        public ResourceFile( ResourceFormatType fileFormat )
         {
-            ResourceFormat = resourceFormat;
+            IsNewFile = true;
+            FileFormat = fileFormat;
             Elements = new ResourceElements();
         }
 
@@ -143,7 +149,7 @@ namespace nresx.Tools
 
         public void Save( string path )
         {
-            Save( path, ResourceFormat );
+            Save( path, FileFormat );
         }
         public void Save( string path, ResourceFormatType type )
         {
@@ -164,7 +170,7 @@ namespace nresx.Tools
 
         public void Save( Stream stream )
         {
-            Save( stream, ResourceFormat );
+            Save( stream, FileFormat );
         }
 
         public void Save( Stream stream, ResourceFormatType type )

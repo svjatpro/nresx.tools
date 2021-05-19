@@ -19,7 +19,7 @@ namespace nresx.CommandLine.Tests.Convert
             var args = Run( commandLine );
 
             var res = new ResourceFile( args.DestinationFiles[0] );
-            res.ResourceFormat.Should().Be( type );
+            res.FileFormat.Should().Be( type );
             ValidateElements( res );
         }
 
@@ -35,7 +35,7 @@ namespace nresx.CommandLine.Tests.Convert
             var args = Run( commandLine );
 
             var res = new ResourceFile( args.DestinationFiles[0] );
-            res.ResourceFormat.Should().Be( type );
+            res.FileFormat.Should().Be( type );
             ValidateElements( res );
         }
 
@@ -52,7 +52,7 @@ namespace nresx.CommandLine.Tests.Convert
             var outputPath = Path.ChangeExtension( sourceFile, OptionHelper.GetFormatOption( destType ) );
 
             var res = new ResourceFile( outputPath );
-            res.ResourceFormat.Should().Be( destType );
+            res.FileFormat.Should().Be( destType );
             ValidateElements( res );
         }
 
@@ -65,7 +65,7 @@ namespace nresx.CommandLine.Tests.Convert
             var args = Run( commandLine );
 
             var res = new ResourceFile( args.DestinationFiles[0] );
-            res.ResourceFormat.Should().Be( type );
+            res.FileFormat.Should().Be( type );
             ValidateElements( res );
         }
     }

@@ -27,7 +27,7 @@ namespace nresx.CommandLine.Commands
                     if ( DryRun )
                     {
                         var shortFilePath = resource.AbsolutePath?.GetShortPath() ?? file.FullName.GetShortPath();
-                        Console.WriteLine( $"'{Key}:{Value}' element have been add to '{shortFilePath}'" );
+                        Console.WriteLine( $"'{Key}: {Value}' element have been add to '{shortFilePath}'" );
                     }
                     else
                     {

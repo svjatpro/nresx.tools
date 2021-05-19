@@ -12,7 +12,7 @@ namespace nresx.Core.Tests.ResourceFiles
         {
             var res = new ResourceFile( GetTestPath( "Dulicated.resx" ) );
 
-            //res.ResourceFormat.Should().Be( targetType );
+            //res.FileFormat.Should().Be( targetType );
             //ValidateElements( res );
         }
     }

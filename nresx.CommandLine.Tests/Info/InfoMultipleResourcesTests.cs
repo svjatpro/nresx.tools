@@ -55,7 +55,7 @@ namespace nresx.CommandLine.Tests.Info
             for ( var i = 0; i < args.TemporaryFiles.Count; i++ )
             {
                 var res = new ResourceFile( args.TemporaryFiles[i] );
-                ValidateOutputInfo( args.ConsoleOutput, i * 4, res.Name, res.AbsolutePath, res.ResourceFormat );
+                ValidateOutputInfo( args.ConsoleOutput, i * 4, res.FileName, res.AbsolutePath, res.FileFormat );
             }
         }
 

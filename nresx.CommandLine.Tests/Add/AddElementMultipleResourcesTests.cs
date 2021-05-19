@@ -1,3 +1,4 @@
+using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
@@ -41,8 +42,8 @@ namespace nresx.CommandLine.Tests.Add
             var value = args.UniqueKeys[1];
 
             args.ConsoleOutput.Should().BeEquivalentTo( 
-                $"'{key}:{value}' element have been add to '{args.TemporaryFiles[0]}'",
-                $"'{key}:{value}' element have been add to '{args.TemporaryFiles[1]}'" );
+                $"'{key}: {value}' element have been add to '{args.TemporaryFiles[0]}'",
+                $"'{key}: {value}' element have been add to '{args.TemporaryFiles[1]}'" );
         }
 
 
@@ -78,8 +79,8 @@ namespace nresx.CommandLine.Tests.Add
             var value = args.UniqueKeys[1];
             
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"'{key}:{value}' element have been add to '{files[0]}'",
-                $"'{key}:{value}' element have been add to '{files[1]}'" );
+                $"'{key}: {value}' element have been add to '{files[0]}'",
+                $"'{key}: {value}' element have been add to '{files[1]}'" );
         }
 
 
@@ -117,9 +118,9 @@ namespace nresx.CommandLine.Tests.Add
             var value = args.UniqueKeys[1];
 
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"'{key}:{value}' element have been add to '{files[0].GetShortPath()}'",
-                $"'{key}:{value}' element have been add to '{files[1].GetShortPath()}'",
-                $"'{key}:{value}' element have been add to '{files[2].GetShortPath()}'" );
+                $"'{key}: {value}' element have been add to '{files[0].GetShortPath()}'",
+                $"'{key}: {value}' element have been add to '{files[1].GetShortPath()}'",
+                $"'{key}: {value}' element have been add to '{files[2].GetShortPath()}'" );
         }
     }
 }

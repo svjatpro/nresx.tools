@@ -14,9 +14,9 @@ namespace nresx.CommandLine.Commands
     {
         #region private fields
 
-        protected const string FileNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";
+        protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";
         protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
-        protected const string PathNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
+        protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
         protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
 
         #endregion
@@ -29,25 +29,31 @@ namespace nresx.CommandLine.Commands
         [Option( 'd', "destination", HelpText = "Destination resource file" )]
         public string Destination { get; set; }
 
-        //[Value( 0, HelpText = "Source resource file(s)" )]
-        //public IEnumerable<string> SourceFilesValues { get; set; }
-
         [Value( 0, Hidden = true )]
         public IEnumerable<string> Args { get; set; }
 
+
         [Option( 'r', "recursive", HelpText = "Search source files recursively" )]
         public bool Recursive { get; set; }
+        protected virtual bool IsRecursiveAllowed => true;
 
-        [Option( 'n', "new", HelpText = "Create new file, if it not exists" )]
+        [Option( 'n', "new-file", HelpText = "Create new file, if it not exists" )]
         public bool CreateNewFile { get; set; }
+        protected virtual bool IsCreateNewFileAllowed => true;
 
+        [Option( "new-element", HelpText = "Create new element, if it not exists" )]
+        public bool CreateNewElement { get; set; }
+        protected virtual bool IsCreateNewElementAllowed => true;
+        
         [Option( 'f', "format", HelpText = "New resource format" )]
         public string Format { get; set; }
+        protected virtual bool IsFormatAllowed => true;
 
 
 
         [Option( "dry-run", HelpText = "Test remove command without actual performing" )]
         public bool DryRun { get; set; }
+        protected virtual bool IsDryRunAllowed => true;
 
         #endregion
 
@@ -95,7 +101,7 @@ namespace nresx.CommandLine.Commands
                                 switch ( exception )
                                 {
                                     case FileNotFoundException:
-                                        Console.WriteLine( FileNotFoundErrorMessage, sourcePattern );
+                                        Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
                                         break;
                                     case FileLoadException:
                                     default:
@@ -105,31 +111,32 @@ namespace nresx.CommandLine.Commands
 
                                 Console.WriteLine( new string( '-', 30 ) );
                             } ),
-                            recursive: Recursive,
-                            createNew: CreateNewFile,
-                            dryRun: DryRun );
+                            recursive: Recursive && IsRecursiveAllowed,
+                            createNew: CreateNewFile && IsCreateNewFileAllowed,
+                            dryRun: DryRun && IsDryRunAllowed, 
+                            formatOption: IsFormatAllowed ? Format.ToExtension() : null);
                     }
                     catch ( FileNotFoundException ex )
                     {
-                        Console.WriteLine( FileNotFoundErrorMessage, sourcePattern );
-                        Console.WriteLine( new string( '-', 30 ) );
+                        Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
+                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
                     }
                     catch ( DirectoryNotFoundException ex )
                     {
-                        Console.WriteLine( PathNotFoundErrorMessage, sourcePattern );
-                        Console.WriteLine( new string( '-', 30 ) );
+                        Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
+                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
                     }
                     catch ( UnknownResourceFormatException ex )
                     {
                         Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
-                        Console.WriteLine( new string( '-', 30 ) );
+                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
                     }
                     catch ( Exception e )
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine( e );
                         Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.WriteLine( new string( '-', 30 ) );
+                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
                     }
                 }
             }
@@ -139,7 +146,7 @@ namespace nresx.CommandLine.Commands
         {
             if ( string.IsNullOrWhiteSpace( path ) || ( !new FileInfo( path ).Exists && !createNonExisting ) )
             {
-                Console.WriteLine( FileNotFoundErrorMessage, path );
+                Console.WriteLine( FilesNotFoundErrorMessage, path );
                 resourceFile = null;
                 return false;
             }
@@ -154,7 +161,7 @@ namespace nresx.CommandLine.Commands
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine( FileNotFoundErrorMessage, path );
+                Console.WriteLine( FilesNotFoundErrorMessage, path );
             }
             catch ( FileLoadException )
             {

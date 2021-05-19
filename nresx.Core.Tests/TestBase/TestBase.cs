@@ -14,6 +14,12 @@ namespace nresx.Core.Tests
 {
     public class TestBase
     {
+        protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";    
+        protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
+        protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
+        protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
+        protected readonly string ElementsSeparateLine = new( '-', 30 );
+
         public static void CleanOutputDir()
         {
             void RemoveFiles( DirectoryInfo dir, bool removeDir )
