@@ -14,12 +14,48 @@ namespace nresx.Core.Tests
 {
     public class TestBase
     {
+        #region Private methods
+
+        private void ReplaceTags( StringBuilder resultCmdLine, string tagPlaceholder, Func<ResourceFormatType, string> getTagValue )
+        {
+            var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
+            var regx = new Regex( $"\\[{tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
+            var matches = regx.Matches( resultCmdLine.ToString() );
+
+            foreach ( Match match in matches )
+            {
+                string tag;
+                var formatType = ResourceFormatType.Resx;
+                if ( match.Groups.Count > 1 && !string.IsNullOrWhiteSpace( match.Groups[1].Value ) )
+                {
+                    var ext = match.Groups[1].Value;
+                    if ( ResourceFormatHelper.DetectFormatByExtension( ext, out var t ) )
+                        formatType = t;
+                    tag = $"[{tagName}{match.Groups[1].Value}]";
+                }
+                else
+                {
+                    tag = $"[{tagName}]";
+                }
+
+                for ( int p = 0, i = resultCmdLine.ToString().IndexOf( tag, StringComparison.InvariantCulture );
+                    i >= 0;
+                    p += i, i = resultCmdLine.ToString( p, resultCmdLine.Length - p ).IndexOf( tag, StringComparison.Ordinal ) )
+                {
+                    resultCmdLine.Replace( tag, getTagValue( formatType ), p + i, tag.Length );
+                }
+            }
+        }
+
+        #endregion
+
+
         protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";    
         protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
         protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
         protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
         protected readonly string ElementsSeparateLine = new( '-', 30 );
-
+        
         public static void CleanOutputDir()
         {
             void RemoveFiles( DirectoryInfo dir, bool removeDir )
@@ -81,41 +117,10 @@ namespace nresx.Core.Tests
             resultCmdLine
                 .Replace( CommandLineTags.FilesDir, TestData.TestFileFolder )
                 .Replace( CommandLineTags.OutputDir, TestData.OutputFolder );
-
-            void ReplaceTags( string tagPlaceholder, Func<ResourceFormatType, string> getTagValue )
-            {
-                var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
-                var regx = new Regex( $"\\[{tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
-                var matches = regx.Matches( resultCmdLine.ToString() );
-
-                foreach ( Match match in matches )
-                {
-                    string tag;
-                    var formatType = ResourceFormatType.Resx;
-                    if ( match.Groups.Count > 1 && !string.IsNullOrWhiteSpace( match.Groups[1].Value ) )
-                    {
-                        var ext = match.Groups[1].Value;
-                        if ( ResourceFormatHelper.DetectFormatByExtension( ext, out var t ) )
-                            formatType = t;
-                        tag = $"[{tagName}{match.Groups[1].Value}]";
-                    }
-                    else
-                    {
-                        tag = $"[{tagName}]";
-                    }
-                    
-                    for ( int p = 0, i = resultCmdLine.ToString().IndexOf( tag, StringComparison.InvariantCulture );
-                          i >= 0;
-                          p += i, i = resultCmdLine.ToString( p, resultCmdLine.Length - p ).IndexOf( tag, StringComparison.Ordinal ) )
-                    {
-                        resultCmdLine.Replace( tag, getTagValue( formatType ), p + i, tag.Length );
-                    }
-                }
-            }
-
+            
             // get resource files and replace its paths
             ReplaceTags(
-                CommandLineTags.SourceFile,
+                resultCmdLine, CommandLineTags.SourceFile,
                 type =>
                 {
                     if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
@@ -128,7 +133,7 @@ namespace nresx.Core.Tests
 
             // generate output files paths and replace in commant line
             ReplaceTags(
-                CommandLineTags.DestFile,
+                resultCmdLine, CommandLineTags.DestFile,
                 type =>
                 { 
                     if ( predefinedParams != null && predefinedParams.DestinationFiles.TryTake( out var p ) )
@@ -141,7 +146,7 @@ namespace nresx.Core.Tests
 
             // generate temporary files and replace its paths
             ReplaceTags(
-                CommandLineTags.TemporaryFile,
+                resultCmdLine, CommandLineTags.TemporaryFile,
                 type =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
@@ -151,10 +156,23 @@ namespace nresx.Core.Tests
                     resultParams.TemporaryFiles.Add( destPath );
                     return destPath;
                 } );
-            
+
+            // generate new file names
+            ReplaceTags(
+                resultCmdLine, CommandLineTags.NewFile,
+                type =>
+                {
+                    if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
+                        return p;
+
+                    var path = GetOutputPath( UniqueKey(), type );
+                    resultParams.NewFiles.Add( path );
+                    return path;
+                } );
+
             // generate unique key(s) and replace in command line
             ReplaceTags(
-                CommandLineTags.UniqueKey,
+                resultCmdLine, CommandLineTags.UniqueKey,
                 type =>
                 {
                     if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )

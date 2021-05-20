@@ -91,6 +91,12 @@ namespace nresx.Tools
             var fileInfo = new FileInfo( path );
             FileName = fileInfo.Name;
             AbsolutePath = fileInfo.FullName;
+            if ( !fileInfo.Exists )
+            {
+                IsNewFile = true;
+                Elements = new ResourceElements();
+                return;
+            }
 
             using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
             var parser = type.formatter();

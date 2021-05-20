@@ -105,7 +105,7 @@ namespace nresx.CommandLine
             return Parser.Default
                 .ParseArguments<
                     InfoCommand, ListCommand,
-                    ConvertCommand, FormatCommand,
+                    ConvertCommand, FormatCommand, CopyCommand,
                     AddCommand, RemoveCommand, UpdateCommand, RenameCommand,
                     ValidateCommand>( arguments )
                 .WithParsed<ICommand>( t => t.Execute() )

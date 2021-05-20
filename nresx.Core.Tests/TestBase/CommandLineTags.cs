@@ -27,7 +27,12 @@
         ///  can be used with dynamic resource type/extension, like [TmpFile.yaml]
         /// </summary>
         public const string TemporaryFile = "[TmpFile]";
-        
+
+        /// <summary>
+        /// New generated file name, with unique name, and Output dir as a path
+        /// </summary>
+        public const string NewFile = "[NewFile]";
+
         /// <summary> Generated unique key </summary>
         public const string UniqueKey = "[UniqueKey]";
     }

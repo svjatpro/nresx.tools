@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_files\\Resources.non"
+      "commandLineArgs": "copy C:\\Tmp\\1\\res1.resx res2.yaml"
     }
   }
 }

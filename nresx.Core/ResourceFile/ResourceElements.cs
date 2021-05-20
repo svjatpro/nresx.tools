@@ -8,10 +8,16 @@ namespace nresx.Tools
     {
         private readonly List<ResourceElement> ElementsList;
 
-        public ResourceElement this[ int key ]
+        public ResourceElement this[ int index ]
         {
-            get => ElementsList[key];
-            set => ElementsList[key] = value;
+            get => ElementsList[index];
+            //set => ElementsList[index] = value;
+        }
+
+        public ResourceElement this[string key]
+        {
+            get => ElementsList.SingleOrDefault( el => el.Key == key );
+            //set => ElementsList[key] = value;
         }
 
         public IEnumerator<ResourceElement> GetEnumerator()
