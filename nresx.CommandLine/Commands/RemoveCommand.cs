@@ -22,12 +22,11 @@ namespace nresx.CommandLine.Commands
         [Option( "empty-value", HelpText = "Remove all elements with empty value" )]
         public bool EmptyValue { get; set; }
 
-        protected override bool IsCreateNewFileAllowed => false;
-
+        protected override bool IsRecursiveAllowed => true;
 
         //[Option( "duplicates", HelpText = "Remove all empty elements - key or value" )]
         //public bool Duplicates { get; set; }
-        
+
         public override void Execute()
         {
             var sourceFiles = GetSourceFiles();

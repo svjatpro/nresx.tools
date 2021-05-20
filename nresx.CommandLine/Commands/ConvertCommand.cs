@@ -9,6 +9,11 @@ namespace nresx.CommandLine.Commands
     [Verb("convert", HelpText = "convert to another format")]
     public class ConvertCommand : BaseCommand, ICommand
     {
+        protected override bool IsCreateNewElementAllowed => true;
+        protected override bool IsCreateNewFileAllowed => true;
+        protected override bool IsFormatAllowed => true;
+        protected override bool IsRecursiveAllowed => true;
+
         public override void Execute()
         {
             GetSourceDestinationPair( out var source, out var destination );

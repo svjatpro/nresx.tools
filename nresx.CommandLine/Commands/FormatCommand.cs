@@ -24,6 +24,12 @@ namespace nresx.CommandLine.Commands
         [Option( "delete", HelpText = "Remove prefix or postfix", Required = false)]
         public bool Delete { get; set; }
 
+
+        protected override bool IsCreateNewElementAllowed => true;
+        protected override bool IsCreateNewFileAllowed => true;
+        protected override bool IsFormatAllowed => true;
+        protected override bool IsRecursiveAllowed => true;
+
         public override void Execute()
         {
             ForEachSourceFile(

@@ -67,7 +67,7 @@ namespace nresx.CommandLine.Tests.Info
             var files = PrepareFiles( out var fileKey );
             var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { fileKey }} );
 
-            args.ConsoleOutput.Count.Should().Be( 8 );
+            args.ConsoleOutput.Count.Should().Be( 7 );
             ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
             ValidateOutputInfo( args.ConsoleOutput, 4, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
         }
@@ -82,7 +82,7 @@ namespace nresx.CommandLine.Tests.Info
             var files = PrepareFiles( out var fileKey );
             var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey } } );
 
-            args.ConsoleOutput.Count.Should().Be( 12 );
+            args.ConsoleOutput.Count.Should().Be( 11 );
             ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
             ValidateOutputInfo( args.ConsoleOutput, 4, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
             ValidateOutputInfo( args.ConsoleOutput, 8, Path.GetFileName( files[2] ), Path.GetFullPath( files[2] ) );
@@ -98,8 +98,7 @@ namespace nresx.CommandLine.Tests.Info
         {
             var args = Run( commandLine );
             
-            args.ConsoleOutput.Count.Should().Be( 2 );
-            args.ConsoleOutput[0].Should().Be( $"fatal: Invalid path: '{args.UniqueKeys[0]}\\*.resx': no such file or directory" );
+            args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: Invalid path: '{args.UniqueKeys[0]}\\*.resx': no such file or directory" );
         }
 
         [TestCase( @"nonexisting.resx" )]
@@ -109,8 +108,7 @@ namespace nresx.CommandLine.Tests.Info
         {
             var args = Run( commandLine );
 
-            args.ConsoleOutput.Count.Should().Be( 2 );
-            args.ConsoleOutput[0].Should().StartWith( $"fatal: path mask '{commandLine}' did not match any files" );
+            args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path mask '{commandLine}' did not match any files" );
         }
 
         [TestCase( @"[TmpFile] [UniqueKey] [TmpFile]" )]
@@ -129,7 +127,8 @@ namespace nresx.CommandLine.Tests.Info
             var fileName = $"{GetTestPath( TestData.WrongFormatResourceFile )}";
             var args = Run( $"info {fileName}" );
 
-            args.ConsoleOutput[0].Should().StartWith( $"fatal: invalid file: '{new FileInfo( fileName ).FullName}' can't load resource file" );
+            //args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: invalid file: '{new FileInfo( fileName ).FullName}' can't load resource file" );
+            args.ConsoleOutput.Should().BeEquivalentTo( FormatUndefinedErrorMessage );
         }
 
         [TestCase( @"[Output]\\[UniqueKey]*.resx -r" )]
@@ -145,7 +144,7 @@ namespace nresx.CommandLine.Tests.Info
 
             var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey } } );
 
-            args.ConsoleOutput.Count.Should().Be( 14 );
+            args.ConsoleOutput.Count.Should().Be( 13 );
             args.ConsoleOutput[0].Should().StartWith( $"fatal: invalid file: '{new FileInfo( wrongFile ).FullName}' can't load resource file" );
             ValidateOutputInfo( args.ConsoleOutput, 2, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
             ValidateOutputInfo( args.ConsoleOutput, 6, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );

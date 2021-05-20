@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using CommandLine;
 using nresx.Tools;
 using nresx.Tools.Exceptions;
@@ -35,19 +36,19 @@ namespace nresx.CommandLine.Commands
 
         [Option( 'r', "recursive", HelpText = "Search source files recursively" )]
         public bool Recursive { get; set; }
-        protected virtual bool IsRecursiveAllowed => true;
+        protected virtual bool IsRecursiveAllowed => false;
 
-        [Option( 'n', "new-file", HelpText = "Create new file, if it not exists" )]
+        [Option( "new-file", HelpText = "Create new file, if it not exists" )]
         public bool CreateNewFile { get; set; }
-        protected virtual bool IsCreateNewFileAllowed => true;
+        protected virtual bool IsCreateNewFileAllowed => false;
 
         [Option( "new-element", HelpText = "Create new element, if it not exists" )]
         public bool CreateNewElement { get; set; }
-        protected virtual bool IsCreateNewElementAllowed => true;
+        protected virtual bool IsCreateNewElementAllowed => false;
         
         [Option( 'f', "format", HelpText = "New resource format" )]
         public string Format { get; set; }
-        protected virtual bool IsFormatAllowed => true;
+        protected virtual bool IsFormatAllowed => false;
 
 
 
@@ -83,61 +84,84 @@ namespace nresx.CommandLine.Commands
 
         protected void ForEachSourceFile(
             List<string> sourceFiles, 
-            Action<FileInfo, ResourceFile> resourceAction,
-            Action<FileInfo, Exception> errorHandler = null )
+            Action<FilesSearchContext, ResourceFile> resourceAction,
+            Action<FilesSearchContext, Exception> errorHandler = null,
+            bool splitFiles = false)
         {
             if ( sourceFiles?.Count > 0 )
             {
-                foreach ( var sourcePattern in sourceFiles )
+                for ( var i = 0; i < sourceFiles.Count; i++ )
                 {
-                    try
-                    {
-                        FilesHelper.SearchResourceFiles(
-                            sourcePattern,
-                            resourceAction,
-                            errorHandler ??
-                            ( ( fileInfo, exception ) =>
-                            {
-                                switch ( exception )
-                                {
-                                    case FileNotFoundException:
-                                        Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
-                                        break;
-                                    case FileLoadException:
-                                    default:
-                                        Console.WriteLine( FileLoadErrorMessage, fileInfo.FullName );
-                                        break;
-                                }
-
+                    var sourcePattern = sourceFiles[i];
+                    //try
+                    //{
+                    if( i > 0 && splitFiles ) Console.WriteLine( new string( '-', 30 ) );
+                    FilesHelper.SearchResourceFiles(
+                        sourcePattern,
+                        resourceAction,
+                        errorHandler ??
+                        ( ( context, exception ) =>
+                        {
+                            //if ( Interlocked.Read( ref filesProcessed ) > 0 )
+                            if ( ( context.FilesProcessed + context.FilesFaled ) > 0 )
                                 Console.WriteLine( new string( '-', 30 ) );
-                            } ),
-                            recursive: Recursive && IsRecursiveAllowed,
-                            createNew: CreateNewFile && IsCreateNewFileAllowed,
-                            dryRun: DryRun && IsDryRunAllowed, 
-                            formatOption: IsFormatAllowed ? Format.ToExtension() : null);
-                    }
-                    catch ( FileNotFoundException ex )
-                    {
-                        Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
-                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    }
-                    catch ( DirectoryNotFoundException ex )
-                    {
-                        Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
-                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    }
-                    catch ( UnknownResourceFormatException ex )
-                    {
-                        Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
-                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    }
-                    catch ( Exception e )
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine( e );
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    }
+
+                            switch ( exception )
+                            {
+                                case FileNotFoundException:
+                                    Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
+                                    break;
+                                case DirectoryNotFoundException:
+                                    Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
+                                    break;
+                                case UnknownResourceFormatException:
+                                    Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
+                                    break;
+                                case FileLoadException:
+                                default:
+                                    Console.WriteLine( FileLoadErrorMessage, context.CurrentFile.FullName );
+                                    break;
+                            }
+                        } ),
+                        recursive: Recursive && IsRecursiveAllowed,
+                        createNew: CreateNewFile && IsCreateNewFileAllowed,
+                        dryRun: DryRun && IsDryRunAllowed,
+                        formatOption: IsFormatAllowed ? Format.ToExtension() : null );
+                    //}
+                    //catch ( FileNotFoundException ex )
+                    //{
+                    //    if ( filesProcessed > 0 )
+                    //        Console.WriteLine( new string( '-', 30 ) );
+                    //    Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
+                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
+                    //    Interlocked.Increment( ref filesProcessed );
+                    //}
+                    //catch ( DirectoryNotFoundException ex )
+                    //{
+                    //    if ( filesProcessed > 0 )
+                    //        Console.WriteLine( new string( '-', 30 ) );
+                    //    Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
+                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
+                    //    Interlocked.Increment( ref filesProcessed );
+                    //}
+                    //catch ( UnknownResourceFormatException ex )
+                    //{
+                    //    if ( filesProcessed > 0 )
+                    //        Console.WriteLine( new string( '-', 30 ) );
+                    //    Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
+                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
+                    //    Interlocked.Increment( ref filesProcessed );
+                    //}
+                    //catch ( Exception e )
+                    //{
+                    //    Console.ForegroundColor = ConsoleColor.Red;
+                    //    if ( filesProcessed > 0 )
+                    //        Console.WriteLine( new string( '-', 30 ) );
+                    //    Console.WriteLine( e );
+                    //    Console.ForegroundColor = ConsoleColor.Gray;
+                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
+                    //    Interlocked.Increment( ref filesProcessed );
+                    //}
                 }
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using nresx.Tools.Exceptions;
 using nresx.Tools.Formatters;
 
 namespace nresx.Tools
@@ -84,7 +85,7 @@ namespace nresx.Tools
             else
             {
                 // todo: detect type by content
-                throw new FileLoadException( "the file is in unknown format" );
+                throw new UnknownResourceFormatException();
             }
 
             var fileInfo = new FileInfo( path );
@@ -115,7 +116,7 @@ namespace nresx.Tools
             else
             {
                 // todo: detect type by content
-                throw new FileLoadException( "the file is in unknown format" );
+                throw new UnknownResourceFormatException();
             }
 
             var path = ( stream as FileStream )?.Name;

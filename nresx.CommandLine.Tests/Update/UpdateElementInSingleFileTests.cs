@@ -54,9 +54,7 @@ namespace nresx.CommandLine.Tests.Update
             var file = GetOutputPath( args.UniqueKeys[0] );
             new FileInfo( file ).Exists.Should().BeFalse();
             
-            args.ConsoleOutput.Should().BeEquivalentTo( 
-                string.Format( FilesNotFoundErrorMessage, file ),
-                ElementsSeparateLine );
+            args.ConsoleOutput.Should().BeEquivalentTo( string.Format( FilesNotFoundErrorMessage, file ) );
         }
         
         [TestCase( @"update [UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey]" )]
@@ -72,9 +70,7 @@ namespace nresx.CommandLine.Tests.Update
             var file = $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
 
-            args.ConsoleOutput.Should().BeEquivalentTo(
-                string.Format( DirectoryNotFoundErrorMessage, file ),
-                ElementsSeparateLine );
+            args.ConsoleOutput.Should().BeEquivalentTo( string.Format( DirectoryNotFoundErrorMessage, file ) );
         }
 
         [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey]" )]

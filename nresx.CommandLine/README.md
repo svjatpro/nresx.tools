@@ -5,6 +5,7 @@ Command line tool
 - [List](#list)
 - [Add](#add)
 - [Update](#update)
+- [Rename](#rename)
 - [Remove](#remove)
 
 ## Convert resource file(s) to another format
@@ -85,6 +86,7 @@ nresx list [-s] <pathspec> [-t <output template>]
 #### Options
 
 **-s | --source** Resource file(s) to process, can be a pathspec\
+**-r | --recursive** Process resource files in subdirectories\
 **-t | --template** Output row template for each text element in a resource file,\
 possible tags are:\
 - \k - element key
@@ -103,22 +105,23 @@ nresx list <file1>
 nresx list <file1> -t "some prefix \k: \v, (\c)"
 ```
 
+
 ## Add
 Add resource item to resource file(s)
 
 ```sh
 nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comment>] 
-[--dry-run] [--recursive]
+  [--dry-run] [--recursive]
 ```
 
 #### Options
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
+**--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **-k | --key**  Element key\
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
-**-n | --new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **--dry-run**
 
 #### Examples
@@ -139,10 +142,11 @@ nresx add *.resw -r -k key1 -v value1
 ```
 
 ## Update
-Update resource item in resource file
+Update resource item in resource file(s)
 
 ```sh
-nresx update [-s] <pathspec> -k <element key> [-v <element value>] [-c <element comment>]
+nresx update [-s] <pathspec> -k <element key> [-v <element value>] [-c <element comment>] 
+  [--dry-run] [--recursive] [--new-element]
 ```
 
 #### Options
@@ -152,7 +156,7 @@ nresx update [-s] <pathspec> -k <element key> [-v <element value>] [-c <element 
 **-k | --key**  Element key\
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
-**-n | --new-element** Will create new element, if it not exist\
+**--new-element** Will create new element, if it not exist\
 **--dry-run**
 
 #### Examples
@@ -173,12 +177,40 @@ nresx update *.resw -r -k key1 -v value1
 ```
 
 
+## Rename
+Rename resource item in resource file(s)
+
+```sh
+nresx rename [-s] <pathspec> -k <element key> -n <new key>
+  [--dry-run] [--recursive]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-k | --key**  Element key\
+**-n | --new-key**  New key\
+**--dry-run**
+
+#### Examples
+
+```sh
+# will rename single element in the "file1" resource file
+nresx rename file1 -k key1 -n key2
+
+# will rename single element in all *.resx files, starting from current directory
+nresx rename *.resx -k key1 -n key2 --recursive
+```
+
+
 ## Remove
 Remove resource elements(s) from resource file(s)
 
 ```sh
 nresx remove [-s] <pathspec> [<pathspec> ..] [-k <element key> [<element key> ..]] 
- [--empty | --empty-key | --empty-value] [--dry-run] [--recursive]
+  [--empty | --empty-key | --empty-value] 
+  [--dry-run] [--recursive]
 ```
 
 #### Options

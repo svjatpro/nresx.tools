@@ -5,11 +5,29 @@ using nresx.Tools.Extensions;
 
 namespace nresx.Tools.Helpers
 {
+    public class FilesSearchContext
+    {
+        public readonly string PathSpec;
+        public readonly FileInfo CurrentFile;
+        public readonly int FilesProcessed;
+        public readonly int FilesFaled;
+
+        public FilesSearchContext( string pathSpec, int filesProcessed = 0, int filesFaled = 0 )
+        {
+            PathSpec = pathSpec;
+            if ( PathSpec.IsFileName() ) CurrentFile = new FileInfo( pathSpec );
+            FilesProcessed = filesProcessed;
+            FilesFaled = filesFaled;
+        }
+
+        public string FileName => CurrentFile?.Name ?? Path.GetFileName( PathSpec);
+        public string FullName => CurrentFile?.FullName ?? PathSpec;
+    }
     public class FilesHelper
     {
         public static void SearchResourceFiles( string filePattern,
-            Action<FileInfo, ResourceFile> action,
-            Action<FileInfo, Exception> errorHandler = null,
+            Action<FilesSearchContext, ResourceFile> action,
+            Action<FilesSearchContext, Exception> errorHandler = null,
             bool recursive = false,
             bool createNew = false,
             bool dryRun = false,
@@ -29,32 +47,36 @@ namespace nresx.Tools.Helpers
                 }
                 else
                 {
-                    throw new DirectoryNotFoundException();
+                    var exc = new DirectoryNotFoundException();
+                    if ( errorHandler != null )
+                    {
+                        errorHandler( new FilesSearchContext( rootDir.FullName ), exc );
+                        return;
+                    }
+                    throw exc;
                 }
             }
 
-            void ProcessResourceFile( 
-                string fileName, 
+            bool ProcessResourceFile( 
+                FilesSearchContext context, 
                 Func<ResourceFile> resBuilder, 
-                Action<FileInfo, ResourceFile> resAction, 
-                Action<FileInfo, Exception> resErrorHandler )
+                Action<FilesSearchContext, ResourceFile> resAction, 
+                Action<FilesSearchContext, Exception> resErrorHandler )
             {
-                var fileInfo = new FileInfo( fileName );
                 try
                 {
                     var resource = resBuilder();
-                    action( fileInfo, resource );
+                    action( context, resource );
+                    return true;
                 }
                 catch ( Exception ex )
                 {
                     if ( errorHandler != null )
                     {
-                        errorHandler( fileInfo, ex );
+                        errorHandler( context, ex );
+                        return false;
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
             
@@ -64,30 +86,68 @@ namespace nresx.Tools.Helpers
                 {
                     ResourceFormatType format;
                     if ( ResourceFormatHelper.DetectFormatByExtension( formatOption, out var formatByOption ) )
+                    {
                         format = formatByOption;
+                    }
                     else if ( ResourceFormatHelper.DetectFormatByExtension( filePattern, out var formatByExtension ) )
+                    {
                         format = formatByExtension;
+                    }
                     else
-                        throw new UnknownResourceFormatException();
+                    {
+                        var exc = new UnknownResourceFormatException();
+                        if ( errorHandler != null )
+                        {
+                            errorHandler( new FilesSearchContext( rootDir.FullName ), exc );
+                            return;
+                        }
+                        throw exc;
+                    }
 
-                    ProcessResourceFile( filePattern, () => new ResourceFile( format ), action, errorHandler );
+                    ProcessResourceFile( 
+                        new FilesSearchContext( filePattern ),
+                        () => new ResourceFile( format ), action, errorHandler );
                 }
                 else
                 {
-                    throw new FileNotFoundException();
+                    var exc = new FileNotFoundException();
+                    if ( errorHandler != null )
+                    {
+                        errorHandler( new FilesSearchContext( filePattern ), exc );
+                        return;
+                    }
+                    throw exc;
                 }
                 return;
             }
 
             var filesProcessed = 0;
+            var filesFailed = 0;
             var mask = Path.GetFileName( filePattern );
             foreach ( var file in Directory.EnumerateFiles( rootDir.FullName, mask, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly ) )
             {
-                filesProcessed++;
-                ProcessResourceFile( file, () => new ResourceFile( file ), action, errorHandler );
+                if ( ProcessResourceFile(
+                    new FilesSearchContext( file, filesProcessed, filesFailed ),
+                    () => new ResourceFile( file ), action, errorHandler ) )
+                {
+                    filesProcessed++;
+                }
+                else
+                {
+                    filesFailed++;
+                }
             }
 
-            if ( filesProcessed == 0 ) throw new FileNotFoundException();
+            if ( filesProcessed + filesFailed == 0 )
+            {
+                var exc = new FileNotFoundException();
+                if ( errorHandler != null )
+                {
+                    errorHandler( new FilesSearchContext( filePattern, filesProcessed, filesFailed ), exc );
+                    return;
+                }
+                throw exc;
+            }
         }
 
         public static void SearchFiles( string filePattern,

@@ -16,6 +16,10 @@ namespace nresx.CommandLine.Commands
         [Option( 'c', "comment", HelpText = "element comment" )]
         public string Comment { get; set; }
 
+        protected override bool IsCreateNewElementAllowed => true;
+        protected override bool IsCreateNewFileAllowed => true;
+        protected override bool IsFormatAllowed => true;
+        protected override bool IsRecursiveAllowed => true;
 
         public override void Execute()
         {

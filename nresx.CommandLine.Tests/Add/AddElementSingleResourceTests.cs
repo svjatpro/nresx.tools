@@ -108,7 +108,7 @@ namespace nresx.CommandLine.Tests.Add
             args.ConsoleOutput[0].Should().Be( $"fatal: Invalid path: '{newFile}': no such file or directory" );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -n -r" )]
+        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new-file -r" )]
         [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file --recursive" )]
         public void AddSingleElementToNonExistingResourceShouldCreateDirectory( string commandLine )
         {
@@ -123,7 +123,7 @@ namespace nresx.CommandLine.Tests.Add
             res.Elements.Should().ContainSingle( el => el.Key == key && el.Value == value );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -n -r --dry-run" )]
+        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] --new-file -r --dry-run" )]
         [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --new-file --recursive --dry-run" )]
         public void AddSingleElementToNonExistingResourceShouldCreateDirectoryDryRun( string commandLine )
         {

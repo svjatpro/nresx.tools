@@ -2,8 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "add c:\\tmp\\1\\2\\3\\res1.resx -k key1 -v value1 -n -r",
-      "workingDirectory": "C:\\_Projects\\iHeart.UWP.Localize\\IHeartRadio.App"
+      "commandLineArgs": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_files\\Resources.non"
     }
   }
 }
