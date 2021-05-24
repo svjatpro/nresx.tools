@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "copy C:\\Tmp\\1\\res1.resx res2.yaml"
+      "commandLineArgs": "copy C:\\Tmp\\1\\2ArP2ooC.resx c:\\tmp\\1\\OWNwjMEb.yaml --overwrite"
     }
   }
 }

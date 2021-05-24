@@ -7,6 +7,7 @@ Command line tool
 - [Update](#update)
 - [Rename](#rename)
 - [Remove](#remove)
+- [Copy](#copy)
 
 ## Convert resource file(s) to another format
 
@@ -237,4 +238,33 @@ nresx remove <file1> --empty-value
 
 # will remove from all *.yaml files in current dir, including subirectories all items, which have empty key or value
 nresx remove *.yaml -r --empty
+```
+
+
+## Copy
+Copy resource elements(s) from one resource file to another
+
+```sh
+nresx copy [-s] <pathspec> [-d] <pathspec>
+  [--skip | --overwrite]
+  [--dry-run]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**--skip**  Will skip duplicated elements (default option)
+**--overwrite**  Will overwrite duplicated elements
+**--dry-run**
+
+#### Examples
+
+```sh
+# will copy all elements from the "file1" to "file2", if "file2" is not exist, it will be created
+nresx copy <file1> <file2>
+
+# will copy all elements from the "file1" to "file2", duplicated elements will be overwriten
+nresx copy <file1> <file2> --overwrite
 ```

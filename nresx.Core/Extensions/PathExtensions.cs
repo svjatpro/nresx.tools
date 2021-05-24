@@ -13,7 +13,8 @@ namespace nresx.Tools.Extensions
                 return path;
 
             var fileName = Path.GetFileName( path );
-            var dir = new DirectoryInfo( Path.GetDirectoryName( path ) ?? string.Empty );
+            var dirPath = Path.GetDirectoryName( path );
+            var dir = new DirectoryInfo( string.IsNullOrWhiteSpace( dirPath ) ? Environment.CurrentDirectory : dirPath );
 
             //if ( !dir.Exists ) // can break dry run usage
             //    return fileName;

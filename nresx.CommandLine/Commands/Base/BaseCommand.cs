@@ -10,94 +10,6 @@ using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
-    public class OptionContext
-    {
-        public readonly List<string> FreeArgs;
-        public readonly bool Success;
-        public readonly List<string> Errors;
-        
-        public OptionContext( List<string> freeArgs, bool hasErrors, List<string> errors = null )
-        {
-            FreeArgs = freeArgs;
-            Success = hasErrors;
-            Errors = errors ?? new List<string>();
-        }
-    }
-    public static class CommandExtensions
-    {
-        private const string MissingOptionMessage = "Required option '{0}' is missing.";
-
-        public static OptionContext Multiple( 
-            this OptionContext context, 
-            IEnumerable<string> mappedValues, 
-            out List<string> values, 
-            bool mandatory = false, 
-            string optionName = null )
-        {
-            var src = mappedValues?.ToList();
-            var args = context.FreeArgs?.ToList();
-            var errors = context.Errors;
-            values = new List<string>();
-
-            if ( src?.Count > 0 )
-            {
-                values.AddRange( src );
-            }
-            else if( args.TryTake( out var val ) )
-            {
-                values.Add( val );
-            }
-
-            var success = !mandatory || values?.Count > 0;
-            if ( !success && optionName != null )
-                errors.Add( string.Format( MissingOptionMessage, optionName ) );
-
-            return new OptionContext( args, success, errors );
-        }
-
-        public static OptionContext Single( 
-            this OptionContext context, 
-            string mappedValue, 
-            out string value, 
-            bool mandatory = false,
-            string optionName = null )
-        {
-            var args = context.FreeArgs?.ToList();
-            var errors = context.Errors;
-
-            if ( !string.IsNullOrWhiteSpace( mappedValue ) )
-            {
-                value = mappedValue;
-            }
-            else if ( args.TryTake( out var val ) )
-            {
-                value = val;
-            }
-            else
-            {
-                value = null;
-            }
-
-            var success = !mandatory || !string.IsNullOrWhiteSpace( value );
-            if ( !success && optionName != null )
-                errors.Add( string.Format( MissingOptionMessage, optionName ) );
-
-            return new OptionContext( args, success, errors );
-        }
-
-        public static bool Validate( this OptionContext context )
-        {
-            if ( !context.Success )
-            {
-                foreach ( var error in context.Errors )
-                {
-                    Console.WriteLine( error );
-                }
-            }
-            return context.Success;
-        }
-    }
-
     public abstract class BaseCommand : ICommand
     {
         #region private fields
@@ -185,8 +97,6 @@ namespace nresx.CommandLine.Commands
                 for ( var i = 0; i < sourceFiles.Count; i++ )
                 {
                     var sourcePattern = sourceFiles[i];
-                    //try
-                    //{
                     if( i > 0 && splitFiles ) Console.WriteLine( new string( '-', 30 ) );
                     FilesHelper.SearchResourceFiles(
                         sourcePattern,
@@ -194,7 +104,6 @@ namespace nresx.CommandLine.Commands
                         errorHandler ??
                         ( ( context, exception ) =>
                         {
-                            //if ( Interlocked.Read( ref filesProcessed ) > 0 )
                             if ( ( context.FilesProcessed + context.FilesFaled ) > 0 )
                                 Console.WriteLine( new string( '-', 30 ) );
 
@@ -219,41 +128,6 @@ namespace nresx.CommandLine.Commands
                         createNew: CreateNewFile && IsCreateNewFileAllowed,
                         dryRun: DryRun && IsDryRunAllowed,
                         formatOption: IsFormatAllowed ? Format.ToExtension() : null );
-                    //}
-                    //catch ( FileNotFoundException ex )
-                    //{
-                    //    if ( filesProcessed > 0 )
-                    //        Console.WriteLine( new string( '-', 30 ) );
-                    //    Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
-                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    //    Interlocked.Increment( ref filesProcessed );
-                    //}
-                    //catch ( DirectoryNotFoundException ex )
-                    //{
-                    //    if ( filesProcessed > 0 )
-                    //        Console.WriteLine( new string( '-', 30 ) );
-                    //    Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
-                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    //    Interlocked.Increment( ref filesProcessed );
-                    //}
-                    //catch ( UnknownResourceFormatException ex )
-                    //{
-                    //    if ( filesProcessed > 0 )
-                    //        Console.WriteLine( new string( '-', 30 ) );
-                    //    Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
-                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    //    Interlocked.Increment( ref filesProcessed );
-                    //}
-                    //catch ( Exception e )
-                    //{
-                    //    Console.ForegroundColor = ConsoleColor.Red;
-                    //    if ( filesProcessed > 0 )
-                    //        Console.WriteLine( new string( '-', 30 ) );
-                    //    Console.WriteLine( e );
-                    //    Console.ForegroundColor = ConsoleColor.Gray;
-                    //    //Console.WriteLine( new string( '-', 30 ) ); // todo: replace with '====' split line, and show only for multiple files
-                    //    Interlocked.Increment( ref filesProcessed );
-                    //}
                 }
             }
         }

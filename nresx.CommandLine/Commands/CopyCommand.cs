@@ -15,6 +15,8 @@ namespace nresx.CommandLine.Commands
         public bool OverwriteDuplicates { get; set; }
         
         protected override bool IsRecursiveAllowed => true;
+        protected override bool IsCreateNewFileAllowed => true;
+        protected override bool IsFormatAllowed => true;
 
         public override void Execute()
         {
@@ -27,8 +29,12 @@ namespace nresx.CommandLine.Commands
                 return;
 
             var destination = new ResourceFile( destFile );
-            
-            //var sourceFiles = GetSourceFiles();
+            if ( destination.IsNewFile && !CreateNewFile )
+            {
+                Console.WriteLine( FilesNotFoundErrorMessage, destFile.GetShortPath() );
+                return;
+            }
+
             ForEachSourceFile(
                 sourceFiles,
                 ( file, resource ) =>
@@ -41,10 +47,14 @@ namespace nresx.CommandLine.Commands
                             destination.Elements.Add( element.Key, element.Value, element.Comment );
                             Console.WriteLine( $"'{element.Key}' element have been copied to '{destFile.GetShortPath()}' file" );
                         }
-                        else if ( OverwriteDuplicates )
+                        else if ( OverwriteDuplicates &&
+                                ( element.Value != destElement.Value || element.Comment != destElement.Comment ) )
                         {
-                            destElement.Value = element.Value;
-                            destElement.Comment = element.Comment;
+                            if ( !DryRun )
+                            {
+                                destElement.Value = element.Value;
+                                destElement.Comment = element.Comment;
+                            }
                             Console.WriteLine( $"'{element.Key}' element have been overwritten in '{destFile.GetShortPath()}' file" );
                         }
                     }
