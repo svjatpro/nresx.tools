@@ -2,7 +2,8 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "copy C:\\Tmp\\1\\2ArP2ooC.resx c:\\tmp\\1\\OWNwjMEb.yaml --overwrite"
+      "commandLineArgs": "convert sdikUmIs* dir1\\*.yaml",
+      "workingDirectory": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output"
     }
   }
 }

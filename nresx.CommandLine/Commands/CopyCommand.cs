@@ -1,5 +1,6 @@
 ﻿using System;
 using CommandLine;
+using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
 using nresx.Tools.Extensions;
 
@@ -22,7 +23,7 @@ namespace nresx.CommandLine.Commands
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true )
-                .Single( Destination, out var destFile, mandatory: true )
+                .Single( DestinationFiles, out var destFile, mandatory: true )
                 .Validate();
 
             if ( !optionsParsed )

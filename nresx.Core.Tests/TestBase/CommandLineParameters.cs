@@ -6,10 +6,14 @@ namespace nresx.Core.Tests
     {
         public readonly List<string> UniqueKeys = new();
         public readonly List<string> SourceFiles = new();
-        public readonly List<string> DestinationFiles = new();
-        public readonly List<string> TemporaryFiles = new();
         public readonly List<string> NewFiles = new();
+        public readonly List<string> NewDirectories = new();
+        public readonly List<string> TemporaryFiles = new();
 
+        public bool DryRun { get; set; }
+        public bool Recursive { get; set; }
+
+        public string CommandLine { get; set; }
         public readonly List<string> ConsoleOutput = new();
         public int ExitCode { get; set; }
     }

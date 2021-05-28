@@ -17,9 +17,9 @@
         /// <summary>
         /// Generated destination file path
         ///  equal to "[Output]\\[UniqueKey].resx"
-        ///  or can be used with dynamic resource type/extension, like [DestFile.yaml]
+        ///  or can be used with dynamic resource type/extension, like [NewFile.yaml]
         /// </summary>
-        public const string DestFile = "[DestFile]";
+        public const string NewFile = "[NewFile]";
 
         /// <summary>
         /// Temporary file, copied from default resource file
@@ -28,12 +28,12 @@
         /// </summary>
         public const string TemporaryFile = "[TmpFile]";
 
-        /// <summary>
-        /// New generated file name, with unique name, and Output dir as a path
-        /// </summary>
-        public const string NewFile = "[NewFile]";
-
         /// <summary> Generated unique key </summary>
         public const string UniqueKey = "[UniqueKey]";
+
+        /// <summary>
+        /// Create new random directory
+        /// </summary>
+        public const string NewDir = "[NewDir]";
     }
 }

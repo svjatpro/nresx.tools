@@ -1,59 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using FluentAssertions;
 using nresx.Tools;
-using nresx.Tools.Extensions;
-using nresx.Tools.Helpers;
 
 namespace nresx.Core.Tests
 {
     public class TestBase
     {
-        #region Private methods
-
-        private void ReplaceTags( StringBuilder resultCmdLine, string tagPlaceholder, Func<ResourceFormatType, string> getTagValue )
-        {
-            var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
-            var regx = new Regex( $"\\[{tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
-            var matches = regx.Matches( resultCmdLine.ToString() );
-
-            foreach ( Match match in matches )
-            {
-                string tag;
-                var formatType = ResourceFormatType.Resx;
-                if ( match.Groups.Count > 1 && !string.IsNullOrWhiteSpace( match.Groups[1].Value ) )
-                {
-                    var ext = match.Groups[1].Value;
-                    if ( ResourceFormatHelper.DetectFormatByExtension( ext, out var t ) )
-                        formatType = t;
-                    tag = $"[{tagName}{match.Groups[1].Value}]";
-                }
-                else
-                {
-                    tag = $"[{tagName}]";
-                }
-
-                for ( int p = 0, i = resultCmdLine.ToString().IndexOf( tag, StringComparison.InvariantCulture );
-                    i >= 0;
-                    p += i, i = resultCmdLine.ToString( p, resultCmdLine.Length - p ).IndexOf( tag, StringComparison.Ordinal ) )
-                {
-                    resultCmdLine.Replace( tag, getTagValue( formatType ), p + i, tag.Length );
-                }
-            }
-        }
-
-        #endregion
-
-
         protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";    
         protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
         protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
         protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
+        protected const string FileAlreadyExistErrorMessage = "fatal: file '{0}' already exist";
+
         protected readonly string ElementsSeparateLine = new( '-', 30 );
         
         public static void CleanOutputDir()
@@ -80,129 +41,35 @@ namespace nresx.Core.Tests
             }
         }
 
+        [Obsolete("use TestData.UniqueKey() instead")]
         protected string UniqueKey( int length = 8 )
         {
-            var key = Convert.ToBase64String( Guid.NewGuid().ToByteArray() )
-                .Replace( "+", "" )
-                .Replace( "/", "" )
-                .Replace( "=", "" );
-            return key.Substring( 0, Math.Min( length, key.Length ) );
+            return TestData.UniqueKey();
         }
 
         protected string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
         {
-            var path = Path.Combine( TestData.TestFileFolder, fileName );
-            if ( !Path.HasExtension( path ) && ResourceFormatHelper.DetectExtension( type, out var extension ) )
-                path = Path.ChangeExtension( path, extension );
-            return path;
+            return TestHelper.GetTestPath( fileName, type );
         }
 
         protected string GetOutputPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
         {
-            var path = Path.Combine( TestData.OutputFolder, fileName );
-            if ( !Path.HasExtension( path ) && ResourceFormatHelper.DetectExtension( type, out var extension ) )
-                path = Path.ChangeExtension( path, extension );
-            return path;
+            return TestHelper.GetOutputPath( fileName, type );
         }
 
+        [Obsolete( "use TestHelper.PrepareCommandLine() instead" )]
         protected string PrepareCommandLine( 
             string cmdLine, 
             out CommandLineParameters parameters,
             CommandLineParameters predefinedParams = null )
         {
-            var resultParams = new CommandLineParameters();
-            var resultCmdLine = new StringBuilder( cmdLine );
-
-            // replace static params
-            resultCmdLine
-                .Replace( CommandLineTags.FilesDir, TestData.TestFileFolder )
-                .Replace( CommandLineTags.OutputDir, TestData.OutputFolder );
-            
-            // get resource files and replace its paths
-            ReplaceTags(
-                resultCmdLine, CommandLineTags.SourceFile,
-                type =>
-                {
-                    if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
-                        return p;
-
-                    var path = GetTestPath( TestData.ExampleResourceFile, type );
-                    resultParams.SourceFiles.Add( path );
-                    return path;
-                } );
-
-            // generate output files paths and replace in commant line
-            ReplaceTags(
-                resultCmdLine, CommandLineTags.DestFile,
-                type =>
-                { 
-                    if ( predefinedParams != null && predefinedParams.DestinationFiles.TryTake( out var p ) )
-                        return p;
-                    
-                    var path = GetOutputPath( UniqueKey(), type );
-                    resultParams.DestinationFiles.Add( path );
-                    return path;
-                } );
-
-            // generate temporary files and replace its paths
-            ReplaceTags(
-                resultCmdLine, CommandLineTags.TemporaryFile,
-                type =>
-                {
-                    if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
-                        return p;
-
-                    var destPath = CopyTemporaryFile( copyType: type );
-                    resultParams.TemporaryFiles.Add( destPath );
-                    return destPath;
-                } );
-
-            // generate new file names
-            ReplaceTags(
-                resultCmdLine, CommandLineTags.NewFile,
-                type =>
-                {
-                    if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
-                        return p;
-
-                    var path = GetOutputPath( UniqueKey(), type );
-                    resultParams.NewFiles.Add( path );
-                    return path;
-                } );
-
-            // generate unique key(s) and replace in command line
-            ReplaceTags(
-                resultCmdLine, CommandLineTags.UniqueKey,
-                type =>
-                {
-                    if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )
-                        return p;
-
-                    var key = UniqueKey();
-                    resultParams.UniqueKeys.Add( key );
-                    return key;
-                } );
-
-            parameters = resultParams;
-            return resultCmdLine.ToString();
+            return TestHelper.PrepareCommandLine( cmdLine, out parameters, predefinedParams );
         }
 
+        [Obsolete( "use TestHelper.Run() instead" )]
         protected CommandLineParameters Run( string cmdLine, CommandLineParameters parameters = null )
         {
-            var args = PrepareCommandLine( cmdLine, out var p, parameters );
-
-            var cmd = $"/C nresx {args}";
-            var process = new Process();
-            process.StartInfo = new ProcessStartInfo( "CMD.exe", cmd );
-            process.StartInfo.RedirectStandardOutput = true;
-            process.Start();
-            process.WaitForExit( 5000 );
-
-            p.ExitCode = process.ExitCode;
-            while ( !process.StandardOutput.EndOfStream )
-                p.ConsoleOutput.Add( process.StandardOutput.ReadLine() );
-            
-            return p;
+            return TestHelper.RunCommandLine( cmdLine, parameters );
         }
 
         protected void ValidateElements( ResourceFile resource )
@@ -223,21 +90,6 @@ namespace nresx.Core.Tests
             return example;
         }
 
-        protected string CopyTemporaryFile( 
-            string sourcePath = null, 
-            string destPath = null,
-            ResourceFormatType copyType = ResourceFormatType.Resx )
-        {
-            var key = UniqueKey();
-            if( string.IsNullOrWhiteSpace( destPath ) )
-                destPath = GetOutputPath( key, copyType );
-
-            var resx = new ResourceFile( sourcePath ?? GetTestPath( TestData.ExampleResourceFile ) );
-            resx.Save( destPath, copyType );
-
-            return destPath;
-        }
-         
         protected void AddExampleElements( ResourceFile res )
         {
             var example = GetExampleResourceFile();
@@ -245,6 +97,16 @@ namespace nresx.Core.Tests
                 res.Elements.Add( el.Key, el.Value, el.Comment );
         }
 
+        [Obsolete( "use TestHelper.CopyTemporaryFile() instead" )]
+        protected string CopyTemporaryFile(
+            string sourcePath = null, 
+            string destPath = null,
+            string destDir = null,
+            ResourceFormatType copyType = ResourceFormatType.Resx )
+        {
+            return TestHelper.CopyTemporaryFile( sourcePath, destPath, destDir, copyType );
+        }
+         
         protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey )
         {
             fileKey = UniqueKey();

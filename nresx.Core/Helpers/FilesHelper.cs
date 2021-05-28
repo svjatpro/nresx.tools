@@ -15,7 +15,7 @@ namespace nresx.Tools.Helpers
         public FilesSearchContext( string pathSpec, int filesProcessed = 0, int filesFaled = 0 )
         {
             PathSpec = pathSpec;
-            if ( PathSpec.IsFileName() ) CurrentFile = new FileInfo( pathSpec );
+            if ( PathSpec.IsRegularName() ) CurrentFile = new FileInfo( pathSpec );
             FilesProcessed = filesProcessed;
             FilesFaled = filesFaled;
         }
@@ -33,7 +33,7 @@ namespace nresx.Tools.Helpers
             bool dryRun = false,
             string formatOption = null )
         {
-            var isFileName = filePattern.IsFileName();
+            var isFileName = filePattern.IsRegularName();
             var rootPath = Path.GetDirectoryName( filePattern );
             var rootDir = new DirectoryInfo( string.IsNullOrWhiteSpace( rootPath ) ? Environment.CurrentDirectory : rootPath );
             if ( !rootDir.Exists )

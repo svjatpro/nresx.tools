@@ -18,6 +18,7 @@ namespace nresx.CommandLine.Commands
         protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
         protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
         protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
+        protected const string FileAlreadyExistErrorMessage = "fatal: file '{0}' already exist";
 
         #endregion
 
@@ -27,7 +28,7 @@ namespace nresx.CommandLine.Commands
         public IEnumerable<string> SourceFiles { get; set; }
 
         [Option( 'd', "destination", HelpText = "Destination resource file" )]
-        public string Destination { get; set; }
+        public IEnumerable<string> DestinationFiles { get; set; }
 
         [Value( 0, Hidden = true )]
         public IEnumerable<string> Args { get; set; }
@@ -74,12 +75,12 @@ namespace nresx.CommandLine.Commands
 
             return new List<string>();
         }
-        protected void GetSourceDestinationPair( out string source, out string destination )
-        {
-            var args = Args?.ToList() ?? new List<string>();
-            source = SourceFiles?.FirstOrDefault() ?? args.Take();
-            destination = SourceFiles?.Skip( 1 ).FirstOrDefault() ?? Destination ?? args.Take();
-        }
+        //protected void GetSourceDestinationPair( out string source, out string destination )
+        //{
+        //    var args = Args?.ToList() ?? new List<string>();
+        //    source = SourceFiles?.FirstOrDefault() ?? args.Take();
+        //    destination = SourceFiles?.Skip( 1 ).FirstOrDefault() ?? Destination ?? args.Take();
+        //}
 
         protected OptionContext Options()
         {

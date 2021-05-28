@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using nresx.Tools;
 using NUnit.Framework;
 
@@ -11,6 +12,10 @@ namespace nresx.Core.Tests
 
         public static readonly string OutputFolder = ".test_output";
         public static readonly string TestFileFolder = ".test_files";
+
+        public static readonly string DryRunOption = " --dry-run";
+        public static readonly string RecursiveOption = " --recursive";
+        public static readonly string RecursiveShortOption = " -r";
 
         public static IEnumerable ResourceFormats
         {
@@ -32,6 +37,15 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.yaml" );
                 yield return new TestCaseData( "Resources.yml" );
             }
+        }
+
+        public static string UniqueKey( int length = 8 )
+        {
+            var key = Convert.ToBase64String( Guid.NewGuid().ToByteArray() )
+                .Replace( "+", "" )
+                .Replace( "/", "" )
+                .Replace( "=", "" );
+            return key.Substring( 0, Math.Min( length, key.Length ) );
         }
     }
 }

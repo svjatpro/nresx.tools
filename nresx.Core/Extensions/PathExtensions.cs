@@ -56,7 +56,10 @@ namespace nresx.Tools.Extensions
             return culture != null;
         }
         
-        public static bool IsFileName( this string path )
+        /// <summary>
+        /// Path or file name doesn't contain wildcards
+        /// </summary>
+        public static bool IsRegularName( this string path )
         {
             return
                 !string.IsNullOrWhiteSpace( path ) &&

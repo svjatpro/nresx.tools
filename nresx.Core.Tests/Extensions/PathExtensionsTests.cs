@@ -31,7 +31,7 @@ namespace nresx.Core.Tests.Extensions
         [TestCase( "dir1\\dir2\\file?.yml", ExpectedResult = false )]
         public async Task<bool> IsFileName( string path )
         {
-            return path.IsFileName();
+            return path.IsRegularName();
         }
     }
 }

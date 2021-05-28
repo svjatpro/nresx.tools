@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CommandLine;
+using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
+using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
-    [Verb("convert", HelpText = "convert to another format")]
+    [Verb("convert", HelpText = "Convert to another format")]
     public class ConvertCommand : BaseCommand, ICommand
     {
         protected override bool IsCreateNewElementAllowed => true;
@@ -16,46 +20,119 @@ namespace nresx.CommandLine.Commands
 
         public override void Execute()
         {
-            GetSourceDestinationPair( out var source, out var destination );
+            var optionsParsed = Options()
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true )
+                .Multiple( DestinationFiles, out var destFiles, mandatory: false )
+                .Validate();
+            if ( !optionsParsed )
+                return;
 
-            // convert single resource file
-            if ( !string.IsNullOrWhiteSpace( source ) )
+
+            var optionFormat = ResourceFormatType.NA;
+            string optionExtension = null;
+            if ( !string.IsNullOrWhiteSpace( Format ) &&
+                 OptionHelper.DetectResourceFormat( Format, out var f1 ) )
             {
-                ResourceFormatType format;
-                if ( !string.IsNullOrWhiteSpace( Format ) && 
-                     OptionHelper.DetectResourceFormat( Format, out var f1 ) )
+                optionFormat = f1;
+            }
+
+            if ( destFiles?.Count == 0 )
+            {
+                if ( optionFormat != ResourceFormatType.NA &&
+                     ResourceFormatHelper.DetectExtension( optionFormat, out var ext ) )
                 {
-                    format = f1;
-                }
-                else if ( !string.IsNullOrWhiteSpace( destination ) &&
-                          ResourceFormatHelper.DetectFormatByExtension( destination, out var f2 ) )
-                {
-                    format = f2;
+                    optionExtension = ext;
                 }
                 else
                 {
-                    throw new ArgumentNullException();
+                    Console.WriteLine( FormatUndefinedErrorMessage );
+                    return;
                 }
-                
-                if ( string.IsNullOrWhiteSpace( destination ) )
-                { 
-                    if( ResourceFormatHelper.DetectExtension( format, out var ext ) )
-                    {
-                        destination = Path.ChangeExtension( source, ext );
-                    }
-                    else
-                    {
-                        throw new ArgumentNullException();
-                    }
-                }
-
-                Console.WriteLine( $"d: {destination}  f: {Format}");
-
-                var res = new ResourceFile( source );
-                res.Save( destination, format );
             }
-            
-            Console.WriteLine( $"executing convert {source}" ); // 
+
+
+            ForEachSourceFile(
+                sourceFiles,
+                ( file, resource ) =>
+                {
+                    var destinations = destFiles ?? new List<string>();
+                    if ( !destinations.Any() )
+                    {
+                        if ( !string.IsNullOrWhiteSpace( optionExtension ) )
+                        {
+                            destinations = new List<string> 
+                            {
+                                Path.ChangeExtension( resource.AbsolutePath, optionExtension )
+                            };
+                        }
+                        else
+                        {
+                            Console.WriteLine( FormatUndefinedErrorMessage ); // never happen?
+                            return;
+                        }
+                    }
+                    
+                    foreach ( var dest in destinations )
+                    {
+                        var destination = dest;
+                        ResourceFormatType format;
+                        if ( !string.IsNullOrWhiteSpace( destination ) &&
+                             ResourceFormatHelper.DetectFormatByExtension( destination, out var f ) )
+                        {
+                            format = f;
+                        }
+                        else if ( optionFormat != ResourceFormatType.NA )
+                        {
+                            format = optionFormat;
+                        }
+                        else
+                        {
+                            Console.WriteLine( FormatUndefinedErrorMessage );
+                            return;
+                        }
+
+                        if ( ResourceFormatHelper.DetectExtension( format, out var extension ) )
+                            destination = Path.ChangeExtension( destination, extension );
+                        // else throw
+
+                        if ( !destination.IsRegularName() )
+                        {
+                            // try to extract destination path
+                            var destPath = Path.GetDirectoryName( destination );
+                            if ( destPath.IsRegularName() )
+                            {
+                                var destInfo = new DirectoryInfo( destPath );
+                                if ( !destInfo.Exists )
+                                    destInfo.Create();
+
+                                destination = Path.ChangeExtension( Path.Combine( destPath, resource.FileName ), extension );
+                            }
+                            else
+                            {
+                                destination = Path.ChangeExtension( resource.AbsolutePath, extension );
+                            }
+                        }
+
+                        var destFile = new FileInfo( destination );
+                        if ( resource.AbsolutePath == destFile.FullName ) // the same name
+                        {
+                            Console.WriteLine( FileAlreadyExistErrorMessage, destination.GetShortPath() );
+                            return;
+                        }
+                        if ( destFile.Exists /* overwrite option */ )
+                        {
+                            Console.WriteLine( FileAlreadyExistErrorMessage, destination.GetShortPath() );
+                            return;
+                        }
+
+                        Console.WriteLine( $"'{resource.AbsolutePath.GetShortPath()}' resource have been converted to '{destination.GetShortPath()}'" );
+                        
+                        if ( !DryRun )
+                        {
+                            resource.Save( destination, format );
+                        }
+                    }
+                } );
         }
     }
 }
