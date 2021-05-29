@@ -126,7 +126,7 @@ namespace nresx.CommandLine.Tests.Convert
             var files1 = PrepareTemporaryFiles( 2, 2, out var key1 );
 
             commandLine
-                .WithParams( args => new { NewDir = Path.Combine( TestData.OutputFolder, args.UniqueKeys[0] ) } )
+                .WithParams( args => new { NewDir = Path.Combine( TestData.OutputFolder, args.UniqueKeys[1] ) } )
                 .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { key1 } } )
                 .ValidateDryRun( (args, parameters) => // in this case order is important, because we use the same predefined files for both run
                 {
@@ -171,7 +171,7 @@ namespace nresx.CommandLine.Tests.Convert
             var files1 = PrepareTemporaryFiles( 2, 2, out var key1 );
 
             commandLine
-                .WithParams( args => new { NewDir = Path.Combine( TestData.OutputFolder, args.UniqueKeys[0] ) } )
+                .WithParams( args => new { NewDir = Path.Combine( TestData.OutputFolder, args.UniqueKeys[1] ) } )
                 .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { key1 } } )
                 .ValidateDryRun( ( args, parameters ) => // in this case order is important, because we use the same predefined files for both run
                 {

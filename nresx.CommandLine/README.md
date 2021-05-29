@@ -1,6 +1,8 @@
 Command line tool
 ================
 
+- [Convert](#convert)
+- [Format](#format)
 - [Info](#info)
 - [List](#list)
 - [Add](#add)
@@ -9,48 +11,70 @@ Command line tool
 - [Remove](#remove)
 - [Copy](#copy)
 
-## Convert resource file(s) to another format
+## Convert
+Convert resource file(s) to another format
 
-```
-nresx convert [-s] <source file path> [-d <destination file path>] [-f <format>]
-```
-
--s\
---source\
-source file path/name
-
--d\
---destination\
-destination file path/name, if no format is given, then format will be detected by destination file extension
-
--f\
---format\
-destination file format
-
-
-- Convert single resource file (res1.resx) to *.po format and save with new name (res2.po)
-
-```nresx convert -s path1/res1.resx -d path2/res2.po```
-
-- Convert single resource file to another format and save it in the same location with the original name, but with appropriate extension
-
-```
-nresx convert -s path1/res1.resx -f yaml
-```
-the result will be 'path1/res1.yaml' file in yaml format
-
-
-## Format text entries in a resource file.
-
-```
-nresx format [-s] <source file path> [-d <destination file path>] [-f <format>]  
-[--start-with | --end-with] [--culture-code | --language-code] [-r] [-p <pattern to be added>]
+```sh
+nresx convert [-s] <pathspec> [-d <pathspec>] [-f <format>] [--dry-run] [--recursive]
 ```
 
-- Add prefix to all texts in a resource file.
+#### Options
 
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-d | --destination**  Destination resource file(s), can be a pathspec\
+**-f | --format**  Format of destination file(s)\
+**--dry-run** 
+
+#### Examples
+
+```sh
+# will convert single resource file (res1.resx) to .po format and save with new name (res2.po)
+nresx convert path1/res1.resx path2/res2.po
+
+# will convert single resource file (res1.resx) to .yaml format and save as (res1.yaml) in the same folder
+nresx convert res1.resx -f yaml
+
+# will convert two resource files to .yaml format and save as (res1.yaml, res2.yaml) in the same folder
+nresx convert -s res1.resx res2.resx -f yaml
+
+# will convert all resource files in current folder to .yaml format 
+#   and save with the same name (but with .yaml extension) in the current folder
+nresx convert *.resx -f yaml
+
+# will convert all resource files in current folder and all subdirectories
+#   to .yaml format and save with the same name (but with .yaml extension) in an appropriate folder
+nresx convert *.resx -f yaml --recursive
+
+# will convert all resource files in current folder and all subdirectories
+#   to .yaml format and save with the same name (but with .yaml extension) in "dir1/dir2" folder
+#   if there is a duplicated file names, then second one will be failed with "duplicated name" exception
+nresx convert *.resx dir1/dir2/*.yaml -r
 ```
-nresx format [--source | -s] <source file path>
+
+
+## Format
+Format text entries in a resource file(s).
+
+```sh
+nresx format [-s] <pathspec> [-d <pathspec>] [-f <format>] 
+  [--start-with | --end-with] [--culture-code | --language-code] [-r] [-p <pattern>]
+  [--dry-run] [--recursive]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-d | --destination**  Destination resource file(s), can be a pathspec\
+**-f | --format**  Format of destination file(s)\
+**--dry-run** 
+
+#### Examples
+
+```sh
+# Add prefix to all texts in a resource file.
+nresx format [--source | -s] <pathspec>
 ```
 
 ## Info

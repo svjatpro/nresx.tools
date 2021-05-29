@@ -91,7 +91,8 @@ namespace nresx.Core.Tests
         public static string PrepareCommandLine(
             string cmdLine,
             out CommandLineParameters parameters,
-            CommandLineParameters predefinedParams = null )
+            CommandLineParameters predefinedParams = null,
+            bool mergeArgs = false ) // temporary solution, eventually it must be default behavior
         {
             var resultParams = new CommandLineParameters();
             var resultCmdLine = new StringBuilder( cmdLine );
@@ -107,7 +108,11 @@ namespace nresx.Core.Tests
                 ( type, dir ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
+                    {
+                        if( mergeArgs )
+                            resultParams.SourceFiles.Add( p );
                         return p;
+                    }
 
                     var path = GetTestPath( Path.ChangeExtension( TestData.ExampleResourceFile, "" ), type );
                     resultParams.SourceFiles.Add( path );
@@ -120,7 +125,11 @@ namespace nresx.Core.Tests
                 ( type, dir ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
+                    {
+                        if( mergeArgs )
+                            resultParams.NewFiles.Add( p );
                         return p;
+                    }
 
                     var file = string.IsNullOrWhiteSpace( dir ) ? TestData.UniqueKey() : Path.Combine( dir, TestData.UniqueKey() );
                     var path = GetOutputPath( file, type );
@@ -134,7 +143,11 @@ namespace nresx.Core.Tests
                 ( type, dir ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
+                    {
+                        if ( mergeArgs )
+                            resultParams.TemporaryFiles.Add( p );
                         return p;
+                    }
 
                     var destPath = CopyTemporaryFile( copyType: type, destDir: dir );
                     resultParams.TemporaryFiles.Add( destPath );
@@ -147,7 +160,11 @@ namespace nresx.Core.Tests
                 ( type, dir ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )
+                    {
+                        if( mergeArgs )
+                            resultParams.UniqueKeys.Add( p );
                         return p;
+                    }
 
                     var key = TestData.UniqueKey();
                     resultParams.UniqueKeys.Add( key );
@@ -159,7 +176,11 @@ namespace nresx.Core.Tests
                 ( type, dir ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewDirectories.TryTake( out var p ) )
+                    {
+                        if( mergeArgs )
+                            resultParams.NewDirectories.Add( p );
                         return p;
+                    }
 
                     var newDir = string.IsNullOrWhiteSpace( dir ) ? $"{TestData.UniqueKey()}" : Path.Combine( dir, TestData.UniqueKey() );
                     var dirInfo = new DirectoryInfo( Path.Combine( TestData.OutputFolder, newDir ) );
@@ -181,9 +202,12 @@ namespace nresx.Core.Tests
             return result;
         }
 
-        public static CommandLineParameters RunCommandLine( string cmdLine, CommandLineParameters parameters = null )
+        public static CommandLineParameters RunCommandLine( 
+            string cmdLine, 
+            CommandLineParameters parameters = null, 
+            bool mergeArgs = false )
         {
-            var args = PrepareCommandLine( cmdLine, out var p, parameters );
+            var args = PrepareCommandLine( cmdLine, out var p, parameters, mergeArgs );
 
             var cmd = $"/C nresx {args}";
             var process = new Process();

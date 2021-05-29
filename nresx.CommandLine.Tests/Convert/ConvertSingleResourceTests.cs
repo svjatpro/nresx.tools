@@ -2,7 +2,6 @@ using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
-using nresx.Tools.Helpers;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Convert
@@ -49,51 +48,32 @@ namespace nresx.CommandLine.Tests.Convert
 
         [TestCase( ResourceFormatType.Resx, ResourceFormatType.Yaml )]
         [TestCase( ResourceFormatType.Yaml, ResourceFormatType.Resx )]
-        public void ConverFileWithTheSamePath( ResourceFormatType sourceType, ResourceFormatType destType )
+        public void ConvertFileWithTheSamePath( ResourceFormatType sourceType, ResourceFormatType destType )
         {
-            //var sourceFile = TestHelper.CopyTemporaryFile( copyType: sourceType );
-
             // if there is no destination, then file will be converted to the same path, but with new format/extension
             var cmdLine = $"convert [SourceFile.{OptionHelper.GetFormatOption( sourceType )}] -f {OptionHelper.GetFormatOption( destType )}";
-            //var destPath = Path.ChangeExtension( sourceFile, OptionHelper.GetFormatOption( destType ) );
-
+            
             cmdLine
-                //.PrepareArgs( () =>
-                //{
-
-                //} )
                 .PrepareArgs( () =>
                 {
                     var sourceFile = TestHelper.CopyTemporaryFile( copyType: sourceType );
                     return new CommandLineParameters {SourceFiles = {sourceFile}};
                 } )
-                .ValidateRun( args =>
+                .WithParams( args => new { DestPath = Path.ChangeExtension( args.SourceFiles[0], OptionHelper.GetFormatOption( destType ) ) } )
+                .ValidateRun( (args, parameters) =>
                 {
-                    var res = new ResourceFile( destPath );
+                    var res = new ResourceFile( parameters.DestPath );
                     res.FileFormat.Should().Be( destType );
                     ValidateElements( res );
                 } )
-                .ValidateDryRun( args =>
+                .ValidateDryRun( ( args, parameters ) =>
                 {
-                    new FileInfo( destPath ).Exists.Should().BeFalse();
+                    new FileInfo( parameters.DestPath ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( args => new[] { string.Format( SuccessLineTemplate, sourceFile, destPath ) } );
-
-
-            //var sourceFile = CopyTemporaryFile( copyType: sourceType );
-
-            //// if there is no destination, then file will be converted to the same path, but with new format/extension
-            //var cmdLine = $"convert {sourceFile} -f {OptionHelper.GetFormatOption( destType )}";
-
-            
-            
-            //Run( cmdLine );
-            
-            //var outputPath = Path.ChangeExtension( sourceFile, OptionHelper.GetFormatOption( destType ) );
-
-            //var res = new ResourceFile( outputPath );
-            //res.FileFormat.Should().Be( destType );
-            //ValidateElements( res );
+                .ValidateStdout( ( args, parameters ) => new[]
+                {
+                    string.Format( SuccessLineTemplate, args.SourceFiles[0], parameters.DestPath )
+                } );
         }
     }
 }
