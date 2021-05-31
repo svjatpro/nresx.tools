@@ -11,7 +11,10 @@ namespace nresx.Core.Tests
 {
     public class TestHelper
     {
-        private static void ReplaceTags( StringBuilder resultCmdLine, string tagPlaceholder, Func<ResourceFormatType, string, string> getTagValue )
+        private static void ReplaceTags( 
+            StringBuilder resultCmdLine, 
+            string tagPlaceholder, 
+            Func<ResourceFormatType, string, string> getTagValue)
         {
             const string dirPlaceholder = @"Dir\";
             var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
@@ -83,7 +86,7 @@ namespace nresx.Core.Tests
             }
 
             var resx = new ResourceFile( sourcePath ?? GetTestPath( TestData.ExampleResourceFile ) );
-            resx.Save( destPath, copyType );
+            resx.Save( destPath, copyType, createDir: true );
 
             return destPath;
         }

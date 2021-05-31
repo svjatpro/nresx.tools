@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace nresx.Tools.Extensions
 {
@@ -16,6 +17,17 @@ namespace nresx.Tools.Extensions
 
             item = default;
             return false;
+        }
+
+        public static bool TryTakeRange<T>( this List<T> source, out List<T> items, int maxCount = -1 )
+        {
+            items = new List<T>();
+            while ( ( maxCount == -1 || items.Count <= maxCount ) && source.TryTake( out var item ) )
+            {
+                items.Add( item );
+            }
+
+            return items.Any();
         }
 
         public static T Take<T>( this List<T> source )

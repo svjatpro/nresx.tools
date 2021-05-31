@@ -14,6 +14,7 @@ namespace nresx.CommandLine.Commands.Base
             IEnumerable<string> mappedValues, 
             out List<string> values, 
             bool mandatory = false, 
+            bool multipleIndirect = false,
             string optionName = null )
         {
             var src = mappedValues?.ToList();
@@ -24,6 +25,10 @@ namespace nresx.CommandLine.Commands.Base
             if ( src?.Count > 0 )
             {
                 result.AddRange( src );
+            }
+            else if ( multipleIndirect && args.TryTakeRange( out var vals ) )
+            {
+                result.AddRange( vals );
             }
             else if( args.TryTake( out var val ) )
             {

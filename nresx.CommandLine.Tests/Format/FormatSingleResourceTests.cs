@@ -7,35 +7,73 @@ using NUnit.Framework;
 namespace nresx.CommandLine.Tests.Format
 {
     [TestFixture]
-    public class FormatSingleResourceTests : TestBase
+    public class FormatSingleResourceTests : FormatBasicTests
     {
-        [TestCase( @"format --source [TmpFile] --start-with --pattern prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile] --start-with -p prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile.resw] --start-with -p prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile.Yaml] --start-with -p prefix_", "prefix_" )]
-        public void AddPrefixToTheSameFile( string commandLine, string prefix )
+        /// <summary>
+        /// pattern: {0} - element value, {1} - pattern
+        /// </summary>
+        
+        // start-with
+        [TestCase( @"format [TmpFile] --start-with -p [UniqueKey]", "en", "{1}{0}" )]
+        [TestCase( @"format -s [TmpFile] --start-with -p [UniqueKey]", "en", "{1}{0}" )]
+        [TestCase( @"format -s [TmpFile.resw] --start-with -p [UniqueKey]", "en", "{1}{0}" )]
+        [TestCase( @"format -s [TmpFile.Yaml] --start-with -p [UniqueKey]", "en", "{1}{0}" )]
+        [TestCase( @"format --source [TmpFile] --start-with --pattern [UniqueKey]", "en", "{1}{0}" )]
+
+        // end-with
+        [TestCase( @"format [TmpFile] --end-with -p [UniqueKey]", "en", "{0}{1}" )]
+        [TestCase( @"format -s [TmpFile] --end-with -p [UniqueKey]", "en", "{0}{1}" )]
+        [TestCase( @"format -s [TmpFile.resw] --end-with -p [UniqueKey]", "en", "{0}{1}" )]
+        [TestCase( @"format -s [TmpFile.Yaml] --end-with -p [UniqueKey]", "en", "{0}{1}" )]
+        [TestCase( @"format --source [TmpFile] --end-with --pattern [UniqueKey]", "en", "{0}{1}" )]
+
+        // language-code
+        [TestCase( @"format [TmpFile] --start-with --language-code", "en", "en_{0}" )]
+        [TestCase( @"format -s [TmpFile] --start-with --language-code", "en-US", "en_{0}" )]
+        [TestCase( @"format --source [TmpFile] --start-with --language-code", "fr-CA", "fr_{0}" )]
+        
+        [TestCase( @"format [TmpFile] --end-with --language-code", "en", "{0}_en" )]
+        [TestCase( @"format -s [TmpFile] --end-with --language-code", "fr-CA", "{0}_fr" )]
+        [TestCase( @"format --source [TmpFile] --end-with --language-code", "uk", "{0}_uk" )]
+
+        // culture-code
+        [TestCase( @"format [TmpFile] --start-with --culture-code", "en", "en_{0}" )]
+        [TestCase( @"format -s [TmpFile] --start-with --culture-code", "en-US", "en-US_{0}" )]
+        [TestCase( @"format --source [TmpFile] --start-with --culture-code", "fr-CA", "fr-CA_{0}" )]
+
+        [TestCase( @"format [TmpFile] --end-with --culture-code", "en", "{0}_en" )]
+        [TestCase( @"format -s [TmpFile] --end-with --culture-code", "fr-CA", "{0}_fr-CA" )]
+        [TestCase( @"format --source [TmpFile] --end-with --culture-code", "uk", "{0}_uk" )]
+        public void FormatSingleFile( string commandLine, string code, string template )
         {
-            var args = Run( commandLine );
-            var res = new ResourceFile( args.TemporaryFiles[0] );
+            var pattern = TestData.UniqueKey();
+            var file = TestHelper.CopyTemporaryFile( destDir: code );
+            var elements = GetExampleResourceFile().Elements.ToDictionary( el => el.Key, el => el.Value );
 
-            res.Elements.Where( el => el.Value.StartsWith( prefix ) ).Should().HaveCount( res.Elements.Count() );
-        }
+            // format resource file
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters{ TemporaryFiles = { file }, UniqueKeys = { pattern } } )
+                .ValidateDryRun( args => { ValidateElements( new ResourceFile( args.TemporaryFiles[0] ) ); } )
+                .ValidateRun( args =>
+                {
+                    new ResourceFile( args.TemporaryFiles[0] )
+                        .Elements.Where( el => el.Value == string.Format( template, elements[el.Key], pattern ) )
+                        .Should().HaveCount( elements.Count );
+                } )
+                .ValidateStdout( args => new[] {string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0] )} );
 
-        [TestCase( @"format --source [TmpFile] --delete --start-with --pattern prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile] --delete --start-with -p prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile.resw] --delete --start-with -p prefix_", "prefix_" )]
-        [TestCase( @"format -s [TmpFile.Yaml] --delete --start-with -p prefix_", "prefix_" )]
-        public void RemovePrefixToTheSameFile( string commandLine, string prefix )
-        {
-            // prepare tmp file with prefix
-            var argsOrigin = Run( $"format -s [TmpFile] --start-with -p {prefix}" );
-            var filePath = argsOrigin.TemporaryFiles[0];
-
-            // remove prefix
-            Run( commandLine, argsOrigin );
-
-            var res = new ResourceFile( filePath );
-            ValidateElements( res );
+            // (delete) revert changes
+            commandLine = $"{commandLine} --delete";
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { TemporaryFiles = { file }, UniqueKeys = { pattern } } )
+                .ValidateDryRun( args =>
+                {
+                    new ResourceFile( args.TemporaryFiles[0] )
+                        .Elements.Where( el => el.Value == string.Format( template, elements[el.Key], pattern ) )
+                        .Should().HaveCount( elements.Count );
+                } )
+                .ValidateRun( args => { ValidateElements( new ResourceFile( args.TemporaryFiles[0] ) ); } )
+                .ValidateStdout( args => new[] { string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0] ) } );
         }
     }
 }

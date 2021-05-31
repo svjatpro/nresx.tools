@@ -57,8 +57,8 @@ nresx convert *.resx dir1/dir2/*.yaml -r
 Format text entries in a resource file(s).
 
 ```sh
-nresx format [-s] <pathspec> [-d <pathspec>] [-f <format>] 
-  [--start-with | --end-with] [--culture-code | --language-code] [-r] [-p <pattern>]
+nresx format [-s] <pathspec> 
+  [--start-with | --end-with] [--culture-code | --language-code] [-p <pattern>]
   [--dry-run] [--recursive]
 ```
 
@@ -66,15 +66,25 @@ nresx format [-s] <pathspec> [-d <pathspec>] [-f <format>]
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**-d | --destination**  Destination resource file(s), can be a pathspec\
-**-f | --format**  Format of destination file(s)\
+**-l | --language-code**  Use language code (two letter ISO name) as a format pattern\
+**-c | --culture-code**  Use culture code as a format pattern\
+**--start-with**  Add or remove new part at the beginning of elements value\
+**--end-with**  Add or remove new part at the end of elements value\
+**--delete**  remove format pattern from element value\
 **--dry-run** 
 
 #### Examples
 
 ```sh
-# Add prefix to all texts in a resource file.
-nresx format [--source | -s] <pathspec>
+# will format all elements in res1.resx file as 'fr_<value>'
+nresx format Resources\fr-CA\res1.resx --start-with --language-code
+
+# will revert previous formatting - remove 'fr_' prefix from all elements
+nresx format Resources\fr-CA\res1.resx --start-with --language-code --delete
+
+# will format all elements in all *.resx file starting from Resources\ dir as 'cultureName_<value>'
+#  with appropriate culture: all elements in fr-CA\res1.resx will be formatted as 'fr-CA_<value>' etc.
+nresx format Resources\*.resx --start-with --culture-code --recursive
 ```
 
 ## Info

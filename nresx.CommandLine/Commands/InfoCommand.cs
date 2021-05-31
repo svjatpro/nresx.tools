@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CommandLine;
+using nresx.CommandLine.Commands.Base;
 using nresx.Tools.Extensions;
 
 namespace nresx.CommandLine.Commands
@@ -12,8 +13,14 @@ namespace nresx.CommandLine.Commands
 
         public override void Execute()
         {
+            var optionsParsed = Options()
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
+                .Validate();
+            if ( !optionsParsed )
+                return;
+
             ForEachSourceFile(
-                GetSourceFiles(),
+                sourceFiles,
                 ( ctx, resource ) =>
                 {
                     if ( ctx.FilesProcessed + ctx.FilesFaled > 0 )

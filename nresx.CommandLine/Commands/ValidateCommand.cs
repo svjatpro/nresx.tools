@@ -17,6 +17,13 @@ namespace nresx.CommandLine.Commands
 
         public void Execute()
         {
+            //var optionsParsed = Options()
+            //    .Multiple( SourceFiles, out var sourceFiles, mandatory: true )
+            //    .Validate();
+            //if ( !optionsParsed )
+            //    return;
+
+
             var files = new List<string>();
             if( SourceFilesValues?.Count() > 0 )
                 files.AddRange( SourceFilesValues );

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using nresx.Tools.Exceptions;
@@ -154,11 +155,11 @@ namespace nresx.Tools
 
         #region Save
 
-        public void Save( string path )
+        public void Save( string path, bool createDir = false )
         {
-            Save( path, FileFormat );
+            Save( path, FileFormat, createDir );
         }
-        public void Save( string path, ResourceFormatType type )
+        public void Save( string path, ResourceFormatType type, bool createDir = false )
         {
             if ( !GetTypeInfo( t => t.type == type, out var tinfo ) )
             {
@@ -171,6 +172,12 @@ namespace nresx.Tools
             var fileInfo = new FileInfo( targetPath );
             if( fileInfo.Exists )
                 fileInfo.Delete();
+
+            var dir = new DirectoryInfo( Path.GetDirectoryName( targetPath ) ?? string.Empty );
+            if ( !dir.Exists && createDir )
+            {
+                dir.Create();
+            }
 
             formatter.SaveResourceFile( new FileStream( targetPath, FileMode.CreateNew ), Elements );
         }

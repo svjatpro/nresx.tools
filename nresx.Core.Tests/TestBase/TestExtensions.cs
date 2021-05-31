@@ -37,6 +37,8 @@ namespace nresx.Core.Tests
 
     public static class TestExtensions
     {
+        #region WithParams
+
         public static CommandRunContext<T> WithParams<T>( this string cmdLine, Func<CommandLineParameters, T> builder )
             where T : class
         {
@@ -69,6 +71,9 @@ namespace nresx.Core.Tests
             return context;
         }
 
+        #endregion
+
+        #region PrepareArgs
 
         public static CommandRunContext PrepareArgs( this string cmdLine, Func<CommandLineParameters> builder )
         {
@@ -111,9 +116,16 @@ namespace nresx.Core.Tests
                 {
                     var parameters = context.AdditionalParamsBuilder( args );
                     validateAction( args, parameters );
-                } ) as CommandRunContext<T>;
+                } );
+        }
+        public static CommandRunContext<T> ValidateRun<T>( this CommandRunContext<T> context, Action<CommandLineParameters> validateAction )
+        {
+            return (context as CommandRunContext).ValidateRun( validateAction ) as CommandRunContext<T>;
         }
 
+        #endregion
+
+        #region ValidateDryRun
 
         public static CommandRunContext ValidateDryRun( this string commandLine, Action<CommandLineParameters> validateAction )
         {
@@ -146,10 +158,14 @@ namespace nresx.Core.Tests
                 {
                     var parameters = context.AdditionalParamsBuilder( args );
                     validateAction( args, parameters );
-                } ) as CommandRunContext<T>;
+                } );
         }
-        
-        
+        public static CommandRunContext<T> ValidateDryRun<T>( this CommandRunContext<T> context, Action<CommandLineParameters> validateAction )
+        {
+            return (context as CommandRunContext).ValidateDryRun( validateAction ) as CommandRunContext<T>;
+        }
+
+
         public static CommandRunContext ValidateStdout( this CommandRunContext context, Func<CommandLineParameters, string[]> validateAction )
         {
             foreach ( var args in context.CommandRunResults )
@@ -184,5 +200,7 @@ namespace nresx.Core.Tests
 
             return context;
         }
+
+        #endregion
     }
 }

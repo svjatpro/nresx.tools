@@ -107,26 +107,26 @@ namespace nresx.Core.Tests
             return TestHelper.CopyTemporaryFile( sourcePath, destPath, destDir, copyType );
         }
          
-        protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey )
+        protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey, string dir = null )
         {
-            fileKey = UniqueKey();
+            fileKey = TestData.UniqueKey();
             var result = new List<string>();
 
             for ( var i = 0; i < rootFiles; i++ )
             {
-                var filePath = GetOutputPath( $"{fileKey}_{UniqueKey()}.resx" );
-                CopyTemporaryFile( destPath: filePath );
+                var filePath = GetOutputPath( $"{fileKey}_{TestData.UniqueKey()}.resx" );
+                TestHelper.CopyTemporaryFile( destPath: filePath );
 
                 result.Add( filePath );
             }
 
             for ( var i = 0; i < firstDirFiles; i++ )
             {
-                var dirKey = UniqueKey();
+                var dirKey = TestData.UniqueKey();
                 new DirectoryInfo( Path.Combine( TestData.OutputFolder, dirKey ) ).Create();
 
-                var filePath = GetOutputPath( $"{dirKey}\\{fileKey}_{UniqueKey()}.resx" );
-                CopyTemporaryFile( destPath: filePath );
+                var filePath = GetOutputPath( $"{dirKey}\\{fileKey}_{TestData.UniqueKey()}.resx" );
+                TestHelper.CopyTemporaryFile( destPath: filePath );
 
                 result.Add( filePath );
             }
