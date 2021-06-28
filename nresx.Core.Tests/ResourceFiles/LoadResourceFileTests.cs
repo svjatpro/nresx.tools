@@ -57,5 +57,25 @@ namespace nresx.Core.Tests.ResourceFiles
             res.FileFormat.Should().Be( targetType );
             ValidateElements( res );
         }
+
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
+        public async Task LoadRawElements( ResourceFormatType format )
+        {
+            var path = GetTestPath( "Duplicated", format );
+            var elements = ResourceFile.LoadRawElements( path );
+
+            elements.Should().HaveCount( 5 );
+        }
+
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
+        public async Task LoadRawElementsByStream( ResourceFormatType format )
+        {
+            var path = GetTestPath( "Duplicated", format );
+            await using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
+
+            var elements = ResourceFile.LoadRawElements( stream );
+
+            elements.Should().HaveCount( 5 );
+        }
     }
 }

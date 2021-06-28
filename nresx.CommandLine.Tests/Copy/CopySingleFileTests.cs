@@ -89,7 +89,7 @@ namespace nresx.CommandLine.Tests.Copy
         [TestCase( @"copy -s [TmpFile] -d [TmpFile]" )]
         public void CopyToExistingFileShouldSkipDuplicates( string commandLine )
         {
-            PrepareCommandLine( commandLine, out var prepArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var prepArgs );
             var resFromPath = prepArgs.TemporaryFiles[0];
             var resToPath = prepArgs.TemporaryFiles[1];
             PrepareFromToResources( resFromPath, resToPath, out var updated, out var newFrom, out var newTo );
@@ -112,7 +112,7 @@ namespace nresx.CommandLine.Tests.Copy
         [TestCase( @"copy -s [TmpFile] -d [TmpFile] --dry-run" )]
         public void CopyToExistingFileShouldSkipDuplicates_DryRun( string commandLine )
         {
-            PrepareCommandLine( commandLine, out var prepArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var prepArgs );
             var resFromPath = prepArgs.TemporaryFiles[0];
             var resToPath = prepArgs.TemporaryFiles[1];
             PrepareFromToResources( resFromPath, resToPath, out var updated, out var newFrom, out var newTo );
@@ -135,7 +135,7 @@ namespace nresx.CommandLine.Tests.Copy
         [TestCase( @"copy -s [TmpFile] -d [TmpFile] --overwrite" )]
         public void CopyToExistingFileShouldOverwriteDuplicates( string commandLine )
         {
-            PrepareCommandLine( commandLine, out var prepArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var prepArgs );
             var resFromPath = prepArgs.TemporaryFiles[0];
             var resToPath = prepArgs.TemporaryFiles[1];
             PrepareFromToResources( resFromPath, resToPath, out var updated, out var newFrom, out var newTo );
@@ -158,7 +158,7 @@ namespace nresx.CommandLine.Tests.Copy
         [TestCase( @"copy -s [TmpFile] -d [TmpFile] --overwrite --dry-run" )]
         public void CopyToExistingFileShouldOverwriteDuplicates_DryRun( string commandLine )
         {
-            PrepareCommandLine( commandLine, out var prepArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var prepArgs );
             var resFromPath = prepArgs.TemporaryFiles[0];
             var resToPath = prepArgs.TemporaryFiles[1];
             PrepareFromToResources( resFromPath, resToPath, out var updated, out var newFrom, out var newTo );

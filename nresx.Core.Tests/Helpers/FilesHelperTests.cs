@@ -23,9 +23,9 @@ namespace nresx.Core.Tests.Helpers
             var filePath2 = GetOutputPath( $"{fileKey}_2.resx" );
             var filePath3 = GetOutputPath( $"{dirKey}\\{fileKey}_33.resx" );
 
-            CopyTemporaryFile( destPath: filePath1 );
-            CopyTemporaryFile( destPath: filePath2 );
-            CopyTemporaryFile( destPath: filePath3 );
+            TestHelper.CopyTemporaryFile( destPath: filePath1 );
+            TestHelper.CopyTemporaryFile( destPath: filePath2 );
+            TestHelper.CopyTemporaryFile( destPath: filePath3 );
 
             return new List<string> { filePath1, filePath2, filePath3 };
         }

@@ -41,7 +41,6 @@ namespace nresx.Core.Tests
             }
         }
 
-        [Obsolete("use TestData.UniqueKey() instead")]
         protected string UniqueKey( int length = 8 )
         {
             return TestData.UniqueKey();
@@ -55,15 +54,6 @@ namespace nresx.Core.Tests
         protected string GetOutputPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
         {
             return TestHelper.GetOutputPath( fileName, type );
-        }
-
-        [Obsolete( "use TestHelper.PrepareCommandLine() instead" )]
-        protected string PrepareCommandLine( 
-            string cmdLine, 
-            out CommandLineParameters parameters,
-            CommandLineParameters predefinedParams = null )
-        {
-            return TestHelper.PrepareCommandLine( cmdLine, out parameters, predefinedParams );
         }
 
         [Obsolete( "use TestHelper.Run() instead" )]

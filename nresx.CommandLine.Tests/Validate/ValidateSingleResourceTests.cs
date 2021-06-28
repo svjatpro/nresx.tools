@@ -13,7 +13,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateEmptyValueElements( string commandLine )
         {
-            PrepareCommandLine( commandLine, out var preArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             res.Elements[1].Value = string.Empty;

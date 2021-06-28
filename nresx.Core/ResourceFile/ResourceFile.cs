@@ -26,7 +26,7 @@ namespace nresx.Tools
 
         #region Private methods
 
-        private bool GetTypeInfo( 
+        private static bool GetTypeInfo( 
             Func<(string extensions, ResourceFormatType type, Type formatter),bool> comparer, 
             out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
         {
@@ -41,7 +41,7 @@ namespace nresx.Tools
             return result;
         }
 
-        private bool GetTypeInfo( string path, out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
+        private static bool GetTypeInfo( string path, out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
         {
             var ext = Path.GetExtension( path );
             if ( string.IsNullOrWhiteSpace( ext ) )
@@ -56,7 +56,7 @@ namespace nresx.Tools
             return result;
         }
 
-        private bool GetTypeInfo( Stream stream, out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
+        private static bool GetTypeInfo( Stream stream, out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
         {
             var name = ( stream as FileStream )?.Name;
             var result = GetTypeInfo( name, out var tinfo );
@@ -76,7 +76,55 @@ namespace nresx.Tools
         public string AbsolutePath { get; }
 
         public readonly ResourceElements Elements;
-        
+
+        #region Static members
+
+        public static IEnumerable<ResourceElement> LoadRawElements( string path )
+        {
+            if ( !GetTypeInfo( path, out var type ) )
+            {
+                // todo: detect type by content
+                throw new UnknownResourceFormatException();
+            }
+
+            var fileInfo = new FileInfo( path );
+            if ( !fileInfo.Exists )
+                return new ResourceElement[0];
+
+            using var stream = new FileStream( fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
+            var parser = type.formatter();
+            if ( parser.LoadRawElements( stream, out var elements ) )
+                return elements;
+
+            return new ResourceElement[0];
+        }
+        public static IEnumerable<ResourceElement> LoadRawElements( Stream stream, ResourceFormatType resourceFormat = ResourceFormatType.NA )
+        {
+            IFileFormatter parser;
+            if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
+            {
+                parser = t1.formatter();
+            }
+            else if ( GetTypeInfo( stream, out var type ) )
+            {
+                parser = type.formatter();
+            }
+            else
+            {
+                // todo: detect type by content
+                throw new UnknownResourceFormatException();
+            }
+
+            if ( parser.LoadRawElements( stream, out var elements ) )
+            {
+                return elements;
+            }
+
+            return new ResourceElement[0];
+        }
+
+        #endregion
+
         public ResourceFile( string path )
         {
             if( GetTypeInfo( path, out var type ) )

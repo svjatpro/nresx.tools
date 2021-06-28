@@ -31,12 +31,12 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public bool LoadElements( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
         {
             throw new System.NotImplementedException();
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, bool validate = true )
         {
             using var writer = new StreamWriter( stream );
             var serializer = new SerializerBuilder()

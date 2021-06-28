@@ -68,6 +68,8 @@ namespace nresx.CommandLine
 
         static int Main( string[] args )
         {
+
+            
             var arguments = args;
 
             var infoCommand = ( typeof(InfoCommand).GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )?.Name ?? "info";
@@ -113,7 +115,61 @@ namespace nresx.CommandLine
                     cmd => ((ICommand)cmd).Successful ? 0 : -1,
                     err => -1 );
 
-            /*FilesHelper.SearchFiles( "*.xaml",
+
+
+            // ---------------------------------------------------------------------------
+            /*
+            // find references
+            var res1 = new ResourceFile( @"C:\_Projects\iHeart.UWP.Localize\IHeartRadio.App\Strings\en\Resources.resw" );
+            var elements = res1
+                .Elements.Select( el => (key: el.Key, references: new List<string>() ) )
+                .ToList();
+
+            FilesHelper.SearchFiles( @"C:\_Projects\iHeart.UWP.Localize\IHeartRadio.App\*.cs", file =>
+            {
+                if ( file.FullName.ContainsDir( "bin", "obj" ) )
+                    return;
+
+                using var reader = new StreamReader( new FileStream( file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
+
+                var fileBody = reader.ReadToEnd();
+
+                foreach ( var el in elements )
+                {
+                    if( fileBody.Contains( $"\"{el.key}\"" ) )
+                        el.references.Add( file.FullName );
+                }
+            }, recursive: true );
+
+            FilesHelper.SearchFiles( @"C:\_Projects\iHeart.UWP.Localize\IHeartRadio.App\*.xaml", file =>
+            {
+                if ( file.FullName.ContainsDir( "bin", "obj" ) )
+                    return;
+
+                using var reader = new StreamReader( new FileStream( file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
+
+                var fileBody = reader.ReadToEnd();
+
+                foreach ( var el in elements )
+                {
+                    var elKey = el.key.Split( '.' ).First();
+                    if ( fileBody.Contains( $"\"{elKey}\"" ) )
+                        el.references.Add( file.FullName );
+                }
+            }, recursive: true );
+
+            var emptyRefs = elements.Where( el => !el.references.Any() ).ToList();
+
+            foreach ( var el in emptyRefs )
+            {
+                Console.WriteLine(el.key);
+            }
+
+            return 0;
+
+            // ---------------------------------------------------------------------------
+
+            FilesHelper.SearchFiles( "*.xaml",
                 file =>
                 {
                     if ( file.FullName.ContainsDir( "bin", "obj" ) )
@@ -159,9 +215,12 @@ namespace nresx.CommandLine
 
                 },
                 recursive: true );
+            
+
+             return 0;
             */
 
-            // return 0;
+            // ---------------------------------------------------------------------------
 
             //var rootPath = @"C:\_Projects\iHeart.UWP";
             //// parse resource files
