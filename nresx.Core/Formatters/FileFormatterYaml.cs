@@ -89,8 +89,6 @@ namespace nresx.Tools.Formatters
         {
             using var reader = new StreamReader( stream );
             var deserializer = new DeserializerBuilder()
-                //.WithNodeDeserializer( inner => new ResourceItemDeserializer(inner), s => s.InsteadOf<ObjectNodeDeserializer>() )
-                //.WithNodeDeserializer( new ResourceItemDeserializer() ) 
                 .Build();
 
             elements = deserializer

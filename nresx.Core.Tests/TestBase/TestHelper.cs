@@ -91,6 +91,24 @@ namespace nresx.Core.Tests
             return destPath;
         }
 
+
+        public static void ReplaceKey( string path, string key, string newValue )
+        {
+            var lines = new StringBuilder();
+            using ( var reader = new StreamReader( new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) ) )
+            {
+                while ( !reader.EndOfStream )
+                    lines.AppendLine( reader.ReadLine()?.Replace( key, newValue ) );
+            }
+            using var writer = new StreamWriter( new FileStream( path, FileMode.Create, FileAccess.Write, FileShare.Write ) );
+            var content = new MemoryStream( Encoding.UTF8.GetBytes( lines.ToString() ) );
+            using ( var reader = new StreamReader( content ) )
+            {
+                while ( !reader.EndOfStream )
+                    writer.WriteLine( reader.ReadLine() );
+            }
+        }
+
         public static string PrepareCommandLine(
             string cmdLine,
             out CommandLineParameters parameters,

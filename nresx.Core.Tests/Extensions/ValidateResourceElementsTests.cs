@@ -10,15 +10,14 @@ namespace nresx.Core.Tests.Extensions
     public class ValidateResourceElementsTests : TestBase
     {
         [Test]
-        public async Task ValidateSucessfull()
+        public async Task ValidateSuccessful()
         {
             var res = GetExampleResourceFile();
 
-            res.ValidateElements( out var errors ).Should().BeTrue();
+            res.Elements.ValidateElements( out var errors ).Should().BeTrue();
             errors.Should().BeEmpty( );
         }
 
-        [Ignore("temporary disabled")]
         [Test]
         public async Task ValidateDuplicatedElements()
         {
@@ -26,13 +25,12 @@ namespace nresx.Core.Tests.Extensions
             res.Elements.Add( res.Elements[1].Key, UniqueKey() );
             res.Elements.Add( res.Elements[2].Key, UniqueKey() );
 
-            res.ValidateElements( out var errors ).Should().BeFalse();
+            res.Elements.ValidateElements( out var errors ).Should().BeFalse();
             errors.Should().BeEquivalentTo(
                 new ResourceElementError( ResourceElementErrorType.Duplicate, res.Elements[1].Key ),
                 new ResourceElementError( ResourceElementErrorType.Duplicate, res.Elements[2].Key ) );
         }
 
-        [Ignore( "temporary disabled" )]
         [Test]
         public async Task ValidatePossibleDuplicatedElements()
         {
@@ -40,7 +38,7 @@ namespace nresx.Core.Tests.Extensions
             var keyDuplicated = $"{res.Elements[1].Key}.Content";
             res.Elements.Add( keyDuplicated, UniqueKey() );
 
-            res.ValidateElements( out var errors ).Should().BeFalse();
+            res.Elements.ValidateElements( out var errors ).Should().BeFalse();
             errors.Should().BeEquivalentTo( new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, keyDuplicated ) );
         }
 
@@ -50,7 +48,7 @@ namespace nresx.Core.Tests.Extensions
             var res = GetExampleResourceFile();
             res.Elements[0].Key = string.Empty;
 
-            res.ValidateElements( out var errors ).Should().BeFalse();
+            res.Elements.ValidateElements( out var errors ).Should().BeFalse();
             errors.Should().HaveCount( 1 );
             var error = errors.Single();
             error.ErrorType.Should().Be( ResourceElementErrorType.EmptyKey );
@@ -65,7 +63,7 @@ namespace nresx.Core.Tests.Extensions
             res.Elements[0].Value = string.Empty;
             res.Elements[1].Value = string.Empty;
 
-            res.ValidateElements( out var errors ).Should().BeFalse();
+            res.Elements.ValidateElements( out var errors ).Should().BeFalse();
             errors.Should().BeEquivalentTo( 
                 new ResourceElementError( ResourceElementErrorType.EmptyValue, res.Elements[0].Key ),
                 new ResourceElementError( ResourceElementErrorType.EmptyValue, res.Elements[1].Key ) );

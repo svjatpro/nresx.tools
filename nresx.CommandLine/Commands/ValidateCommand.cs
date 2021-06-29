@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CommandLine;
 using nresx.Tools;
 using nresx.Tools.Extensions;
@@ -34,8 +35,8 @@ namespace nresx.CommandLine.Commands
             {
                 foreach ( var file in files )
                 {
-                    var res = new ResourceFile( file );
-                    var result = res.ValidateElements( out var errors );
+                    var elements = ResourceFile.LoadRawElements( file );
+                    var result = elements.ValidateElements( out var errors );
                     if ( result )
                     {
                         //
@@ -44,7 +45,13 @@ namespace nresx.CommandLine.Commands
                     {
                         foreach ( var elementError in errors )
                         {
-                            Console.WriteLine( $"{elementError.ErrorType.ToString()}: {elementError.ElementKey}; {elementError.Message}" );
+                            var msg = new StringBuilder();
+                            msg.Append( $"{elementError.ErrorType}:" );
+                            if ( !string.IsNullOrWhiteSpace( elementError.ElementKey ) )
+                                msg.Append( $" {elementError.ElementKey};" );
+                            if ( !string.IsNullOrWhiteSpace( elementError.Message ) )
+                                msg.Append( $" {elementError.Message};" );
+                            Console.WriteLine( msg.ToString() );
                         }
                     }
 
