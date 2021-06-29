@@ -18,6 +18,9 @@ namespace nresx.CommandLine.Commands
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
 
+        [Option( 'd', "destination", HelpText = "Destination resource file" )]
+        public IEnumerable<string> DestinationFiles { get; set; }
+
         public override void Execute()
         {
             var optionsParsed = Options()

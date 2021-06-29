@@ -1,41 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using CommandLine;
+using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
 using nresx.Tools.Extensions;
 
 namespace nresx.CommandLine.Commands
 {
     [Verb( "validate", HelpText = "Validate resource file(s)" )]
-    public class ValidateCommand : ICommand
+    public class ValidateCommand : BaseCommand
     {
-        [Option( 's', "source", HelpText = "Source resource file" )]
-        public IEnumerable<string> SourceFiles { get; set; }
-        [Value( 0 )]
-        public IEnumerable<string> SourceFilesValues { get; set; }
-
-        public void Execute()
+        public override void Execute()
         {
-            //var optionsParsed = Options()
-            //    .Multiple( SourceFiles, out var sourceFiles, mandatory: true )
-            //    .Validate();
-            //if ( !optionsParsed )
-            //    return;
+            var optionsParsed = Options()
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
+                .Validate();
+            if ( !optionsParsed )
+                return;
 
-
-            var files = new List<string>();
-            if( SourceFilesValues?.Count() > 0 )
-                files.AddRange( SourceFilesValues );
-            if( SourceFiles.Any() )
-                files.AddRange( SourceFiles );
-
-            if ( files.Any() )
-            {
-                foreach ( var file in files )
+            ForEachSourceFile(
+                sourceFiles,
+                ( file, resource ) =>
                 {
-                    var elements = ResourceFile.LoadRawElements( file );
+                    var elements = ResourceFile.LoadRawElements( file.FullName );
                     var result = elements.ValidateElements( out var errors );
                     if ( result )
                     {
@@ -54,12 +41,7 @@ namespace nresx.CommandLine.Commands
                             Console.WriteLine( msg.ToString() );
                         }
                     }
-
-                }
-            }
+                } );
         }
-
-        public bool Successful { get; } = true;
-        public Exception Exception { get; } = null;
     }
 }

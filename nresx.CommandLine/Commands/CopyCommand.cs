@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
@@ -9,6 +10,9 @@ namespace nresx.CommandLine.Commands
     [Verb( "copy", HelpText = "Copy elements from one file to another" )]
     public class CopyCommand : BaseCommand, ICommand
     {
+        [Option( 'd', "destination", HelpText = "Destination resource file" )]
+        public IEnumerable<string> DestinationFiles { get; set; }
+
         [Option( "skip", HelpText = "Skip duplicated elements" )]
         public bool SkipDuplicates { get; set; }
 

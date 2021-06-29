@@ -27,9 +27,6 @@ namespace nresx.CommandLine.Commands
         [Option( 's', "source", HelpText = "Source resource file(s)" )]
         public IEnumerable<string> SourceFiles { get; set; }
 
-        [Option( 'd', "destination", HelpText = "Destination resource file" )]
-        public IEnumerable<string> DestinationFiles { get; set; }
-
         [Value( 0, Hidden = true )]
         public IEnumerable<string> Args { get; set; }
 
@@ -49,10 +46,9 @@ namespace nresx.CommandLine.Commands
         [Option( 'f', "format", HelpText = "New resource format" )]
         public string Format { get; set; }
         protected virtual bool IsFormatAllowed => false;
+        
 
-
-
-        [Option( "dry-run", HelpText = "Test remove command without actual performing" )]
+        [Option( "dry-run", HelpText = "Test command without actual performing", Hidden = true)]
         public bool DryRun { get; set; }
         protected virtual bool IsDryRunAllowed => true;
 
@@ -62,25 +58,6 @@ namespace nresx.CommandLine.Commands
 
         public bool Successful { get; protected set; } = true;
         public Exception Exception { get; protected set; } = null;
-
-        protected List<string> GetSourceFiles()
-        {
-            var src = SourceFiles?.ToList();
-            if ( src?.Count > 0 )
-                return src;
-
-            var args = Args?.ToList();
-            if ( args?.Count > 0 )
-                return args;
-
-            return new List<string>();
-        }
-        //protected void GetSourceDestinationPair( out string source, out string destination )
-        //{
-        //    var args = Args?.ToList() ?? new List<string>();
-        //    source = SourceFiles?.FirstOrDefault() ?? args.Take();
-        //    destination = SourceFiles?.Skip( 1 ).FirstOrDefault() ?? Destination ?? args.Take();
-        //}
 
         protected OptionContext Options()
         {
