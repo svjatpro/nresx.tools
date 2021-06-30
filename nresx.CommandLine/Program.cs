@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using CommandLine;
@@ -68,8 +69,6 @@ namespace nresx.CommandLine
 
         static int Main( string[] args )
         {
-
-            
             var arguments = args;
 
             var infoCommand = ( typeof(InfoCommand).GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )?.Name ?? "info";

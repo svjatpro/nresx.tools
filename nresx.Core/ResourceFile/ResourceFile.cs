@@ -221,10 +221,14 @@ namespace nresx.Tools
             if( fileInfo.Exists )
                 fileInfo.Delete();
 
-            var dir = new DirectoryInfo( Path.GetDirectoryName( targetPath ) ?? string.Empty );
-            if ( !dir.Exists && createDir )
+            var dirName = Path.GetDirectoryName( targetPath );
+            if ( !string.IsNullOrWhiteSpace( dirName ) )
             {
-                dir.Create();
+                var dir = new DirectoryInfo( Path.GetDirectoryName( targetPath ) ?? string.Empty );
+                if ( !dir.Exists && createDir )
+                {
+                    dir.Create();
+                }
             }
 
             formatter.SaveResourceFile( new FileStream( targetPath, FileMode.CreateNew ), Elements );

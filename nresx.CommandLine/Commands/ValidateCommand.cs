@@ -17,7 +17,7 @@ namespace nresx.CommandLine.Commands
                 .Validate();
             if ( !optionsParsed )
                 return;
-
+            
             ForEachSourceFile(
                 sourceFiles,
                 ( file, resource ) =>
