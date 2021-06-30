@@ -10,6 +10,8 @@ namespace nresx.CommandLine.Commands
     [Verb( "validate", HelpText = "Validate resource file(s)" )]
     public class ValidateCommand : BaseCommand
     {
+        protected override bool IsRecursiveAllowed => true;
+
         public override void Execute()
         {
             var optionsParsed = Options()

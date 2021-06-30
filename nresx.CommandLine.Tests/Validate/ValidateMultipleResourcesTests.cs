@@ -1,6 +1,5 @@
 using FluentAssertions;
 using nresx.Core.Tests;
-using nresx.Tools;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Validate
@@ -8,68 +7,71 @@ namespace nresx.CommandLine.Tests.Validate
     [TestFixture]
     public class ValidateMultipleResourcesTests : TestBase
     {
-        [TestCase( @"validate [TmpFile]" )]
-        [TestCase( @"validate -s [TmpFile]" )]
-        [TestCase( @"validate --source [TmpFile]" )]
-        public void ValidateEmptyValueElements( string commandLine )
+        [TestCase( @"validate [TmpFile] [TmpFile]" )]
+        [TestCase( @"validate -s [TmpFile] [TmpFile]" )]
+        [TestCase( @"validate --source [TmpFile] [TmpFile]" )]
+        public void ValidateResourceList( string commandLine )
         {
+            var res = GetExampleResourceFile();
             TestHelper.PrepareCommandLine( commandLine, out var preArgs );
-            var file = preArgs.TemporaryFiles[0];
-            var res = new ResourceFile( file );
 
+            TestHelper.ReplaceKey( preArgs.TemporaryFiles[0], res.Elements[1].Value, "" );
+            TestHelper.ReplaceKey( preArgs.TemporaryFiles[0], res.Elements[2].Key, res.Elements[1].Key );
+            TestHelper.ReplaceKey( preArgs.TemporaryFiles[1], res.Elements[1].Key, "" );
 
+            var args = TestHelper.RunCommandLine( commandLine, preArgs );
 
-            res.Elements[1].Value = string.Empty;
-            res.Save( file );
-            
-            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters{ TemporaryFiles = { file } } );
-            
-            args.ConsoleOutput[0].Should().Be( $"EmptyValue: {res.Elements[1].Key};" );
+            args.ConsoleOutput.Should().BeEquivalentTo(
+                $"EmptyValue: {res.Elements[1].Key};",
+                $"Duplicate: {res.Elements[1].Key};",
+                $"EmptyKey: (value: {res.Elements[1].Value});" );
         }
 
-        [TestCase( @"validate [TmpFile]" )]
-        [TestCase( @"validate -s [TmpFile]" )]
-        [TestCase( @"validate --source [TmpFile]" )]
-        public void ValidateEmptyKeyElements( string commandLine )
+        [TestCase( @"validate [Output]\[UniqueKey]*" )]
+        [TestCase( @"validate -s [Output]\[UniqueKey]*" )]
+        [TestCase( @"validate -s [Output]\[UniqueKey]*.*" )]
+        [TestCase( @"validate --source [Output]\[UniqueKey]*" )]
+        [TestCase( @"validate --source [Output]\[UniqueKey]*.*" )]
+        public void ValidateBySpec( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
-            var file = preArgs.TemporaryFiles[0];
-            var res = new ResourceFile( file );
-            TestHelper.ReplaceKey( file, res.Elements[1].Key, "" );
+            var res = GetExampleResourceFile();
+            var files = PrepareTemporaryFiles( 2, 1, out var key1 );
 
-            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
+            TestHelper.ReplaceKey( files[0], res.Elements[1].Value, "" );
+            TestHelper.ReplaceKey( files[0], res.Elements[2].Key, res.Elements[1].Key );
+            TestHelper.ReplaceKey( files[1], res.Elements[1].Key, "" );
+            TestHelper.ReplaceKey( files[2], res.Elements[1].Value, "" ); //
 
-            args.ConsoleOutput[0].Should().Be( $"EmptyKey: (value: {res.Elements[1].Value});" );
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters {UniqueKeys = { key1 }} );
+
+            args.ConsoleOutput.Should().BeEquivalentTo(
+                $"EmptyValue: {res.Elements[1].Key};",
+                $"Duplicate: {res.Elements[1].Key};",
+                $"EmptyKey: (value: {res.Elements[1].Value});" );
         }
 
-        [TestCase( @"validate [TmpFile]" )]
-        [TestCase( @"validate -s [TmpFile]" )]
-        [TestCase( @"validate --source [TmpFile]" )]
-        public void ValidateDuplicatedElements( string commandLine )
+        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]\[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]\[UniqueKey]*.* -r" )]
+        [TestCase( @"validate --source [Output]\[UniqueKey]* --recursive" )]
+        [TestCase( @"validate --source [Output]\[UniqueKey]*.* --recursive" )]
+        public void ValidateBySpecRecursive( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
-            var file = preArgs.TemporaryFiles[0];
-            var res = new ResourceFile( file );
-            TestHelper.ReplaceKey( file, res.Elements[2].Key, res.Elements[1].Key );
+            var res = GetExampleResourceFile();
+            var files = PrepareTemporaryFiles( 2, 1, out var key1 );
 
-            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
+            TestHelper.ReplaceKey( files[0], res.Elements[1].Value, "" );
+            TestHelper.ReplaceKey( files[0], res.Elements[2].Key, res.Elements[1].Key );
+            TestHelper.ReplaceKey( files[1], res.Elements[1].Key, "" );
+            TestHelper.ReplaceKey( files[2], res.Elements[1].Value, "" ); //
 
-            args.ConsoleOutput[0].Should().Be( $"Duplicate: {res.Elements[1].Key};" );
-        }
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
-        [TestCase( @"validate [TmpFile]" )]
-        [TestCase( @"validate -s [TmpFile]" )]
-        [TestCase( @"validate --source [TmpFile]" )]
-        public void ValidatePossibleDuplicatedElements( string commandLine )
-        {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
-            var file = preArgs.TemporaryFiles[0];
-            var res = new ResourceFile( file );
-            TestHelper.ReplaceKey( file, res.Elements[2].Key, $"{res.Elements[1].Key}.Text" );
-
-            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
-
-            args.ConsoleOutput[0].Should().Be( $"PossibleDuplicate: {res.Elements[1].Key}.Text;" );
+            args.ConsoleOutput.Should().BeEquivalentTo(
+                $"EmptyValue: {res.Elements[1].Key};",
+                $"Duplicate: {res.Elements[1].Key};",
+                $"EmptyKey: (value: {res.Elements[1].Value});",
+                $"EmptyValue: {res.Elements[1].Key};" );
         }
     }
 }
