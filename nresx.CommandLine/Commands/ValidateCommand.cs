@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using CommandLine;
+using Microsoft.VisualBasic;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
 using nresx.Tools.Extensions;
@@ -32,6 +34,11 @@ namespace nresx.CommandLine.Commands
                     }
                     else
                     {
+                        if ( errors.Any() )
+                        {
+                            Console.WriteLine( $"Resource file: \"{resource.AbsolutePath}\"" );
+                        }
+
                         foreach ( var elementError in errors )
                         {
                             var msg = new StringBuilder();

@@ -51,7 +51,7 @@ namespace nresx.Tools.Extensions
                 el => el.Value = el.Value.Substring( 0, el.Value.Length - postfix.Length ) );
         }
 
-        public static bool ValidateElements( this IEnumerable<ResourceElement> elements, out IEnumerable<ResourceElementError> errors )
+        public static bool ValidateElements( this IEnumerable<ResourceElement> elements, out List<ResourceElementError> errors )
         {
             var result = new List<ResourceElementError>();
             var keys = new HashSet<string>();

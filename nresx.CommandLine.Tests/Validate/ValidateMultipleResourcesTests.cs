@@ -1,6 +1,8 @@
+using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using NUnit.Framework;
+using YamlDotNet.Core.Tokens;
 
 namespace nresx.CommandLine.Tests.Validate
 {
@@ -19,11 +21,13 @@ namespace nresx.CommandLine.Tests.Validate
             TestHelper.ReplaceKey( preArgs.TemporaryFiles[0], res.Elements[2].Key, res.Elements[1].Key );
             TestHelper.ReplaceKey( preArgs.TemporaryFiles[1], res.Elements[1].Key, "" );
 
-            var args = TestHelper.RunCommandLine( commandLine, preArgs );
+            var args = TestHelper.RunCommandLine( commandLine, preArgs, mergeArgs: true );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
+                $"Resource file: \"{new FileInfo( args.TemporaryFiles[0] ).FullName}\"",
                 $"EmptyValue: {res.Elements[1].Key};",
                 $"Duplicate: {res.Elements[1].Key};",
+                $"Resource file: \"{new FileInfo( args.TemporaryFiles[1] ).FullName}\"",
                 $"EmptyKey: (value: {res.Elements[1].Value});" );
         }
 
@@ -45,8 +49,10 @@ namespace nresx.CommandLine.Tests.Validate
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters {UniqueKeys = { key1 }} );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
+                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
                 $"EmptyValue: {res.Elements[1].Key};",
                 $"Duplicate: {res.Elements[1].Key};",
+                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
                 $"EmptyKey: (value: {res.Elements[1].Value});" );
         }
 
@@ -68,9 +74,12 @@ namespace nresx.CommandLine.Tests.Validate
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
+                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
                 $"EmptyValue: {res.Elements[1].Key};",
                 $"Duplicate: {res.Elements[1].Key};",
+                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
                 $"EmptyKey: (value: {res.Elements[1].Value});",
+                $"Resource file: \"{new FileInfo( files[2] ).FullName}\"",
                 $"EmptyValue: {res.Elements[1].Key};" );
         }
     }

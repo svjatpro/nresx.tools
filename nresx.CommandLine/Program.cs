@@ -69,6 +69,20 @@ namespace nresx.CommandLine
 
         static int Main( string[] args )
         {
+            //var resEn = new ResourceFile( @"C:\Tmp\1\Resources.resw" );
+            //var resFr = new ResourceFile( @"C:\Tmp\1\for_use_homece-windows10_en_resourcesyml_fr_CA.yml" );
+
+            //var elMap = resEn.Elements.ToDictionary( el => el.Key );
+            //foreach ( var el in resFr.Elements )
+            //{
+            //    if ( elMap.ContainsKey( el.Key ) && elMap[el.Key].Value == el.Value )
+            //    {
+            //        Console.WriteLine($"{el.Key}: {el.Value}");
+            //    }
+            //}
+
+            //return 0;
+
             var arguments = args;
 
             var infoCommand = ( typeof(InfoCommand).GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )?.Name ?? "info";
