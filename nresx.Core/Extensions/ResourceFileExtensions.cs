@@ -172,6 +172,9 @@ namespace nresx.Tools.Extensions
         PossibleDuplicate = 0x02,
         EmptyKey = 0x03,
         EmptyValue = 0x04,
+
+        MissedElement = 0x05,
+        NotTranslated = 0x06,
     }
     public class ResourceElementError
     {

@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "convert C:\\Tmp\\1\\for_use_homece-windows10_en_resourcesyml_fr_CA.yml res2.resx",
+      "commandLineArgs": "validate C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output\\K6XCGcGa\\* -r",
       "workingDirectory": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output"
     }
   }

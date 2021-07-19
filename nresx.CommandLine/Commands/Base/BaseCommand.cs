@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using CommandLine;
@@ -64,6 +65,109 @@ namespace nresx.CommandLine.Commands
             return new OptionContext( Args.ToList(), true );
         }
 
+        protected void ForEachResourceGroup(
+            List<string> sourceFiles,
+            Action<GroupSearchContext, List<ResourceFile>> resourceAction,
+            Action<GroupSearchContext, Exception> errorHandler = null,
+            bool splitFiles = false )
+        {
+            if ( sourceFiles?.Count > 0 )
+            {
+                var groups = new List<List<FileInfo>>();
+
+                var resFiles = new List<(FilesSearchContext context, ResourceFormatType format, CultureInfo culture)>();
+
+                // query all resource files
+                for ( var i = 0; i < sourceFiles.Count; i++ )
+                {
+                    var sourcePattern = sourceFiles[i];
+                    FilesHelper.SearchFiles( 
+                        sourcePattern, 
+                        context =>
+                        {
+                            if ( context.FileExists &&
+                               ( ResourceFormatHelper.DetectFormatByExtension( context.FullName, out var format ) ||
+                                 context.SourcePathSpec.IsRegularName() ) )
+                            {
+                                context.FullName.TryToExtractCultureFromPath( out var culture );
+                                resFiles.Add( (context, format, culture) );
+                            }
+                        },
+                        recursive: Recursive && IsRecursiveAllowed,
+                        createNew: CreateNewFile && IsCreateNewFileAllowed,
+                        dryRun: DryRun && IsDryRunAllowed );
+                }
+
+                // try to get group of resource in the same folder
+                resFiles = resFiles
+                    .GroupBy( r => Path.GetDirectoryName( r.context.FullName ) )
+                    .SelectMany( grp =>
+                    {
+                        var notProcessed = new List<(FilesSearchContext context, ResourceFormatType format, CultureInfo culture)>();
+                        grp
+                            .GroupBy( f => f.format )
+                            .ToList()
+                            .ForEach( g =>
+                            {
+                                var candidates = g.Where( f => f.format != ResourceFormatType.NA && f.culture != null ).ToList();
+                                if ( candidates.Count > 1 )
+                                {
+                                    groups.Add( candidates.Select( f => f.context.CurrentFile ).ToList() );
+                                    notProcessed.AddRange( g.Where( f => f.culture == null || f.format == ResourceFormatType.NA ) );
+                                }
+                                else
+                                {
+                                    notProcessed.AddRange( g );
+                                }
+                            });
+                        return notProcessed;
+                    } )
+                    .ToList();
+
+                // try to get group from culture specific folders
+                if ( resFiles.Any() )
+                {
+                    resFiles = resFiles
+                        .GroupBy( r => Path.GetFullPath( Path.Combine( r.context.FullName, "..", ".." ) ) )
+                        .SelectMany( grp =>
+                        {
+                            var notProcessed = new List<(FilesSearchContext context, ResourceFormatType format, CultureInfo culture)>();
+                            grp
+                                .GroupBy( f => f.format )
+                                .ToList()
+                                .ForEach( g =>
+                                {
+                                    var candidates = g.Where( f => f.format != ResourceFormatType.NA && f.culture != null ).ToList();
+                                    if ( candidates.Count > 1 )
+                                    {
+                                        groups.Add( candidates.Select( f => f.context.CurrentFile ).ToList() );
+                                        notProcessed.AddRange( g.Where( f => f.culture == null || f.format == ResourceFormatType.NA ) );
+                                    }
+                                    else
+                                    {
+                                        notProcessed.AddRange( g );
+                                    }
+                                } );
+                            return notProcessed;
+                        } )
+                        .ToList();
+                }
+
+                // all remain resources add as a separate groups
+                if ( resFiles.Any() )
+                {
+                    groups.AddRange( resFiles.Select( f => new List<FileInfo>{ f.context.CurrentFile } ).ToList() );
+                }
+
+                groups.ForEach( group =>
+                {
+                    var files = group.Select( g => new ResourceFile( g.FullName ) ).ToList();
+                    var context = new GroupSearchContext( groups.Count, groups.Select( g => g.Count ).Sum() );
+                    resourceAction( context, files );
+                } );
+            }
+        }
+
         protected void ForEachSourceFile(
             List<string> sourceFiles, 
             Action<FilesSearchContext, ResourceFile> resourceAction,
@@ -82,7 +186,7 @@ namespace nresx.CommandLine.Commands
                         errorHandler ??
                         ( ( context, exception ) =>
                         {
-                            if ( ( context.FilesProcessed + context.FilesFaled ) > 0 )
+                            if ( ( context.FilesProcessed + context.FilesFailed ) > 0 )
                                 Console.WriteLine( new string( '-', 30 ) );
 
                             switch ( exception )
@@ -98,7 +202,7 @@ namespace nresx.CommandLine.Commands
                                     break;
                                 case FileLoadException:
                                 default:
-                                    Console.WriteLine( FileLoadErrorMessage, context.CurrentFile.FullName );
+                                    Console.WriteLine( FileLoadErrorMessage, context.FullName );
                                     break;
                             }
                         } ),

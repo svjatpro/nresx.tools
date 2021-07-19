@@ -16,7 +16,7 @@ namespace nresx.CommandLine.Tests.Rename
         {
             var res1 = GetExampleResourceFile();
             var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { elementToUpdate.Key }} );
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters{UniqueKeys = { elementToUpdate.Key }} );
             
             var res = new ResourceFile( args.TemporaryFiles[0] );
             var element = res.Elements.First( el => el.Key == args.UniqueKeys[0] );

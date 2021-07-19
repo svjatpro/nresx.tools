@@ -70,14 +70,14 @@ namespace nresx.CommandLine
         static int Main( string[] args )
         {
             //var resEn = new ResourceFile( @"C:\Tmp\1\Resources.resw" );
-            //var resFr = new ResourceFile( @"C:\Tmp\1\for_use_homece-windows10_en_resourcesyml_fr_CA.yml" );
+            //var resFr = new ResourceFile( @"C:\Tmp\1\Resources_fr.resw" );
 
             //var elMap = resEn.Elements.ToDictionary( el => el.Key );
             //foreach ( var el in resFr.Elements )
             //{
             //    if ( elMap.ContainsKey( el.Key ) && elMap[el.Key].Value == el.Value )
             //    {
-            //        Console.WriteLine($"{el.Key}: {el.Value}");
+            //        Console.WriteLine( $"{el.Key}: {el.Value}" );
             //    }
             //}
 
@@ -107,7 +107,7 @@ namespace nresx.CommandLine
                         // todo: check is it file or dir
                         arguments = new[] { infoCommand, args[0] };
                         break;
-                    // multiple arguments without command are considered as "convert -s <source file1> <source file2> ..."
+                    // multiple arguments without command are considered as "info -s <source file1> <source file2> ..."
                     default:
                         arguments = new string[args.Length + 2];
                         arguments[0] = infoCommand;

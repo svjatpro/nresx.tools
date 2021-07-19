@@ -111,7 +111,7 @@ namespace nresx.Winforms
                 return result;
             }
 
-            // Missed in cache, try to resolve the type from the reference assemblies.
+            // MissedElement in cache, try to resolve the type from the reference assemblies.
             if (name.IndexOf(',') != -1)
             {
                 result = Type.GetType(name, false, ignoreCase);

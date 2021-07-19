@@ -10,6 +10,7 @@ Command line tool
 - [Rename](#rename)
 - [Remove](#remove)
 - [Copy](#copy)
+- [Validate](#validate)
 
 ## Convert
 Convert resource file(s) to another format
@@ -302,3 +303,29 @@ nresx copy <file1> <file2>
 # will copy all elements from the "file1" to "file2", duplicated elements will be overwriten
 nresx copy <file1> <file2> --overwrite
 ```
+
+
+## Validate
+Validate resource(s) in order to find any errors, such as duplicated elements, missed elements or not translated elements.
+
+```sh
+nresx validate [-s] <pathspec> [--recursive]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+
+#### Examples
+
+```sh
+# will validate elements within single resource file: emptly or duplicated elements
+nresx validate <file1>
+
+# will validate elements in all matched resource files: including cross resource validates
+#  if some element has the same value in two resource files for different cultures, then there will be 'not translated' error in the result.
+nresx validate dir1\*.resw -r
+```
+
+

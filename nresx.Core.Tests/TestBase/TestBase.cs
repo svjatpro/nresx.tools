@@ -96,7 +96,43 @@ namespace nresx.Core.Tests
         {
             return TestHelper.CopyTemporaryFile( sourcePath, destPath, destDir, copyType );
         }
-         
+
+        protected List<string> PrepareGroupedFiles( string[] locales, out string fileKey, bool dirLocales = false, string dir = null )
+        {
+            fileKey = TestData.UniqueKey();
+            var result = new List<string>();
+
+            var baseDir = TestData.OutputFolder;
+            if ( !string.IsNullOrWhiteSpace( dir ) )
+            {
+                baseDir = Path.Combine( TestData.OutputFolder, dir );
+                new DirectoryInfo( baseDir ).Create();
+            }
+
+            for ( var i = 0; i < locales.Length; i++ )
+            {
+                string filePath;
+                if ( dirLocales )
+                {
+                    new DirectoryInfo( Path.Combine( baseDir, locales[i] ) ).Create();
+                    var localeDir = !string.IsNullOrWhiteSpace( dir ) ? $"{dir}\\{locales[i]}" : $"{locales[i]}";
+                    filePath = GetOutputPath( $"{localeDir}\\{fileKey}_{locales[i]}.resx" );
+                }
+                else
+                {
+                    filePath =
+                        !string.IsNullOrWhiteSpace( dir ) ? 
+                        GetOutputPath( $"{dir}\\{fileKey}_{locales[i]}.resx" ) :
+                        GetOutputPath( $"{fileKey}_{locales[i]}.resx" );
+                }
+
+                TestHelper.CopyTemporaryFile( destPath: filePath );
+                result.Add( filePath );
+            }
+
+            return result;
+        }
+
         protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey, string dir = null )
         {
             fileKey = TestData.UniqueKey();

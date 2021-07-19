@@ -23,7 +23,7 @@ namespace nresx.CommandLine.Commands
                 sourceFiles,
                 ( ctx, resource ) =>
                 {
-                    if ( ctx.FilesProcessed + ctx.FilesFaled > 0 )
+                    if ( ctx.FilesProcessed + ctx.FilesFailed > 0 )
                         Console.WriteLine( new string( '-', 30 ) );
                     Console.WriteLine( $"Resource file name: \"{resource.FileName}\", (\"{resource.AbsolutePath})\"" );
                     Console.WriteLine( $"resource format type: {resource.FileFormat}" );
