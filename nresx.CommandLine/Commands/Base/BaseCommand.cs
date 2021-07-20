@@ -214,6 +214,51 @@ namespace nresx.CommandLine.Commands
             }
         }
 
+        protected void ForEachFile(
+            List<string> sourceFiles,
+            Action<FilesSearchContext> resourceAction,
+            Action<FilesSearchContext, Exception> errorHandler = null,
+            bool splitFiles = false )
+        {
+            if ( sourceFiles?.Count > 0 )
+            {
+                for ( var i = 0; i < sourceFiles.Count; i++ )
+                {
+                    var sourcePattern = sourceFiles[i];
+                    if ( i > 0 && splitFiles ) Console.WriteLine( new string( '-', 30 ) );
+                    FilesHelper.SearchFiles(
+                        sourcePattern,
+                        resourceAction,
+                        errorHandler ??
+                        ( ( context, exception ) =>
+                        {
+                            if ( ( context.FilesProcessed + context.FilesFailed ) > 0 )
+                                Console.WriteLine( new string( '-', 30 ) );
+
+                            switch ( exception )
+                            {
+                                case FileNotFoundException:
+                                    Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
+                                    break;
+                                case DirectoryNotFoundException:
+                                    Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
+                                    break;
+                                case UnknownResourceFormatException:
+                                    Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
+                                    break;
+                                case FileLoadException:
+                                default:
+                                    Console.WriteLine( FileLoadErrorMessage, context.FullName );
+                                    break;
+                            }
+                        } ),
+                        recursive: Recursive && IsRecursiveAllowed,
+                        createNew: CreateNewFile && IsCreateNewFileAllowed,
+                        dryRun: DryRun && IsDryRunAllowed );
+                }
+            }
+        }
+
         protected bool TryOpenResourceFile( string path, out ResourceFile resourceFile, bool createNonExisting = false )
         {
             if ( string.IsNullOrWhiteSpace( path ) || ( !new FileInfo( path ).Exists && !createNonExisting ) )

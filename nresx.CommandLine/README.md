@@ -324,7 +324,8 @@ nresx validate [-s] <pathspec> [--recursive]
 nresx validate <file1>
 
 # will validate elements in all matched resource files: including cross resource validates
-#  if some element has the same value in two resource files for different cultures, then there will be 'not translated' error in the result.
+#  if some element has the same value in two resource files for different cultures, 
+#  then there will be 'not translated' error in the result.
 nresx validate dir1\*.resw -r
 ```
 

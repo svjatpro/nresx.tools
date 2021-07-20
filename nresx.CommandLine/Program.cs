@@ -122,7 +122,7 @@ namespace nresx.CommandLine
                     InfoCommand, ListCommand,
                     ConvertCommand, FormatCommand, CopyCommand,
                     AddCommand, RemoveCommand, UpdateCommand, RenameCommand,
-                    ValidateCommand>( arguments )
+                    ValidateCommand, GenerateCommand>( arguments )
                 .WithParsed<ICommand>( t => t.Execute() )
                 .MapResult( 
                     cmd => ((ICommand)cmd).Successful ? 0 : -1,
