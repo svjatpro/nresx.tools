@@ -7,14 +7,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="23695e8e-4c98-4f7c-a043-96031fc556f5"
+    Name="b9dcb3f0-4cb5-4591-a817-916ab482539c"
     Publisher="CN=svjat"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="23695e8e-4c98-4f7c-a043-96031fc556f5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="b9dcb3f0-4cb5-4591-a817-916ab482539c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>appUwp</DisplayName>
+    <DisplayName>App1</DisplayName>
     <PublisherDisplayName>svjat</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,12 +30,12 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="appUwp.App">
+      EntryPoint="App1.App">
       <uap:VisualElements
-        DisplayName="appUwp"
+        DisplayName="App1"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="appUwp"
+        Description="App1"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
