@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
 using nresx.Tools.Extensions;
-using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
@@ -16,6 +14,35 @@ namespace nresx.CommandLine.Commands
     public class GenerateCommand : BaseCommand
     {
         protected override bool IsRecursiveAllowed => true;
+
+        #region Private methods
+
+        private bool ValidateFile( string path )
+        {
+            //
+
+            return true;
+        }
+
+        private bool ValidateLine( string line )
+        {
+            Regex asmRegex = new( @"\[assembly:", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant );
+            Regex commentRegex = new( @"^\s*///", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant );
+            Regex throwRegex = new( @"\s+throw new ", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant );
+
+            // [assembly: AssemblyTitle("appUwp")]
+
+            if ( asmRegex.IsMatch( line ) ||
+                 commentRegex.IsMatch( line ) ||
+                 throwRegex.IsMatch( line ) )
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
         public override void Execute()
         {
@@ -32,9 +59,15 @@ namespace nresx.CommandLine.Commands
                 ".git", ".vs", "bin", "obj"
             };
 
-            var elements = new List<ResourceElement>();
+            var elementsMap = new Dictionary<string, List<ResourceElement>>();
             ForEachFile( sourceFiles, context =>
             {
+                if ( !ValidateFile( context.PathSpec ) )
+                    return;
+
+                var elements = new List<ResourceElement>();
+                elementsMap.Add( context.FullName, elements );
+
                 // filter by skip dirs
                 var rootDir = Path.GetDirectoryName( new DirectoryInfo( context.SourcePathSpec ).FullName );
                 var relPath = Path.GetRelativePath( rootDir, context.FullName );
@@ -57,42 +90,53 @@ namespace nresx.CommandLine.Commands
                     case ".cs":
                     {
                         using var reader = new StreamReader( new FileStream( context.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
-                        var fileBody = reader.ReadToEnd();
-                        var matches = csRegex.Matches( fileBody );
-                        foreach ( Match match in matches )
+                        //var fileBody = reader.ReadToEnd();
+                        while ( !reader.EndOfStream )
                         {
-                            var value = match.Groups[1].Value;
-                            if ( string.IsNullOrWhiteSpace( value ) ) continue;
-                            string key = null;
-
-                            // try to get property name
-                            Regex csPropRegex = new( $@"[$\s;]+([a-zA-Z0-9_]+)\s*=\s*""{value}""", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant );
-                            var propMatch = csPropRegex.Match( fileBody, prevIndex, match.Length + match.Index - prevIndex + 1 );
-                            if ( propMatch.Success )
+                            var line = reader.ReadLine();
+                            if ( !ValidateLine( line ) )
+                                continue;
+                            var matches = csRegex.Matches( line );
+                            foreach ( Match match in matches )
                             {
-                                key = propMatch.Groups[1].Value;
+                                var value = match.Groups[1].Value;
+                                if ( string.IsNullOrWhiteSpace( value ) ) continue;
+                                string key = null;
+
+                                // try to get property name
+                                Regex csPropRegex = new( $@"[$\s;]+([a-zA-Z0-9_]+)\s*=\s*""{value}""",
+                                    RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.Multiline |
+                                    RegexOptions.CultureInvariant );
+                                var propMatch = csPropRegex.Match( line, prevIndex, match.Length + match.Index - prevIndex + 1 );
+                                if ( propMatch.Success )
+                                {
+                                    key = propMatch.Groups[1].Value;
+                                }
+
+                                // get name from value
+                                if ( key == null )
+                                {
+                                    key = value.Split( ' ' ).FirstOrDefault();
+                                }
+
+                                elements.Add( new ResourceElement
+                                {
+                                    Key = $"{elNamePath}_{key ?? ( elIndex++ ).ToString()}",
+                                    Value = value
+                                } );
                             }
-
-                            // get name from value
-                            if ( key == null )
-                            {
-                                key = value.Split( ' ' ).FirstOrDefault();
-                            }
-
-                            elements.Add( new ResourceElement
-                            {
-                                Key = $"{elNamePath}_{key ?? (elIndex++).ToString()}",
-                                Value = value
-                            } );
                         }
                         break;
                     }
                 }
             } );
 
-            foreach ( var el in elements )
+            foreach ( var sourceFile in elementsMap.Keys )
             {
-                Console.WriteLine( $"\"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
+                foreach ( var el in elementsMap[sourceFile] )
+                {
+                    Console.WriteLine( $"\"{sourceFile.GetShortPath()}\": \"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
+                }
             }
         }
     }

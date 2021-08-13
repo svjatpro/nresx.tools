@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy &quot;$(SolutionDir).test_files\*.*&quot; &quot;$(TargetDir).test_files\&quot; /Y /I /E" />
+    <Exec Command="xcopy &quot;$(SolutionDir).test_files\*.*&quot; &quot;$(TargetDir).test_files\&quot; /Y /I /E&#xD;&#xA;xcopy &quot;$(SolutionDir).test_projects\*.*&quot; &quot;$(TargetDir).test_projects\&quot; /Y /I /E" />
   </Target>
 
 </Project>

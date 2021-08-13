@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "generate C:\\_Projects\\Remote.Monitor\\* -r",
+      "commandLineArgs": "generate C:\\_Projects\\nresx.tools\\.test_projects\\* -r",
       "workingDirectory": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output"
     }
   }

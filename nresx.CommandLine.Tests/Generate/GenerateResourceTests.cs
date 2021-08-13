@@ -1,8 +1,6 @@
-using System.Linq;
 using FluentAssertions;
 using nresx.CommandLine.Tests.Format;
 using nresx.Core.Tests;
-using nresx.Tools;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Generate
@@ -10,37 +8,14 @@ namespace nresx.CommandLine.Tests.Generate
     [TestFixture]
     public class GenerateResourceTests : FormatBasicTests
     {
-        [TestCase( @"format --source [TmpFile] --end-with --culture-code", "uk", "{0}_uk" )]
-        public void FormatSingleFile( string commandLine, string code, string template )
+        [TestCase( @"generate -s .test_projects\appUwp\* -r" )]
+        public void FormatSingleFile( string commandLine )
         {
-            var pattern = TestData.UniqueKey();
-            var file = TestHelper.CopyTemporaryFile( destDir: code );
-            var elements = GetExampleResourceFile().Elements.ToDictionary( el => el.Key, el => el.Value );
+            var args = TestHelper.RunCommandLine( commandLine );
 
-            // format resource file
-            commandLine
-                .PrepareArgs( () => new CommandLineParameters{ TemporaryFiles = { file }, UniqueKeys = { pattern } } )
-                .ValidateDryRun( args => { ValidateElements( new ResourceFile( args.TemporaryFiles[0] ) ); } )
-                .ValidateRun( args =>
-                {
-                    new ResourceFile( args.TemporaryFiles[0] )
-                        .Elements.Where( el => el.Value == string.Format( template, elements[el.Key], pattern ) )
-                        .Should().HaveCount( elements.Count );
-                } )
-                .ValidateStdout( args => new[] {string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0] )} );
-
-            // (delete) revert changes
-            commandLine = $"{commandLine} --delete";
-            commandLine
-                .PrepareArgs( () => new CommandLineParameters { TemporaryFiles = { file }, UniqueKeys = { pattern } } )
-                .ValidateDryRun( args =>
-                {
-                    new ResourceFile( args.TemporaryFiles[0] )
-                        .Elements.Where( el => el.Value == string.Format( template, elements[el.Key], pattern ) )
-                        .Should().HaveCount( elements.Count );
-                } )
-                .ValidateRun( args => { ValidateElements( new ResourceFile( args.TemporaryFiles[0] ) ); } )
-                .ValidateStdout( args => new[] { string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0] ) } );
+            args.ConsoleOutput.Should().BeEquivalentTo(
+                @"""appUwp\MainViewModel.cs"": ""The long description"" string has been extracted to ""MainViewModel_The"" resource element",
+                @"""appUwp\MainViewModel.cs"": ""The Button2"" string has been extracted to ""MainViewModel_The"" resource element" );
         }
     }
 }
