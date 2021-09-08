@@ -11,6 +11,7 @@ Command line tool
 - [Remove](#remove)
 - [Copy](#copy)
 - [Validate](#validate)
+- [Generate](#generate)
 
 ## Convert
 Convert resource file(s) to another format
@@ -327,6 +328,28 @@ nresx validate <file1>
 #  if some element has the same value in two resource files for different cultures, 
 #  then there will be 'not translated' error in the result.
 nresx validate dir1\*.resw -r
+```
+
+## Generate
+Extract potential texts from source code, replace with placeholder code and generate new resource file
+
+```sh
+nresx generate [-s] <pathspec> [-d] <pathspec> [--recursive] [--dry-run]
+```
+
+#### Options
+
+**-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-r | --recursive**  Process resource files in subdirectories\
+**-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-f | --format**  Format of destination file(s)\
+**--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
+
+#### Examples
+
+```sh
+# will search all source files in current dir and all subdirs, extract all appropriate tests, replace with placeholder code and generate new resource file with extracted elements
+nresx generate * <file1> -r
 ```
 
 
