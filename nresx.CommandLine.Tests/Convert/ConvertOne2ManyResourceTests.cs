@@ -38,10 +38,11 @@ namespace nresx.CommandLine.Tests.Convert
                     foreach ( var file in args.NewFiles )
                         new FileInfo( file ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( args => new[]
+                .ValidateStdout( args =>
                 {
-                    string.Format( SuccessLineTemplate, args.SourceFiles[0], args.NewFiles[0] ),
-                    string.Format( SuccessLineTemplate, args.SourceFiles[0], args.NewFiles[1] )
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, args.SourceFiles[0], args.NewFiles[0] ),
+                        string.Format( SuccessLineTemplate, args.SourceFiles[0], args.NewFiles[1] ) );
                 } );
         }
 
@@ -65,9 +66,10 @@ namespace nresx.CommandLine.Tests.Convert
                 {
                     new FileInfo( parameters.DestPath ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( ( args, parameters ) => new[]
+                .ValidateStdout( ( args, parameters ) =>
                 {
-                    string.Format( SuccessLineTemplate, args.TemporaryFiles[0], parameters.DestPath ),
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, args.TemporaryFiles[0], parameters.DestPath ) );
                 } );
         }
 
@@ -89,9 +91,10 @@ namespace nresx.CommandLine.Tests.Convert
                 {
                     new FileInfo( parameters.DestPath ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( ( args, parameters ) => new[]
+                .ValidateStdout( ( args, parameters ) =>
                 {
-                    string.Format( SuccessLineTemplate, args.TemporaryFiles[0], parameters.DestPath ),
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, args.TemporaryFiles[0], parameters.DestPath ) );
                 } );
         }
 
@@ -105,7 +108,7 @@ namespace nresx.CommandLine.Tests.Convert
                 .WithParams( args => new { DestPath = GetOutputPath( args.UniqueKeys[0] ) } )
                 .ValidateRun( ( args, parameters ) => { new FileInfo( parameters.DestPath ).Exists.Should().BeFalse(); } )
                 .ValidateDryRun( ( args, parameters ) => { new FileInfo( parameters.DestPath ).Exists.Should().BeFalse(); } )
-                .ValidateStdout( ( args, parameters ) => new[] {FormatUndefinedErrorMessage} );
+                .ValidateStdout( ( args, parameters ) => args.ConsoleOutput.Should().BeEquivalentTo( FormatUndefinedErrorMessage ) );
         }
     }
 }

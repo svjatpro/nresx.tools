@@ -9,6 +9,7 @@ namespace nresx.Core.Tests
         public readonly List<string> NewFiles = new();
         public readonly List<string> NewDirectories = new();
         public readonly List<string> TemporaryFiles = new();
+        public readonly List<string> TemporaryProjects = new();
 
         public bool DryRun { get; set; }
         public bool Recursive { get; set; }

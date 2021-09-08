@@ -4,6 +4,6 @@ namespace nresx.Tools.CodeParsers
 {
     public interface ICodeParser
     {
-        Dictionary<string, string> ParseLine( string line, string elementPath );
+        string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements );
     }
 }

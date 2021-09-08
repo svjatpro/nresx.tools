@@ -12,6 +12,7 @@ namespace nresx.Core.Tests
 
         public static readonly string OutputFolder = ".test_output";
         public static readonly string TestFileFolder = ".test_files";
+        public static readonly string ProjectsFolder = ".test_projects";
 
         public static readonly string DryRunOption = " --dry-run";
         public static readonly string RecursiveOption = " --recursive";

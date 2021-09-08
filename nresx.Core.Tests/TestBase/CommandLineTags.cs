@@ -35,5 +35,10 @@
         /// Create new random directory
         /// </summary>
         public const string NewDir = "[NewDir]";
+
+        /// <summary>
+        /// Create temporary output dir and copy the project there
+        /// </summary>
+        public const string TemporaryProjectDir = "[TmpProj]";
     }
 }

@@ -43,7 +43,10 @@ namespace nresx.CommandLine.Tests.Convert
                 {
                     new FileInfo( args.NewFiles[0] ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( args => new[] { string.Format( SuccessLineTemplate, args.SourceFiles[0], args.NewFiles[0] ) } );
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo( string.Format( SuccessLineTemplate, args.SourceFiles[0], args.NewFiles[0] ) );
+                } );
         }
 
         [TestCase( ResourceFormatType.Resx, ResourceFormatType.Yaml )]
@@ -70,9 +73,9 @@ namespace nresx.CommandLine.Tests.Convert
                 {
                     new FileInfo( parameters.DestPath ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( ( args, parameters ) => new[]
+                .ValidateStdout( ( args, parameters ) =>
                 {
-                    string.Format( SuccessLineTemplate, args.SourceFiles[0], parameters.DestPath )
+                    args.ConsoleOutput.Should().BeEquivalentTo( string.Format( SuccessLineTemplate, args.SourceFiles[0], parameters.DestPath ) );
                 } );
         }
     }

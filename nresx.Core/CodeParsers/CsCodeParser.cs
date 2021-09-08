@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using nresx.Tools.Extensions;
 
@@ -76,19 +77,29 @@ namespace nresx.Tools.CodeParsers
             return key;
         }
 
-        public Dictionary<string, string> ParseLine( string line, string elementPath )
+        private string GetStringPlaceholder( string key )
+        {
+            return $"GetString(\"{key}\")";
+        }
+
+        public string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements )
         {
             var result = new Dictionary<string, string>();
 
             if ( !ValidateLine( line ) )
-                return result;
+            {
+                elements = null;
+                return line;
+            }
 
+            var matchIndex = 0;
             var prevIndex = 0;
+            var replacedLine = new StringBuilder();
             var matches = ElementRegex.Matches( line );
             foreach ( Match match in matches )
             {
                 if ( !GetValue( match, out var value ) ) continue;
-                var key = GenerateElementName( line, elementPath, match, ref prevIndex );
+                var key = GenerateElementName( line, elementPath, match, ref matchIndex );
 
                 // check element name duplicates
                 var keyIndex = key.ToLower();
@@ -102,9 +113,19 @@ namespace nresx.Tools.CodeParsers
                 }
 
                 result.Add( key, value );
+                
+                // add matches part to result line
+                if ( prevIndex < match.Index )
+                    replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
+                replacedLine.Append( GetStringPlaceholder( key ) );
+                prevIndex = match.Index + match.Length;
             }
+            
+            elements = result;
 
-            return result;
+            if( prevIndex < line.Length )
+                replacedLine.Append( line.Substring( prevIndex ) );
+            return replacedLine.ToString();
         }
     }
 }

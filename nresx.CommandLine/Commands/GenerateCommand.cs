@@ -94,20 +94,35 @@ namespace nresx.CommandLine.Commands
                 if ( ext == null || !parsers.ContainsKey( ext ) ) return;
                 var parser = parsers[ext];
 
+                var tmpFile = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() );
+                var fileChanged = false;
                 using var reader = new StreamReader( new FileStream( context.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
+                using var writer = DryRun ? null : new StreamWriter( new FileStream( tmpFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite ) );
                 while ( !reader.EndOfStream )
                 {
                     var line = reader.ReadLine();
-                    var result = parser.ParseLine( line, elNamePath );
-                    if ( result.Any() )
+                    var processedLine = parser.ExtractFromLine( line, elNamePath, out var elExtracted );
+                    writer?.WriteLine( processedLine );
+
+                    if ( elExtracted?.Count > 0 )
                     {
-                        elements.AddRange( result.Select( r => new ResourceElement
+                        fileChanged = true;
+                        elements.AddRange( elExtracted.Select( r => new ResourceElement
                         {
                             Key = r.Key,
                             Value = r.Value
                         } ) );
                     }
                 }
+
+                if ( !DryRun && fileChanged )
+                {
+                    reader.Close();
+                    writer.Close();
+                    new FileInfo( context.FullName ).Delete(); // todo: rename until new one moved
+                    new FileInfo( tmpFile ).MoveTo( context.FullName );
+                }
+
             } );
             
             // write result to console

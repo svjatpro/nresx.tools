@@ -166,7 +166,7 @@ namespace nresx.Core.Tests
         }
 
 
-        public static CommandRunContext ValidateStdout( this CommandRunContext context, Func<CommandLineParameters, string[]> validateAction )
+        public static CommandRunContext ValidateStdout( this CommandRunContext context, Action<CommandLineParameters> validateAction )
         {
             foreach ( var args in context.CommandRunResults )
             {
@@ -182,7 +182,7 @@ namespace nresx.Core.Tests
             
             return context;
         }
-        public static CommandRunContext<T> ValidateStdout<T>( this CommandRunContext<T> context, Func<CommandLineParameters, T, string[]> validateAction )
+        public static CommandRunContext<T> ValidateStdout<T>( this CommandRunContext<T> context, Action<CommandLineParameters, T> validateAction )
         {
             foreach ( var args in context.CommandRunResults )
             {

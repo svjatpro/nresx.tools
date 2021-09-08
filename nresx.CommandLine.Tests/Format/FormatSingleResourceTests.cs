@@ -2,6 +2,7 @@ using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
+using nresx.Tools.Extensions;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Format
@@ -60,7 +61,11 @@ namespace nresx.CommandLine.Tests.Format
                         .Elements.Where( el => el.Value == string.Format( template, elements[el.Key], pattern ) )
                         .Should().HaveCount( elements.Count );
                 } )
-                .ValidateStdout( args => new[] {string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0] )} );
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo( 
+                        string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0].GetShortPath() ) );
+                } );
 
             // (delete) revert changes
             commandLine = $"{commandLine} --delete";
@@ -73,7 +78,11 @@ namespace nresx.CommandLine.Tests.Format
                         .Should().HaveCount( elements.Count );
                 } )
                 .ValidateRun( args => { ValidateElements( new ResourceFile( args.TemporaryFiles[0] ) ); } )
-                .ValidateStdout( args => new[] { string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0] ) } );
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo( 
+                        string.Format( SuccessLineTemplate, GetExampleResourceFile().Elements.Count(), args.TemporaryFiles[0].GetShortPath() ) );
+                } );
         }
     }
 }

@@ -1,7 +1,9 @@
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
+using nresx.Tools.Extensions;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Convert
@@ -31,10 +33,11 @@ namespace nresx.CommandLine.Tests.Convert
                     new FileInfo( Path.ChangeExtension( args.TemporaryFiles[0], "yaml" ) ).Exists.Should().BeFalse();
                     new FileInfo( Path.ChangeExtension( args.TemporaryFiles[1], "yaml" ) ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( args => new[]
+                .ValidateStdout( args =>
                 {
-                    string.Format( SuccessLineTemplate, args.TemporaryFiles[0], Path.ChangeExtension( args.TemporaryFiles[0], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, args.TemporaryFiles[1], Path.ChangeExtension( args.TemporaryFiles[1], "yaml" ) ),
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, args.TemporaryFiles[0].GetShortPath(), Path.ChangeExtension( args.TemporaryFiles[0].GetShortPath(), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, args.TemporaryFiles[1].GetShortPath(), Path.ChangeExtension( args.TemporaryFiles[1].GetShortPath(), "yaml" ) ));
                 } );
         }
 
@@ -67,10 +70,11 @@ namespace nresx.CommandLine.Tests.Convert
                     new FileInfo( Path.ChangeExtension( files1[2], "yaml" ) ?? string.Empty ).Exists.Should().BeFalse();
                     new FileInfo( Path.ChangeExtension( files1[3], "yaml" ) ?? string.Empty ).Exists.Should().BeFalse();
                 } )
-                .ValidateStdout( args => new[]
+                .ValidateStdout( args =>
                 {
-                    string.Format( SuccessLineTemplate, files1[0], Path.ChangeExtension( files1[0], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[1], Path.ChangeExtension( files1[1], "yaml" ) )
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, files1[0], Path.ChangeExtension( files1[0], "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[1], Path.ChangeExtension( files1[1], "yaml" ) ) );
                 } );
         }
 
@@ -103,12 +107,13 @@ namespace nresx.CommandLine.Tests.Convert
                     ValidateElements( new ResourceFile( Path.ChangeExtension( files1[2], "yaml" ) ) );
                     ValidateElements( new ResourceFile( Path.ChangeExtension( files1[3], "yaml" ) ) );
                 } )
-                .ValidateStdout( args => new[]
+                .ValidateStdout( args =>
                 {
-                    string.Format( SuccessLineTemplate, files1[0], Path.ChangeExtension( files1[0], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[1], Path.ChangeExtension( files1[1], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[2], Path.ChangeExtension( files1[2], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[3], Path.ChangeExtension( files1[3], "yaml" ) )
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, files1[0].GetShortPath(), Path.ChangeExtension( files1[0].GetShortPath(), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[1].GetShortPath(), Path.ChangeExtension( files1[1].GetShortPath(), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[2].GetShortPath(), Path.ChangeExtension( files1[2].GetShortPath(), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[3].GetShortPath(), Path.ChangeExtension( files1[3].GetShortPath(), "yaml" ) ) );
                 } );
         }
 
@@ -150,10 +155,11 @@ namespace nresx.CommandLine.Tests.Convert
                         new FileInfo( newPath ).Exists.Should().BeFalse();
                     }
                 } )
-                .ValidateStdout( ( args, parameters ) => new[]
+                .ValidateStdout( ( args, parameters ) =>
                 {
-                    string.Format( SuccessLineTemplate, files1[0], Path.ChangeExtension( files1[0], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[1], Path.ChangeExtension( files1[1], "yaml" ) ),
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        string.Format( SuccessLineTemplate, files1[0], Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[0] ) ), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[1], Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[1] ) ), "yaml" ) ) );
                 } );
         }
 
@@ -189,12 +195,20 @@ namespace nresx.CommandLine.Tests.Convert
                         ValidateElements( newPath );
                     }
                 } )
-                .ValidateStdout( ( args, parameters ) => new[]
+                .ValidateStdout( ( args, parameters ) =>
                 {
-                    string.Format( SuccessLineTemplate, files1[0], Path.ChangeExtension( files1[0], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[1], Path.ChangeExtension( files1[1], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[2], Path.ChangeExtension( files1[2], "yaml" ) ),
-                    string.Format( SuccessLineTemplate, files1[3], Path.ChangeExtension( files1[3], "yaml" ) )
+                    var lines = new[] {files1[0], files1[1], files1[2], files1[3]}
+                        .OrderBy( f => f )
+                        .Select( f => string.Format( SuccessLineTemplate, f.GetShortPath(),
+                            Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( f ) ), "yaml" ) ) )
+                        .ToList();
+                    args.ConsoleOutput.Should().BeEquivalentTo( lines );
+                    
+                    //args.ConsoleOutput.Should().BeEquivalentTo(
+                    //    string.Format( SuccessLineTemplate, files1[0].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[0] ) ), "yaml" ) ),
+                    //    string.Format( SuccessLineTemplate, files1[1].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[1] ) ), "yaml" ) ),
+                    //    string.Format( SuccessLineTemplate, files1[2].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[2] ) ), "yaml" ) ),
+                    //    string.Format( SuccessLineTemplate, files1[3].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[3] ) ), "yaml" ) ) );
                 } );
         }
     }

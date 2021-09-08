@@ -206,5 +206,28 @@ namespace nresx.Tools.Helpers
                 throw exc;
             }
         }
+
+        public static void CopyDirectory( string sourceDir, string destDir )
+        {
+            var dir = new DirectoryInfo( sourceDir );
+
+            if ( !dir.Exists ) throw new DirectoryNotFoundException( sourceDir );
+
+            var dirs = dir.GetDirectories();
+            Directory.CreateDirectory( destDir );
+
+            var files = dir.GetFiles();
+            foreach ( var file in files )
+            {
+                var tempPath = Path.Combine( destDir, file.Name );
+                file.CopyTo( tempPath, false );
+            }
+
+            foreach ( var subdir in dirs )
+            {
+                var tempPath = Path.Combine( destDir, subdir.Name );
+                CopyDirectory( subdir.FullName, tempPath );
+            }
+        }
     }
 }

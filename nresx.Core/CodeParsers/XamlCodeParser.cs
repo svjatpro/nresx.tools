@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using nresx.Tools.Extensions;
 
@@ -84,21 +85,39 @@ namespace nresx.Tools.CodeParsers
 
             return key;
         }
+        private string GetStringPlaceholder( string key )
+        {
+            var dotIndex = key.LastIndexOf( '.' );
+            var keyRef = dotIndex > 0 ? key.Substring( 0, dotIndex ) : key;
+            return $" x:Uid=\"{keyRef}\"";
+        }
 
-        public Dictionary<string, string> ParseLine( string line, string elementPath )
+        public string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements )
         {
             var result = new Dictionary<string, string>();
 
+            var matchIndex = 0;
             var prevIndex = 0;
+            var replacedLine = new StringBuilder();
             var matches = ResRegex.Matches( line );
             foreach ( Match match in matches )
             {
                 if ( !GetValue( match, out var value ) ) continue;
-                var key = GenerateElementName( line, elementPath, match, ref prevIndex );
+                var key = GenerateElementName( line, elementPath, match, ref matchIndex );
                 result.Add( key, value );
-            }
 
-            return result;
+                // add matches part to result line
+                if ( prevIndex < match.Index )
+                    replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
+                replacedLine.Append( GetStringPlaceholder( key ) );
+                prevIndex = match.Index + match.Length;
+            }
+            
+            elements = result;
+
+            if ( prevIndex < line.Length )
+                replacedLine.Append( line.Substring( prevIndex ) );
+            return replacedLine.ToString();
         }
     }
 }

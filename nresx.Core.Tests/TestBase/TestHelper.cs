@@ -14,7 +14,7 @@ namespace nresx.Core.Tests
         private static void ReplaceTags( 
             StringBuilder resultCmdLine, 
             string tagPlaceholder, 
-            Func<ResourceFormatType, string, string> getTagValue)
+            Func<ResourceFormatType, string, string, string> getTagValue)
         {
             const string dirPlaceholder = @"Dir\";
             var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
@@ -22,11 +22,11 @@ namespace nresx.Core.Tests
             var regx = new Regex( $"\\[(Dir\\\\|){tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
             var matches = regx.Matches( resultCmdLine.ToString() );
 
-
             foreach ( Match match in matches )
             {
                 string tag;
                 var formatType = ResourceFormatType.Resx;
+                var param = "";
                 var dir = "";
                 var dirPrefix = match.Groups[1].Value;
                 if ( match.Groups.Count > 1 && dirPrefix == dirPlaceholder )
@@ -37,10 +37,10 @@ namespace nresx.Core.Tests
 
                 if ( match.Groups.Count > 2 && !string.IsNullOrWhiteSpace( match.Groups[2].Value ) )
                 {
-                    var ext = match.Groups[2].Value;
-                    if ( ResourceFormatHelper.DetectFormatByExtension( ext, out var t ) )
+                    param = match.Groups[2].Value.TrimStart( '.' );
+                    if ( ResourceFormatHelper.DetectFormatByExtension( param, out var t ) )
                         formatType = t;
-                    tag = $"[{dirPrefix}{tagName}{ext}]";
+                    tag = $"[{dirPrefix}{tagName}{match.Groups[2].Value}]";
                 }
                 else
                 {
@@ -51,7 +51,7 @@ namespace nresx.Core.Tests
                     i >= 0;
                     p += i, i = resultCmdLine.ToString( p, resultCmdLine.Length - p ).IndexOf( tag, StringComparison.Ordinal ) )
                 {
-                    resultCmdLine.Replace( tag, getTagValue( formatType, dir ), p + i, tag.Length );
+                    resultCmdLine.Replace( tag, getTagValue( formatType, dir, param ), p + i, tag.Length );
                 }
             }
         }
@@ -126,7 +126,7 @@ namespace nresx.Core.Tests
             // get resource files and replace its paths
             ReplaceTags(
                 resultCmdLine, CommandLineTags.SourceFile,
-                ( type, dir ) =>
+                ( type, dir, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
                     {
@@ -143,7 +143,7 @@ namespace nresx.Core.Tests
             // generate output files paths and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.NewFile,
-                ( type, dir ) =>
+                ( type, dir, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
                     {
@@ -161,7 +161,7 @@ namespace nresx.Core.Tests
             // generate temporary files and replace its paths
             ReplaceTags(
                 resultCmdLine, CommandLineTags.TemporaryFile,
-                ( type, dir ) =>
+                ( type, dir, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
                     {
@@ -178,7 +178,7 @@ namespace nresx.Core.Tests
             // generate unique key(s) and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.UniqueKey,
-                ( type, dir ) =>
+                ( type, dir, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )
                     {
@@ -192,9 +192,10 @@ namespace nresx.Core.Tests
                     return key;
                 } );
 
+            // create new directory
             ReplaceTags(
                 resultCmdLine, CommandLineTags.NewDir,
-                ( type, dir ) =>
+                ( type, dir, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewDirectories.TryTake( out var p ) )
                     {
@@ -211,6 +212,26 @@ namespace nresx.Core.Tests
                     //var destPath = CopyTemporaryFile( copyType: type, destDir: dir );
                     resultParams.NewDirectories.Add( newDir );
                     return newDir;
+                } );
+
+            // create copy of the project in temporary output directory
+            ReplaceTags(
+                resultCmdLine, CommandLineTags.TemporaryProjectDir,
+                ( type, dir, parameter ) =>
+                {
+                    if ( predefinedParams != null && predefinedParams.TemporaryProjects.TryTake( out var p ) )
+                    {
+                        if ( mergeArgs )
+                            resultParams.TemporaryProjects.Add( p );
+                        return p;
+                    }
+
+                    var projDir = Path.Combine( TestData.ProjectsFolder, parameter );
+                    var targetDir = Path.Combine( TestData.OutputFolder, $"{parameter}_{TestData.UniqueKey()}" );
+                    FilesHelper.CopyDirectory( projDir, targetDir );
+
+                    resultParams.TemporaryProjects.Add( targetDir );
+                    return targetDir;
                 } );
 
             var result = resultCmdLine.ToString();
