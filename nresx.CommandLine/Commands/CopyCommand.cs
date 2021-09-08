@@ -49,7 +49,8 @@ namespace nresx.CommandLine.Commands
                         var destElement = destination.Elements[element.Key];
                         if ( destElement == null )
                         {
-                            destination.Elements.Add( element.Key, element.Value, element.Comment );
+                            if ( !DryRun )
+                                destination.Elements.Add( element.Key, element.Value, element.Comment );
                             Console.WriteLine( $"'{element.Key}' element have been copied to '{destFile.GetShortPath()}' file" );
                         }
                         else if ( OverwriteDuplicates &&
