@@ -22,5 +22,19 @@ namespace nresx.Core.Tests.CodeParsers
 
             result.Should().BeEquivalentTo( new Dictionary<string, string>{ {key, value} } );
         }
+
+        [Test]
+        public async Task DuplicatedVariableHaveIndex()
+        {
+            var result = new XamlCodeParser().ParseLine( @"<Button Grid.Row=""2"" Content=""The text""/> <Button Grid.Row=""3"" Content=""The text""/>", "TheFile" );
+            foreach ( var keyValue in result )
+                Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
+
+            result.Should().BeEquivalentTo( new Dictionary<string, string>
+            {
+                { "TheFile_Button_TheText.Content", "The text" },
+                { "TheFile_Button1_TheText.Content", "The text" }
+            } );
+        }
     }
 }

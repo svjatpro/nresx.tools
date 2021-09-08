@@ -28,7 +28,7 @@ namespace nresx.Core.Tests.CodeParsers
         }
 
         [Test]
-        public async Task DuplicatesVariableHaveIndex()
+        public async Task DuplicatedVariableHaveIndex()
         {
             var result = new CsCodeParser().ParseLine( @"var prop1 = obj2.TheMethod3( ""The text"", ""The text"" );", "TheFile" );
             foreach ( var keyValue in result )
