@@ -37,10 +37,11 @@ namespace nresx.Core.Tests
 
                 if ( match.Groups.Count > 2 && !string.IsNullOrWhiteSpace( match.Groups[2].Value ) )
                 {
-                    param = match.Groups[2].Value.TrimStart( '.' );
-                    if ( ResourceFormatHelper.DetectFormatByExtension( param, out var t ) )
+                    var ext = match.Groups[2].Value;
+                    param = ext.TrimStart( '.' );
+                    if ( ResourceFormatHelper.DetectFormatByExtension( ext, out var t ) )
                         formatType = t;
-                    tag = $"[{dirPrefix}{tagName}{match.Groups[2].Value}]";
+                    tag = $"[{dirPrefix}{tagName}{ext}]";
                 }
                 else
                 {

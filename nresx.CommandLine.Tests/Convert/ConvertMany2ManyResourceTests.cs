@@ -197,19 +197,12 @@ namespace nresx.CommandLine.Tests.Convert
                 } )
                 .ValidateStdout( ( args, parameters ) =>
                 {
-                    var lines = new[] {files1[0], files1[1], files1[2], files1[3]}
-                        .OrderBy( f => f )
-                        .Select( f => string.Format( SuccessLineTemplate, f.GetShortPath(),
-                            Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( f ) ), "yaml" ) ) )
-                        .ToList();
-                    args.ConsoleOutput.Should().BeEquivalentTo( lines );
-                    
-                    //args.ConsoleOutput.Should().BeEquivalentTo(
-                    //    string.Format( SuccessLineTemplate, files1[0].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[0] ) ), "yaml" ) ),
-                    //    string.Format( SuccessLineTemplate, files1[1].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[1] ) ), "yaml" ) ),
-                    //    string.Format( SuccessLineTemplate, files1[2].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[2] ) ), "yaml" ) ),
-                    //    string.Format( SuccessLineTemplate, files1[3].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[3] ) ), "yaml" ) ) );
-                } );
+                    args.ConsoleOutput.Should().Contain(
+                        string.Format( SuccessLineTemplate, files1[0].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[0] ) ), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[1].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[1] ) ), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[2].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[2] ) ), "yaml" ) ),
+                        string.Format( SuccessLineTemplate, files1[3].GetShortPath(), Path.ChangeExtension( Path.Combine( args.UniqueKeys[1], Path.GetFileName( files1[3] ) ), "yaml" ) ) );
+        } );
         }
     }
 }
