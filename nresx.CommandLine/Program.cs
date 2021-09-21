@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using nresx.CommandLine.Commands;
 using nresx.Tools;
 using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
+using nresx.Winforms;
 
 namespace nresx.CommandLine
 {
@@ -69,6 +71,34 @@ namespace nresx.CommandLine
 
         static int Main( string[] args )
         {
+            //using var stream = new FileStream( @"C:\Tmp\Resources.resw", FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
+            //using var reader = new ResXResourceReader( stream );
+            //reader.UseResXDataNodes = true;
+            //var result = new List<ResourceElement>();
+            //foreach ( DictionaryEntry item in reader )
+            //{
+            //    var node = item.Value as ResXDataNode;
+            //    var nodeInfo = node?.GetDataNodeInfo();
+            //    result.Add( new ResourceElement
+            //    {
+            //        Type = ResourceElementType.String, // 
+            //        Key = item.Key.ToString(),
+            //        Value = nodeInfo?.ValueData ?? item.Value.ToString(),
+            //        Comment = nodeInfo?.Comment
+            //    } );
+            //}
+            //var doc = XDocument.Load( @"C:\Tmp\Resources.resw" );
+            //var res1 = new ResourceFile( @"C:\Tmp\Resources.resw" );
+
+            var res = new ResourceFile( ResourceFormatType.Resw );
+            res.Elements.Add( "Entry1.Text", "Value1" );
+            res.Elements.Add( "Entry2", "Value2", "Comment2" );
+            res.Elements.Add( "Entry3", @"Value3
+multiline" );
+            res.Save( @"c:\tmp\res1.resw" );
+
+            return 0;
+
             //var resEn = new ResourceFile( @"C:\Tmp\1\Resources.resw" );
             //var resFr = new ResourceFile( @"C:\Tmp\1\Resources_fr.resw" );
 

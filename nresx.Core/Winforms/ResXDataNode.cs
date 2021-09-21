@@ -487,7 +487,7 @@ namespace nresx.Winforms
             return result;
         }
 
-        internal DataNodeInfo GetDataNodeInfo()
+        public DataNodeInfo GetDataNodeInfo()
         {
             bool shouldSerialize = true;
             if (_nodeInfo != null)

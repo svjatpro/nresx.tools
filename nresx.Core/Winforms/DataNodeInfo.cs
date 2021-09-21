@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace nresx.Winforms
 {
-    internal class DataNodeInfo
+    public class DataNodeInfo
     {
         public string Name;
         public string Comment;
