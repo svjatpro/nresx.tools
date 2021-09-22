@@ -143,7 +143,8 @@ namespace nresx.Tools.Formatters
                         result.Add( new ResourceElement
                         {
                             Key = key.Value,
-                            Value = node.Value
+                            Value = node.Value,
+                            
                         } );
                         key = null;
                     }

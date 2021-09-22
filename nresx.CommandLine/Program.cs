@@ -90,29 +90,6 @@ namespace nresx.CommandLine
             //var doc = XDocument.Load( @"C:\Tmp\Resources.resw" );
             //var res1 = new ResourceFile( @"C:\Tmp\Resources.resw" );
 
-            var res = new ResourceFile( ResourceFormatType.Resw );
-            res.Elements.Add( "Entry1.Text", "Value1" );
-            res.Elements.Add( "Entry2", "Value2", "Comment2" );
-            res.Elements.Add( "Entry3", @"Value3
-multiline" );
-            res.Save( @"c:\tmp\res1.resw" );
-
-            return 0;
-
-            //var resEn = new ResourceFile( @"C:\Tmp\1\Resources.resw" );
-            //var resFr = new ResourceFile( @"C:\Tmp\1\Resources_fr.resw" );
-
-            //var elMap = resEn.Elements.ToDictionary( el => el.Key );
-            //foreach ( var el in resFr.Elements )
-            //{
-            //    if ( elMap.ContainsKey( el.Key ) && elMap[el.Key].Value == el.Value )
-            //    {
-            //        Console.WriteLine( $"{el.Key}: {el.Value}" );
-            //    }
-            //}
-
-            //return 0;
-
             var arguments = args;
 
             var infoCommand = ( typeof(InfoCommand).GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )?.Name ?? "info";

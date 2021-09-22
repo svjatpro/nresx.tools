@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "generate C:\\Tmp\\appUwp\\* -r -d C:\\Tmp\\res1.resx --new-file",
+      "commandLineArgs": "add C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output\\xfcxvGeZ*.resx -k RtBWUS9c -v eNQx7CTS",
       "workingDirectory": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output"
     }
   }

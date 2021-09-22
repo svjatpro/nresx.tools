@@ -179,6 +179,7 @@ namespace nresx.Tools.Formatters
             elements = entries?
                 .Select( e => new ResourceElement
                 {
+                    Type = ResourceElementType.String,
                     Key = e.Attribute( "name" )?.Value,
                     Value = e.Element( "value" )?.Value,
                     Comment = e.Element( "comment" )?.Value
@@ -209,10 +210,10 @@ namespace nresx.Tools.Formatters
                         new XElement( "value", "2.0" ) ),
                     new XElement( "resheader", 
                         new XAttribute( "name", "reader" ),
-                        new XElement( "value", "System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ),
+                        new XElement( "value", "System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ),
                     new XElement( "resheader",
                         new XAttribute( "name", "writer" ),
-                        new XElement( "value", "System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ),
+                        new XElement( "value", "System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ),
                     
                     // write elements
                     elements.Select( el =>

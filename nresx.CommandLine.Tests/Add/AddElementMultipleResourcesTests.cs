@@ -55,7 +55,7 @@ namespace nresx.CommandLine.Tests.Add
         public void AddSingleElementToByNonRecursiveSpec( string commandLine )
         {
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { fileKey }} );
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters{UniqueKeys = { fileKey }} );
 
             var key = args.UniqueKeys[0]; 
             var value = args.UniqueKeys[1];
