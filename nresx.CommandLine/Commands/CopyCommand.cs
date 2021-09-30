@@ -47,19 +47,21 @@ namespace nresx.CommandLine.Commands
                     foreach ( var element in resource.Elements )
                     {
                         var destElement = destination.Elements[element.Key];
+                        var src = (value : element?.Value ?? string.Empty, comment : element?.Comment ?? string.Empty);
+                        var dest = (value : destElement?.Value ?? string.Empty, comment : destElement?.Comment ?? string.Empty);
+
                         if ( destElement == null )
                         {
                             if ( !DryRun )
-                                destination.Elements.Add( element.Key, element.Value, element.Comment );
+                                destination.Elements.Add( element.Key, src.value, src.comment );
                             Console.WriteLine( $"'{element.Key}' element have been copied to '{destFile.GetShortPath()}' file" );
                         }
-                        else if ( OverwriteDuplicates &&
-                                ( element.Value != destElement.Value || element.Comment != destElement.Comment ) )
+                        else if ( OverwriteDuplicates && ( src.value != dest.value || src.comment != dest.comment ) )
                         {
                             if ( !DryRun )
                             {
-                                destElement.Value = element.Value;
-                                destElement.Comment = element.Comment;
+                                destElement.Value = src.value;
+                                destElement.Comment = src.comment;
                             }
                             Console.WriteLine( $"'{element.Key}' element have been overwritten in '{destFile.GetShortPath()}' file" );
                         }

@@ -231,7 +231,8 @@ namespace nresx.Tools
                 }
             }
 
-            formatter.SaveResourceFile( new FileStream( targetPath, FileMode.CreateNew ), Elements );
+            using var stream = new FileStream( targetPath, FileMode.CreateNew );
+            formatter.SaveResourceFile( stream, Elements );
         }
 
         public void Save( Stream stream )
@@ -251,7 +252,7 @@ namespace nresx.Tools
 
         public Stream SaveToStream()
         {
-            var ms = new MemoryStream();
+            using var ms = new MemoryStream();
             Save( ms );
             
             return new MemoryStream( ms.GetBuffer() );

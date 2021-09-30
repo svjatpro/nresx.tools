@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using nresx.Tools.Extensions;
 
 namespace nresx.Tools.Formatters
 {
@@ -181,8 +182,8 @@ namespace nresx.Tools.Formatters
                 {
                     Type = ResourceElementType.String,
                     Key = e.Attribute( "name" )?.Value,
-                    Value = e.Element( "value" )?.Value,
-                    Comment = e.Element( "comment" )?.Value
+                    Value = e.Element( "value" )?.Value?.ReplaceNewLine() ?? string.Empty,
+                    Comment = e.Element( "comment" )?.Value?.ReplaceNewLine() ?? string.Empty
                 } )
                 .ToList();
 
@@ -222,10 +223,11 @@ namespace nresx.Tools.Formatters
                         {
                             new XAttribute( "name", el.Key ),
                             new XAttribute( xml + "space", "preserve" ),
-                            new XElement( "value", el.Value )
+                            new XElement( "value", el.Value?.ReplaceNewLine() )
                         };
                         if( !string.IsNullOrWhiteSpace( el.Comment ) )
-                            elElements.Add( new XElement( "comment", el.Comment.ToArray() ) );
+                            //elElements.Add( new XElement( "comment", el.Comment.ToArray() ) );
+                            elElements.Add( new XElement( "comment", el.Comment.ReplaceNewLine() ) );
 
                         var xel = new XElement( "data", elElements );
                         return xel;

@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "add C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output\\xfcxvGeZ*.resx -k RtBWUS9c -v eNQx7CTS",
+      "commandLineArgs": "copy C:\\Tmp\\2\\YqSRnqMG.resx C:\\Tmp\\2\\3zOzZvcr.yaml --overwrite --dry-run",
       "workingDirectory": "C:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net5.0\\.test_output"
     }
   }
