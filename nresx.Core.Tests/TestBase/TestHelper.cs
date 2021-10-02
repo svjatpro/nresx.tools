@@ -25,7 +25,7 @@ namespace nresx.Core.Tests
             foreach ( Match match in matches )
             {
                 string tag;
-                var formatType = ResourceFormatType.Resx;
+                var formatType = TestData.GetRandomType();
                 var param = "";
                 var dir = "";
                 var dirPrefix = match.Groups[1].Value;

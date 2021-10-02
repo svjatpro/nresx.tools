@@ -18,6 +18,16 @@ namespace nresx.Core.Tests
         public static readonly string RecursiveOption = " --recursive";
         public static readonly string RecursiveShortOption = " -r";
 
+        //private static ResourceFormatType[] ResourceTypes = Enum.GetValues<ResourceFormatType>().Where( t => t != ResourceFormatType.NA ).ToArray();
+        private static readonly Random FormatTypeRandom = new( (int) DateTime.Now.Ticks );
+        private static readonly ResourceFormatType[] ResourceTypes =
+        {
+            ResourceFormatType.Resx,
+            ResourceFormatType.Resw,
+            ResourceFormatType.Yaml,
+            ResourceFormatType.Yml,
+        };
+
         public static IEnumerable ResourceFormats
         {
             get
@@ -47,6 +57,11 @@ namespace nresx.Core.Tests
                 .Replace( "/", "" )
                 .Replace( "=", "" );
             return key.Substring( 0, Math.Min( length, key.Length ) );
+        }
+        
+        public static ResourceFormatType GetRandomType()
+        {
+            return ResourceTypes[FormatTypeRandom.Next( 0, ResourceTypes.Length - 1 )];
         }
     }
 }
