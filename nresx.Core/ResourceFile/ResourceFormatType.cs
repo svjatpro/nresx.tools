@@ -13,5 +13,6 @@
         Json = 0x05,
 
         PlainText = 0x06,
+        Po = 0x07,
     }
 }

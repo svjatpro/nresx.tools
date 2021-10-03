@@ -26,6 +26,7 @@ namespace nresx.Core.Tests
             ResourceFormatType.Resw,
             ResourceFormatType.Yaml,
             ResourceFormatType.Yml,
+            ResourceFormatType.Po,
         };
 
         public static IEnumerable ResourceFormats
@@ -36,6 +37,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.Resw );
                 yield return new TestCaseData( ResourceFormatType.Yaml );
                 yield return new TestCaseData( ResourceFormatType.Yml );
+                yield return new TestCaseData( ResourceFormatType.Po );
             }
         }
 
@@ -47,6 +49,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.resw" );
                 yield return new TestCaseData( "Resources.yaml" );
                 yield return new TestCaseData( "Resources.yml" );
+                yield return new TestCaseData( "Resources.po" );
             }
         }
 
