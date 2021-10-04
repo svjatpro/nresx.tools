@@ -8,6 +8,6 @@ namespace nresx.Tools.Formatters
         bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements );
         bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements );
         
-        void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, bool validate = true );
+        void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements );
     }
 }

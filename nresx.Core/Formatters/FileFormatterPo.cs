@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using YamlDotNet.Serialization;
 
 namespace nresx.Tools.Formatters
 {
@@ -16,7 +15,7 @@ namespace nresx.Tools.Formatters
                 var dictionary = new Dictionary<string, ResourceElement>();
                 foreach ( var el in raw )
                 {
-                    if ( !dictionary.ContainsKey( el.Key ) )
+                    if ( !string.IsNullOrWhiteSpace( el.Key ) && !dictionary.ContainsKey( el.Key ) )
                         dictionary.Add( el.Key, el );
                 }
                 elements = dictionary.Values.ToList();
@@ -63,15 +62,6 @@ namespace nresx.Tools.Formatters
         }
 
         private enum ElementParseState { None, Comment, Msgid, Msgstr }
-        private void ParseElementProperty( ResourceElement element, List<string> propLines, ElementParseState property )
-        {
-            switch ( property )
-            {
-                case ElementParseState.Msgstr:
-                    element.Value = string.Join( Environment.NewLine, propLines );
-                    break;
-            }
-        }
         private ResourceElement ParseElement( List<string> lines )
         {
             var element = new ResourceElement{ Type = ResourceElementType.String };
@@ -143,14 +133,39 @@ namespace nresx.Tools.Formatters
             return element;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, bool validate = true )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
         {
             using var writer = new StreamWriter( stream );
-            var serializer = new SerializerBuilder()
-                .Build();
 
-            var body = elements.ToDictionary( el => el.Key, el => el.Value );
-            serializer.Serialize( writer, body );
+            // write headers
+
+            // write elements
+            foreach ( var element in elements )
+            {
+                // write comment
+                writer.WriteLine( $"# {element.Comment ?? string.Empty}" );
+                
+                // write key
+                writer.WriteLine( $"msgid \"{element.Key}\"" );
+
+                // write value
+                var valueLines = element.Value?.Split( new[] {Environment.NewLine}, StringSplitOptions.None ).ToArray() ?? new[] {string.Empty};
+                if ( valueLines.Any() )
+                {
+                    writer.WriteLine( $"msgstr \"{valueLines[0]}\"" );
+                }
+
+                if ( valueLines.Length > 1 )
+                {
+                    foreach ( var valueLine in valueLines.Skip( 1 ) )
+                    {
+                        writer.WriteLine( $"\"{valueLine}\"" );
+                    }
+                }
+
+                // write empty line between elements
+                writer.WriteLine();
+            }
         }
     }
 }

@@ -36,7 +36,7 @@ namespace nresx.Tools.Formatters
             throw new System.NotImplementedException();
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, bool validate = true )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
         {
             using var writer = new StreamWriter( stream );
             var serializer = new SerializerBuilder()

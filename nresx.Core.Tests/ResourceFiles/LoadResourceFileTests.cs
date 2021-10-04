@@ -62,9 +62,13 @@ namespace nresx.Core.Tests.ResourceFiles
         public async Task LoadRawElements( ResourceFormatType format )
         {
             var path = GetTestPath( "Duplicated", format );
-            var elements = ResourceFile.LoadRawElements( path );
+            TestHelper.CopyTemporaryFile( GetTestPath( TestData.ExampleResourceFile, format ), path );
+            var res1 = new ResourceFile( path );
+            res1.Elements.Add( res1.Elements[1].Key, res1.Elements[1].Value );
+            res1.Save( path );
 
-            elements.Should().HaveCount( 5 );
+            var elements = ResourceFile.LoadRawElements( path );
+            elements.Should().HaveCount( 4 );
         }
 
         [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
