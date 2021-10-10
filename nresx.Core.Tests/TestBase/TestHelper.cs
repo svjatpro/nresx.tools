@@ -277,8 +277,7 @@ namespace nresx.Core.Tests
                 Console.WriteLine( line );
             Console.WriteLine( new string( '=', 50 ) );
             Console.WriteLine();
-
-
+            
             return p;
         }
     }

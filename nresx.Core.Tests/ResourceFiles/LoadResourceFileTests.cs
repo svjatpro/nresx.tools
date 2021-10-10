@@ -11,6 +11,23 @@ namespace nresx.Core.Tests.ResourceFiles
     [TestFixture]
     public class LoadResourceFileTests : TestBase
     {
+        [Test]
+        public async Task ParsePlainTxt()
+        {
+            var res = new ResourceFile( GetTestPath( "Resources.txt" ) );
+            var targetPath = GetOutputPath( UniqueKey(), res.FileFormat );
+            res.Save( targetPath );
+
+            res = new ResourceFile( targetPath );
+
+            res.FileName.Should().Be( Path.GetFileName( targetPath ) );
+            res.AbsolutePath.Should().Be( Path.GetFullPath( targetPath ) );
+            res.FileFormat.Should().Be( ResourceFormatType.PlainText );
+
+            res.Elements.Select( el => (el.Key, el.Value) ).Should()
+                .BeEquivalentTo( GetExampleResourceFile().Elements.Select( el => (el.Value, el.Value) ) );
+        }
+
         [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFiles ) )]
         public async Task ParsedResourceFileShouldContainsFileNameAndPath( string path )
         {

@@ -1,49 +1,74 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using YamlDotNet.Serialization;
 
 namespace nresx.Tools.Formatters
 {
+    /// <summary>
+    /// Plain test resource file in simple "key: value" format
+    /// </summary>
     internal class FileFormatterPlainText : IFileFormatter
     {
         public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
         {
-            using var reader = new StreamReader( stream );
-            var deserializer = new DeserializerBuilder()
-                .Build();
-            elements = deserializer
-                .Deserialize<Dictionary<string, string>>( reader )
-                .Select( el =>
-                {
-                    var value = el.Value;
-                    if ( value.Contains( "\r\n" ) )
-                        value = value.Replace( "\r\n", "\n" );
-                    return new ResourceElement
-                    {
-                        Type = ResourceElementType.String,
-                        Key = el.Key,
-                        Value = value.Replace( "\n", "\r\n" )
-                    };
-                } )
-                .ToList();
+            if ( LoadRawElements( stream, out var raw ) )
+            {
+                elements = raw;
+                return true;
+            }
 
-            return true;
+            elements = null;
+            return false;
         }
 
         public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
         {
-            throw new System.NotImplementedException();
+            using var reader = new StreamReader( stream );
+
+            var result = new List<ResourceElement>();
+            var elementLines = new List<string>();
+            while ( !reader.EndOfStream )
+            {
+                var line = reader.ReadLine();
+
+                if ( string.IsNullOrWhiteSpace( line ) )
+                {
+                    result.Add( ParseElement( elementLines ) );
+                    elementLines.Clear();
+                }
+                else
+                {
+                    elementLines.Add( line );
+                }
+            }
+
+            if ( elementLines.Any() )
+                result.Add( ParseElement( elementLines ) );
+
+            elements = result;
+            return true;
+        }
+        private ResourceElement ParseElement( List<string> elementLines )
+        {
+            var text = string.Join( Environment.NewLine, elementLines );
+            return new()
+            {
+                Key = text, // ?generated key?
+                Value = text
+            };
         }
 
         public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
         {
             using var writer = new StreamWriter( stream );
-            var serializer = new SerializerBuilder()
-                .Build();
 
-            var body = elements.ToDictionary( el => el.Key, el => el.Value );
-            serializer.Serialize( writer, body );
+            // write elements
+            foreach ( var element in elements )
+            {
+                writer.WriteLine( $"{element.Value ?? string.Empty}" );
+                writer.WriteLine();
+            }
         }
     }
 }

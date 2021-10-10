@@ -106,7 +106,7 @@ namespace nresx.Tools.Formatters
                     case var l when l.StartsWith( "# " ):
                         parseProperty( ElementParseState.Comment );
 
-                        var comment = l.Length > 2 ? l.Substring( 2 ) : l;
+                        var comment = l.Length > 2 ? l.Substring( 2 ) : string.Empty;
                         element.Comment = comment;
                         break;
                     case var l when l.StartsWith( $"{MsgIdTag} " ):
@@ -150,7 +150,6 @@ namespace nresx.Tools.Formatters
         {
             using var writer = new StreamWriter( stream );
 
-            // todo: split long lines
             void WriteMultilineProperty( string property, string tag )
             {
                 //var propLines = property.SplitLines().Select( l => $"{l}\\n" ).ToList();

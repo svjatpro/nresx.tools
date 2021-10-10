@@ -67,7 +67,7 @@ namespace nresx.CommandLine.Tests.Convert
                 {
                     var res = new ResourceFile( parameters.DestPath );
                     res.FileFormat.Should().Be( destType );
-                    ValidateElements( res );
+                    ValidateElements( res, sourceType );
                 } )
                 .ValidateDryRun( ( args, parameters ) =>
                 {

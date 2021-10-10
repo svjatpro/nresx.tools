@@ -256,7 +256,7 @@ namespace nresx.Tools
             using var ms = new MemoryStream();
             Save( ms );
             
-            return new MemoryStream( ms.GetBuffer() );
+            return new MemoryStream( ms.ToArray() );
         }
 
         #endregion

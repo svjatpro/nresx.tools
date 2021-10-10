@@ -62,16 +62,29 @@ namespace nresx.Core.Tests
             return TestHelper.RunCommandLine( cmdLine, parameters );
         }
 
-        protected void ValidateElements( ResourceFile resource )
+        protected void ValidateElements( ResourceFile resource, ResourceFormatType sourceType = ResourceFormatType.NA )
         {
-            var elements = resource.Elements.ToList();
+            var emptyKeyTypes = new[] {ResourceFormatType.PlainText};
+            var emptyComTypes = new[] {ResourceFormatType.PlainText, ResourceFormatType.Yaml, ResourceFormatType.Yml};
 
-            elements
-                .Select( e => (key: e.Key, val: e.Value) )
-                .Should().BeEquivalentTo(
-                    (key: "Entry1.Text", val: "Value1"),
-                    (key: "Entry2", val: "Value2"),
-                    (key: "Entry3", val: "Value3\r\nmultiline") );
+            var elements = resource.Elements.ToList();
+            var validateKey = !emptyKeyTypes.Contains( resource.FileFormat );
+            var validateComment = 
+                //!( elements.All( el => string.IsNullOrWhiteSpace( el.Comment ) ) && ( emptyComTypes.Contains( resource.FileFormat ) || emptyComTypes.Contains( sourceType ) ) );
+                !elements.All( el => string.IsNullOrWhiteSpace( el.Comment ) ) || ( !emptyComTypes.Contains( resource.FileFormat ) && !emptyComTypes.Contains( sourceType ) );
+
+            var actual = elements
+                .Select( e => ( 
+                    key: validateKey ? (e.Key ?? string.Empty) : string.Empty, 
+                    val: e.Value ?? string.Empty, 
+                    comment: e.Comment ?? string.Empty) ); 
+            var target = GetExampleResourceFile().Elements
+                .Select( e => ( 
+                    key: validateKey ? (e.Key ?? string.Empty) : string.Empty, 
+                    val: e.Value ?? string.Empty, 
+                    comment: validateComment ? (e.Comment ?? string.Empty) : string.Empty) );
+
+            actual.Should().BeEquivalentTo( target );
         }
         
         protected ResourceFile GetExampleResourceFile()

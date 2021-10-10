@@ -13,6 +13,7 @@ namespace nresx.Tools.Helpers
                 { ".yml",  ResourceFormatType.Yml } ,
                 { ".yaml", ResourceFormatType.Yaml },
                 { ".po", ResourceFormatType.Po },
+                { ".txt", ResourceFormatType.PlainText },
             };
 
         private static readonly Dictionary<ResourceFormatType, string> ExtensionsMap =
@@ -23,6 +24,7 @@ namespace nresx.Tools.Helpers
                 { ResourceFormatType.Yml,  ".yml" } ,
                 { ResourceFormatType.Yaml, ".yaml" },
                 { ResourceFormatType.Po, ".po" },
+                { ResourceFormatType.PlainText, ".txt" },
             };
 
         public static bool DetectFormatByExtension( string path, out ResourceFormatType type )

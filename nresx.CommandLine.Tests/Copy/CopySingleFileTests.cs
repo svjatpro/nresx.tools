@@ -59,7 +59,7 @@ namespace nresx.CommandLine.Tests.Copy
             var args = Run( commandLine );
             
             var res = new ResourceFile( args.NewFiles[0] );
-            ValidateElements( res );
+            ValidateElements( res, new ResourceFile( args.TemporaryFiles[0] ).FileFormat );
         }
 
         [TestCase( @"copy [TmpFile] [NewFile] --new-file --dry-run" )]
