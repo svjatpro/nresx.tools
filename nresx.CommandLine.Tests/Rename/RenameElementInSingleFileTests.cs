@@ -10,8 +10,8 @@ namespace nresx.CommandLine.Tests.Rename
     [TestFixture]
     public class RenameElementInSingleFileTests : TestBase
     {
-        [TestCase( @"rename [TmpFile] -k [UniqueKey] -n [UniqueKey]" )]
-        [TestCase( @"rename [TmpFile] --key [UniqueKey] --new-key [UniqueKey]" )]
+        [TestCase( @"rename [TmpFile.resx] -k [UniqueKey] -n [UniqueKey]" )]
+        [TestCase( @"rename [TmpFile.po] --key [UniqueKey] --new-key [UniqueKey]" )]
         public void RenameSingleElement( string commandLine )
         {
             var res1 = GetExampleResourceFile();

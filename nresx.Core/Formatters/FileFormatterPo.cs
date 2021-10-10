@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using nresx.Tools.Extensions;
 
 namespace nresx.Tools.Formatters
 {
     internal class FileFormatterPo : IFileFormatter
     {
+        #region Private fields
+
+        private const string MsgIdTag = @"msgid";
+        private const string MsgStrTag = @"msgstr";
+
+
+        #endregion
+
         public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
         {
             if ( LoadRawElements( stream, out var raw ) )
@@ -72,10 +81,14 @@ namespace nresx.Tools.Formatters
             {
                 if ( propLines.Any() )
                 {
+                    var value = string.Join( "", propLines ).Replace( @"\n", Environment.NewLine );
                     switch ( state )
                     {
+                        case ElementParseState.Msgid:
+                            element.Key = value;
+                            break;
                         case ElementParseState.Msgstr:
-                            element.Value = string.Join( Environment.NewLine, propLines );
+                            element.Value = value;
                             break;
                     }
                     propLines.Clear();
@@ -96,17 +109,17 @@ namespace nresx.Tools.Formatters
                         var comment = l.Length > 2 ? l.Substring( 2 ) : l;
                         element.Comment = comment;
                         break;
-                    case var l when l.StartsWith( "msgid " ):
+                    case var l when l.StartsWith( $"{MsgIdTag} " ):
                         parseProperty( ElementParseState.Msgid );
 
                         var r1 = new Regex( @"msgid\s+""(.*)""" ).Match( l );
                         if ( r1.Success && r1.Groups.Count > 1 )
                         {
-                            var key = r1.Groups[1].Value;
-                            element.Key = key;
+                            var value = r1.Groups[1].Value;
+                            propLines.Add( value );
                         }
                         break;
-                    case var l when l.StartsWith( "msgstr " ):
+                    case var l when l.StartsWith( $"{MsgStrTag} " ):
                         parseProperty( ElementParseState.Msgstr );
 
                         var r2 = new Regex( @"msgstr\s+""(.*)""" ).Match( l );
@@ -137,6 +150,33 @@ namespace nresx.Tools.Formatters
         {
             using var writer = new StreamWriter( stream );
 
+            // todo: split long lines
+            void WriteMultilineProperty( string property, string tag )
+            {
+                //var propLines = property.SplitLines().Select( l => $"{l}\\n" ).ToList();
+                var propLines = property.SplitLines().ToList(); //.Select( l => $"{l}\\n" ).ToList();
+
+                if ( propLines.Count > 1 )
+                {
+                    for ( var i = 0; i < propLines.Count - 1; i++ )
+                        propLines[i] = $"{propLines[i]}\\n";
+                    propLines.Insert( 0, string.Empty );
+                }
+
+                if ( propLines.Any() )
+                {
+                    writer.WriteLine( $"{tag} \"{propLines[0]}\"" );
+                }
+
+                if ( propLines.Count > 1 )
+                {
+                    foreach ( var valueLine in propLines.Skip( 1 ) )
+                    {
+                        writer.WriteLine( $"\"{valueLine}\"" );
+                    }
+                }
+            }
+
             // write headers
 
             // write elements
@@ -144,24 +184,12 @@ namespace nresx.Tools.Formatters
             {
                 // write comment
                 writer.WriteLine( $"# {element.Comment ?? string.Empty}" );
-                
+
                 // write key
-                writer.WriteLine( $"msgid \"{element.Key}\"" );
+                WriteMultilineProperty( element.Key, MsgIdTag );
 
                 // write value
-                var valueLines = element.Value?.Split( new[] {Environment.NewLine}, StringSplitOptions.None ).ToArray() ?? new[] {string.Empty};
-                if ( valueLines.Any() )
-                {
-                    writer.WriteLine( $"msgstr \"{valueLines[0]}\"" );
-                }
-
-                if ( valueLines.Length > 1 )
-                {
-                    foreach ( var valueLine in valueLines.Skip( 1 ) )
-                    {
-                        writer.WriteLine( $"\"{valueLine}\"" );
-                    }
-                }
+                WriteMultilineProperty( element.Value, MsgStrTag );
 
                 // write empty line between elements
                 writer.WriteLine();

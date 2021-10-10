@@ -57,10 +57,13 @@ namespace nresx.Core.Tests
             }
         }
 
-        public static string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
+        public static string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.NA )
         {
             var path = Path.Combine( TestData.TestFileFolder, fileName );
-            if ( !Path.HasExtension( path ) && ResourceFormatHelper.DetectExtension( type, out var extension ) )
+            if ( !Path.HasExtension( path ) && type != ResourceFormatType.NA )
+                type = ResourceFormatType.Resx;
+
+            if ( type != ResourceFormatType.NA && ResourceFormatHelper.DetectExtension( type, out var extension ) )
                 path = Path.ChangeExtension( path, extension );
             return path;
         }
@@ -266,7 +269,16 @@ namespace nresx.Core.Tests
                 var line = process.StandardOutput.ReadLine();
                 p.ConsoleOutput.Add( line );
             }
-            
+
+            Console.WriteLine( $"============ command line run: =============" );
+            Console.WriteLine( cmd );
+            Console.WriteLine( new string( '=', 50 ) );
+            foreach ( var line in p.ConsoleOutput )
+                Console.WriteLine( line );
+            Console.WriteLine( new string( '=', 50 ) );
+            Console.WriteLine();
+
+
             return p;
         }
     }

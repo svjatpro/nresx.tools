@@ -46,7 +46,7 @@ namespace nresx.Core.Tests
             return TestData.UniqueKey();
         }
 
-        protected string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
+        protected string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.NA )
         {
             return TestHelper.GetTestPath( fileName, type );
         }

@@ -19,7 +19,7 @@ namespace nresx.Core.Tests
         public static readonly string RecursiveShortOption = " -r";
 
         //private static ResourceFormatType[] ResourceTypes = Enum.GetValues<ResourceFormatType>().Where( t => t != ResourceFormatType.NA ).ToArray();
-        private static readonly Random FormatTypeRandom = new( (int) DateTime.Now.Ticks );
+        //private static readonly Random FormatTypeRandom = new( (int) DateTime.Now.Ticks );
         private static readonly ResourceFormatType[] ResourceTypes =
         {
             ResourceFormatType.Resx,
@@ -64,7 +64,7 @@ namespace nresx.Core.Tests
         
         public static ResourceFormatType GetRandomType()
         {
-            return ResourceTypes[FormatTypeRandom.Next( 0, ResourceTypes.Length - 1 )];
+            return ResourceTypes[new Random( (int) DateTime.Now.Ticks ).Next( 0, ResourceTypes.Length - 1 )];
         }
     }
 }

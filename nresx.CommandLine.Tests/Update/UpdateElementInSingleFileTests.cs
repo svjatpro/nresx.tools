@@ -10,10 +10,10 @@ namespace nresx.CommandLine.Tests.Update
     [TestFixture]
     public class UpdateElementInSingleFileTests : TestBase
     {
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.po] -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.po] --key [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.po] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
         public void UpdateSingleElement( string commandLine )
         {
             var res1 = GetExampleResourceFile();
@@ -91,9 +91,9 @@ namespace nresx.CommandLine.Tests.Update
 
 
         [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] --new-element" )]
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-element" )]
+        [TestCase( @"update [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-element" )]
         [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --new-element" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --new-element" )]
+        [TestCase( @"update [TmpFile.resx] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --new-element" )]
         public void UpdateNonExistingElementShouldCreateOne( string commandLine )
         {
             var args = Run( commandLine );

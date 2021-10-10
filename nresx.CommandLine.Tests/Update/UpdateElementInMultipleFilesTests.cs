@@ -10,12 +10,12 @@ namespace nresx.CommandLine.Tests.Update
     [TestFixture]
     public class UpdateElementInMultipleFilesTests : TestBase
     {
-        [TestCase( @"update [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update -s [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
-        [TestCase( @"update -s [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.resx] [TmpFile.resx] -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.resx] [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update -s [TmpFile.resw] [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.po] [TmpFile.po] --key [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile.resx] [TmpFile.resw] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update -s [TmpFile.po] [TmpFile.resx] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
         public void UpdateSingleElement( string commandLine )
         {
             var res1 = GetExampleResourceFile();

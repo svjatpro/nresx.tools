@@ -138,13 +138,13 @@ namespace nresx.Tools.Formatters
                     {
                         key = node;
                     }
-                    else if ( key?.Start.Line == node.Start.Line )
+                    else if ( key?.Start.Line == node.Start.Line || string.IsNullOrEmpty( key?.Value ) )
                     {
                         result.Add( new ResourceElement
                         {
-                            Key = key.Value,
+                            Key = key?.Value ?? string.Empty,
                             Value = node.Value,
-                            
+                            Type = ResourceElementType.String
                         } );
                         key = null;
                     }

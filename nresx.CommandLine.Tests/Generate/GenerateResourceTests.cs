@@ -12,7 +12,7 @@ namespace nresx.CommandLine.Tests.Generate
     {
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile] --new-file" )]
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.resx] --new-file" )]
-        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile] -f resx --new-file" )]
+        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.resx] -f resx --new-file" )]
         public void GenerateNewFile( string commandLine )
         {
             commandLine
@@ -42,7 +42,7 @@ namespace nresx.CommandLine.Tests.Generate
 
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile] --new-file" )]
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile.resx] --new-file" )]
-        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile] -f resx --new-file" )]
+        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile.resx] -f resx --new-file" )]
         public void AddToExistingFile( string commandLine )
         {
             commandLine

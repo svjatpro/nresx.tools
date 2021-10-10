@@ -1,6 +1,7 @@
 using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
+using nresx.Tools;
 using NUnit.Framework;
 using YamlDotNet.Core.Tokens;
 
@@ -22,6 +23,8 @@ namespace nresx.CommandLine.Tests.Validate
             TestHelper.ReplaceKey( preArgs.TemporaryFiles[1], res.Elements[1].Key, "" );
 
             var args = TestHelper.RunCommandLine( commandLine, preArgs, mergeArgs: true );
+
+            var r = ResourceFile.LoadRawElements( args.TemporaryFiles[1] );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
                 $"Resource file: \"{new FileInfo( args.TemporaryFiles[0] ).FullName}\"",

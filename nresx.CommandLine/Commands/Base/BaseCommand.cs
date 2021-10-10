@@ -11,6 +11,26 @@ using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
+    public class ResourceFileInfo
+    {
+        public FileInfo FileInfo { get; }
+
+        private ResourceFile _resource;
+        public ResourceFile Resource
+        {
+            get
+            {
+                if ( _resource == null )
+                    _resource = new ResourceFile( FileInfo.FullName );
+                return _resource;
+            }
+        }
+
+        public ResourceFileInfo( string path )
+        {
+            FileInfo = new FileInfo( path );
+        }
+    }
     public abstract class BaseCommand : ICommand
     {
         #region private fields
@@ -67,7 +87,7 @@ namespace nresx.CommandLine.Commands
 
         protected void ForEachResourceGroup(
             List<string> sourceFiles,
-            Action<GroupSearchContext, List<ResourceFile>> resourceAction,
+            Action<GroupSearchContext, List<ResourceFileInfo>> resourceAction,
             Action<GroupSearchContext, Exception> errorHandler = null,
             bool splitFiles = false )
         {
@@ -161,7 +181,8 @@ namespace nresx.CommandLine.Commands
 
                 groups.ForEach( group =>
                 {
-                    var files = group.Select( g => new ResourceFile( g.FullName ) ).ToList();
+                    //var files = group.Select( g => new ResourceFile( g.FullName ) ).ToList();
+                    var files = group.Select( g => new ResourceFileInfo( g.FullName ) ).ToList();
                     var context = new GroupSearchContext( groups.Count, groups.Select( g => g.Count ).Sum() );
                     resourceAction( context, files );
                 } );

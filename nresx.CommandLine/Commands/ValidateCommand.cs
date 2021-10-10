@@ -25,22 +25,27 @@ namespace nresx.CommandLine.Commands
             ForEachResourceGroup( sourceFiles, (context, group) =>
             {
                 var resourceMap = new Dictionary<string, Dictionary<int, string>>();
-                group.ForEach( resource =>
-                {
-                    foreach ( var element in resource.Elements )
+                var resources = group
+                    .Select( f =>
                     {
-                        resourceMap.TryAdd( element.Key, new Dictionary<int, string>() );
-                        resourceMap[element.Key].TryAdd( resource.GetHashCode(), element.Value );
-                    }
-                } );
+                        var elements = ResourceFile.LoadRawElements( f.FileInfo.FullName ).ToList();
+                        foreach ( var element in elements )
+                        {
+                            resourceMap.TryAdd( element.Key ?? string.Empty, new Dictionary<int, string>() );
+                            resourceMap[element.Key ?? string.Empty].TryAdd( f.FileInfo.GetHashCode(), element.Value );
+                        }
 
-                group.ForEach( resource =>
+                        return ( f.FileInfo, elements );
+                    } )
+                    .ToList();
+
+                resources.ForEach( f =>
                 {
-                    var elements = ResourceFile.LoadRawElements( resource.AbsolutePath );
-                    var result = elements.ValidateElements( out var errors );
+                    //var elements = ResourceFile.LoadRawElements( f.FileInfo.FullName );
+                    var result = f.elements.ValidateElements( out var errors );
 
                     // validate missed translations 
-                    var missed = resourceMap.Keys.Except( resource.Elements.Select( el => el.Key ) ).ToList();
+                    var missed = resourceMap.Keys.Except( f.elements.Select( el => el.Key ) ).ToList();
                     if ( missed.Any() )
                     {
                         result = false;
@@ -48,10 +53,10 @@ namespace nresx.CommandLine.Commands
                     }
 
                     // validate not translated elements
-                    foreach ( var el in resource.Elements )
+                    foreach ( var el in f.elements )
                     {
                         var elMap = resourceMap[el.Key];
-                        if ( elMap.Any( r => r.Key != resource.GetHashCode() && r.Value == el.Value ) )
+                        if ( elMap.Any( r => r.Key != f.FileInfo.GetHashCode() && r.Value == el.Value ) )
                         {
                             result = false;
                             errors.Add( new ResourceElementError( ResourceElementErrorType.NotTranslated, el.Key ) );
@@ -66,7 +71,7 @@ namespace nresx.CommandLine.Commands
                     {
                         if ( context.TotalResourceFiles > 1 && errors.Any() )
                         {
-                            Console.WriteLine( $"Resource file: \"{resource.AbsolutePath}\"" );
+                            Console.WriteLine( $"Resource file: \"{f.FileInfo.FullName}\"" );
                         }
 
                         foreach ( var elementError in errors )

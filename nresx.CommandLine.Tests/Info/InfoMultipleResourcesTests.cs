@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
+using nresx.Tools.Helpers;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Info
@@ -115,10 +116,12 @@ namespace nresx.CommandLine.Tests.Info
         public void GetWrongFileSpecMultiple( string commandLine )
         {
             var args = Run( commandLine );
+            var tmp1 = Path.GetFullPath( args.TemporaryFiles[0] );
+            var tmp2 = Path.GetFullPath( args.TemporaryFiles[1] );
 
-            ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( args.TemporaryFiles[0] ), Path.GetFullPath( args.TemporaryFiles[0] ) );
+            ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( args.TemporaryFiles[0] ), tmp1, ResourceFormatHelper.GetFormatType( tmp1 ) );
             args.ConsoleOutput[4].Should().StartWith( $"fatal: path mask '{args.UniqueKeys[0]}' did not match any files" );
-            ValidateOutputInfo( args.ConsoleOutput, 6, Path.GetFileName( args.TemporaryFiles[1] ), Path.GetFullPath( args.TemporaryFiles[1] ) );
+            ValidateOutputInfo( args.ConsoleOutput, 6, Path.GetFileName( args.TemporaryFiles[1] ), tmp2, ResourceFormatHelper.GetFormatType( tmp2 ) );
         }
 
         [Test]
