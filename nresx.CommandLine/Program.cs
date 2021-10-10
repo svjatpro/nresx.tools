@@ -71,9 +71,9 @@ namespace nresx.CommandLine
 
         static int Main( string[] args )
         {
-            var res1 = new ResourceFile( @"C:\Tmp\2\WebApp.po" );
-            res1.Save( @"C:\Tmp\2\WebApp1.po" );
-            return 0;
+            //var res1 = new ResourceFile( @"C:\Tmp\2\WebApp.po" );
+            //res1.Save( @"C:\Tmp\2\WebApp1.po" );
+            //return 0;
 
             //using var stream = new FileStream( @"C:\Tmp\Resources.resw", FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
             //using var reader = new ResXResourceReader( stream );
