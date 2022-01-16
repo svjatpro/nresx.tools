@@ -28,6 +28,7 @@ namespace nresx.Core.Tests
             ResourceFormatType.Yml,
             ResourceFormatType.Po,
             ResourceFormatType.PlainText,
+            ResourceFormatType.Json,
         };
 
         public static IEnumerable ResourceFormats
@@ -40,6 +41,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.Yml );
                 yield return new TestCaseData( ResourceFormatType.Po );
                 yield return new TestCaseData( ResourceFormatType.PlainText );
+                yield return new TestCaseData( ResourceFormatType.Json );
             }
         }
 
@@ -53,6 +55,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.yml" );
                 yield return new TestCaseData( "Resources.po" );
                 yield return new TestCaseData( "Resources.txt" );
+                yield return new TestCaseData( "Resources.json" );
             }
         }
 

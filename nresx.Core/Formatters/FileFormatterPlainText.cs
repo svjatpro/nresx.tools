@@ -32,7 +32,7 @@ namespace nresx.Tools.Formatters
             {
                 var line = reader.ReadLine();
 
-                if ( string.IsNullOrWhiteSpace( line ) )
+                if ( string.IsNullOrWhiteSpace( line ) ) // empty line as a delimiter of elements
                 {
                     result.Add( ParseElement( elementLines ) );
                     elementLines.Clear();

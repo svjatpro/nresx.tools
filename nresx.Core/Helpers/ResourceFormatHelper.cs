@@ -6,7 +6,7 @@ namespace nresx.Tools.Helpers
     public class ResourceFormatHelper
     {
         private static readonly Dictionary<string, ResourceFormatType> TypeMap =
-            new Dictionary<string, ResourceFormatType>
+            new()
             {
                 { ".resx", ResourceFormatType.Resx },
                 { ".resw", ResourceFormatType.Resw },
@@ -14,10 +14,11 @@ namespace nresx.Tools.Helpers
                 { ".yaml", ResourceFormatType.Yaml },
                 { ".po", ResourceFormatType.Po },
                 { ".txt", ResourceFormatType.PlainText },
+                { ".json", ResourceFormatType.Json },
             };
 
         private static readonly Dictionary<ResourceFormatType, string> ExtensionsMap =
-            new Dictionary<ResourceFormatType, string>
+            new()
             {
                 { ResourceFormatType.Resx, ".resx" },
                 { ResourceFormatType.Resw, ".resw" },
@@ -25,6 +26,7 @@ namespace nresx.Tools.Helpers
                 { ResourceFormatType.Yaml, ".yaml" },
                 { ResourceFormatType.Po, ".po" },
                 { ResourceFormatType.PlainText, ".txt" },
+                { ResourceFormatType.Json, ".json" },
             };
 
         public static bool DetectFormatByExtension( string path, out ResourceFormatType type )
