@@ -31,6 +31,9 @@
         /// <summary> Generated unique key </summary>
         public const string UniqueKey = "[UniqueKey]";
 
+        /// <summary> Generated unique key </summary>
+        public const string RandomExtension = "[Ext]";
+
         /// <summary>
         /// Create new random directory
         /// </summary>

@@ -9,12 +9,20 @@ using nresx.Tools.Helpers;
 
 namespace nresx.Core.Tests
 {
+    public class CommandRunOptions
+    {
+        public bool MergeArgs { get; set; } = false;
+        public bool SkipFilesWithoutKey { get; set; } = false;
+        public bool SkipFilesWithoutComment { get; set; } = false;
+    }
+
     public class TestHelper
     {
         private static void ReplaceTags( 
             StringBuilder resultCmdLine, 
             string tagPlaceholder, 
-            Func<ResourceFormatType, string, string, string> getTagValue)
+            Func<ResourceFormatType, string, string, string> getTagValue,
+            CommandRunOptions options = null )
         {
             const string dirPlaceholder = @"Dir\";
             var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
@@ -25,7 +33,7 @@ namespace nresx.Core.Tests
             foreach ( Match match in matches )
             {
                 string tag;
-                var formatType = TestData.GetRandomType();
+                var formatType = TestData.GetRandomType( options );
                 var param = "";
                 var dir = "";
                 var dirPrefix = match.Groups[1].Value;
@@ -117,8 +125,11 @@ namespace nresx.Core.Tests
             string cmdLine,
             out CommandLineParameters parameters,
             CommandLineParameters predefinedParams = null,
-            bool mergeArgs = false ) // temporary solution, eventually it must be default behavior
+            CommandRunOptions options = null )
         {
+            if ( options == null )
+                options = new CommandRunOptions();
+
             var resultParams = new CommandLineParameters();
             var resultCmdLine = new StringBuilder( cmdLine );
 
@@ -134,7 +145,7 @@ namespace nresx.Core.Tests
                 {
                     if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.SourceFiles.Add( p );
                         return p;
                     }
@@ -142,7 +153,8 @@ namespace nresx.Core.Tests
                     var path = GetTestPath( Path.ChangeExtension( TestData.ExampleResourceFile, "" ), type );
                     resultParams.SourceFiles.Add( path );
                     return path;
-                } );
+                },
+                options );
 
             // generate output files paths and replace in command line
             ReplaceTags(
@@ -151,7 +163,7 @@ namespace nresx.Core.Tests
                 {
                     if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.NewFiles.Add( p );
                         return p;
                     }
@@ -160,7 +172,8 @@ namespace nresx.Core.Tests
                     var path = GetOutputPath( file, type );
                     resultParams.NewFiles.Add( path );
                     return path;
-                } );
+                },
+                options );
 
             // generate temporary files and replace its paths
             ReplaceTags(
@@ -169,7 +182,7 @@ namespace nresx.Core.Tests
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
                     {
-                        if ( mergeArgs )
+                        if ( options.MergeArgs )
                             resultParams.TemporaryFiles.Add( p );
                         return p;
                     }
@@ -177,7 +190,8 @@ namespace nresx.Core.Tests
                     var destPath = CopyTemporaryFile( copyType: type, destDir: dir );
                     resultParams.TemporaryFiles.Add( destPath );
                     return destPath;
-                } );
+                },
+                options);
 
             // generate unique key(s) and replace in command line
             ReplaceTags(
@@ -186,7 +200,7 @@ namespace nresx.Core.Tests
                 {
                     if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.UniqueKeys.Add( p );
                         return p;
                     }
@@ -194,7 +208,19 @@ namespace nresx.Core.Tests
                     var key = TestData.UniqueKey();
                     resultParams.UniqueKeys.Add( key );
                     return key;
-                } );
+                },
+                options );
+
+            // generate unique key(s) and replace in command line
+            ReplaceTags(
+                resultCmdLine, CommandLineTags.RandomExtension,
+                ( type, dir, parameter ) =>
+                {
+                    var ext = ResourceFormatHelper.GetExtension( type );
+                    resultParams.RandomExtensions.Add( ext );
+                    return ext;
+                },
+                options );
 
             // create new directory
             ReplaceTags(
@@ -203,7 +229,7 @@ namespace nresx.Core.Tests
                 {
                     if ( predefinedParams != null && predefinedParams.NewDirectories.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.NewDirectories.Add( p );
                         return p;
                     }
@@ -216,7 +242,8 @@ namespace nresx.Core.Tests
                     //var destPath = CopyTemporaryFile( copyType: type, destDir: dir );
                     resultParams.NewDirectories.Add( newDir );
                     return newDir;
-                } );
+                },
+                options );
 
             // create copy of the project in temporary output directory
             ReplaceTags(
@@ -225,7 +252,7 @@ namespace nresx.Core.Tests
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryProjects.TryTake( out var p ) )
                     {
-                        if ( mergeArgs )
+                        if ( options.MergeArgs )
                             resultParams.TemporaryProjects.Add( p );
                         return p;
                     }
@@ -236,7 +263,8 @@ namespace nresx.Core.Tests
 
                     resultParams.TemporaryProjects.Add( targetDir );
                     return targetDir;
-                } );
+                },
+                options );
 
             var result = resultCmdLine.ToString();
 
@@ -250,10 +278,10 @@ namespace nresx.Core.Tests
 
         public static CommandLineParameters RunCommandLine( 
             string cmdLine, 
-            CommandLineParameters parameters = null, 
-            bool mergeArgs = false )
+            CommandLineParameters parameters = null,
+            CommandRunOptions options = null )
         {
-            var args = PrepareCommandLine( cmdLine, out var p, parameters, mergeArgs );
+            var args = PrepareCommandLine( cmdLine, out var p, parameters, options );
 
             var cmd = $"/C nresx {args}";
             var process = new Process();

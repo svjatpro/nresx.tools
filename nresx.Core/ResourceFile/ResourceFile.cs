@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using nresx.Tools.Exceptions;
@@ -10,7 +9,7 @@ namespace nresx.Tools
 {
     public class ResourceFile
     {
-        #region Private fields
+        #region Static members
 
         private static readonly List<(string extensions, ResourceFormatType type, Type formatter)> TypesMap =
             new()
@@ -23,6 +22,12 @@ namespace nresx.Tools
                 ( extensions: ".po", type: ResourceFormatType.Po, typeof(FileFormatterPo) ),
                 ( extensions: ".json", type: ResourceFormatType.Json, typeof(FileFormatterJson) ),
             };
+
+        #endregion
+
+        #region Private fields
+
+        private IFileFormatter SourceFormatter;
 
         #endregion
 
@@ -132,6 +137,7 @@ namespace nresx.Tools
             if( GetTypeInfo( path, out var type ) )
             {
                 FileFormat = type.type;
+                SourceFormatter = type.formatter();
             }
             else
             {
@@ -159,16 +165,15 @@ namespace nresx.Tools
 
         public ResourceFile( Stream stream, ResourceFormatType resourceFormat = ResourceFormatType.NA )
         {
-            IFileFormatter parser;
             if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
             {
                 FileFormat = resourceFormat;
-                parser = t1.formatter();
+                SourceFormatter = t1.formatter();
             }
             else if ( GetTypeInfo( stream, out var type ) )
             {
                 FileFormat = type.type;
-                parser = type.formatter();
+                SourceFormatter = type.formatter();
             }
             else
             {
@@ -184,7 +189,7 @@ namespace nresx.Tools
                 AbsolutePath = fileInfo.FullName;
             }
 
-            if ( parser.LoadResourceFile( stream, out var elements ) )
+            if ( SourceFormatter.LoadResourceFile( stream, out var elements ) )
             {
                 Elements = new ResourceElements( elements );
             }
@@ -199,7 +204,11 @@ namespace nresx.Tools
         public ResourceFile( ResourceFormatType fileFormat )
         {
             IsNewFile = true;
+            
             FileFormat = fileFormat;
+            if ( GetTypeInfo( t => t.type == fileFormat, out var tinfo ) )
+                SourceFormatter = tinfo.formatter();
+
             Elements = new ResourceElements();
         }
 
@@ -259,6 +268,13 @@ namespace nresx.Tools
             
             return new MemoryStream( ms.ToArray() );
         }
+
+        #endregion
+
+        #region Format info
+
+        public bool ElementHasKey => SourceFormatter?.ElementHasKey ?? true;
+        public bool ElementHasComment => SourceFormatter?.ElementHasComment ?? true;
 
         #endregion
     }

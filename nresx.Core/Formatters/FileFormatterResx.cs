@@ -235,5 +235,8 @@ namespace nresx.Tools.Formatters
 
             doc.Save( stream );
         }
+
+        public bool ElementHasKey => true;
+        public bool ElementHasComment => true;
     }
 }

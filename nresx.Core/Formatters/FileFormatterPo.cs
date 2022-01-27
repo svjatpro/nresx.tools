@@ -194,5 +194,8 @@ namespace nresx.Tools.Formatters
                 writer.WriteLine();
             }
         }
+
+        public bool ElementHasKey => true;
+        public bool ElementHasComment => true;
     }
 }

@@ -180,5 +180,8 @@ namespace nresx.Tools.Formatters
             var body = elements.ToDictionary( el => el.Key, el => el.Value );
             serializer.Serialize( writer, body );
         }
+
+        public bool ElementHasKey => true;
+        public bool ElementHasComment => false;
     }
 }

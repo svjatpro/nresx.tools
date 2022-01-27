@@ -70,5 +70,8 @@ namespace nresx.Tools.Formatters
                 writer.WriteLine();
             }
         }
+
+        public bool ElementHasKey => false;
+        public bool ElementHasComment => false;
     }
 }

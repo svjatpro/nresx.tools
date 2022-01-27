@@ -17,17 +17,22 @@ namespace nresx.CommandLine.Tests.Add
         [TestCase( @"add [TmpFile] [TmpFile] --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
         public void AddSingleElementToListOfResources( string commandLine )
         {
-            var args = Run( commandLine );
+            var args = TestHelper.RunCommandLine( commandLine );
 
             var key = args.UniqueKeys[0];
             var value = args.UniqueKeys[1];
-            //var comment = args.UniqueKeys.Count > 2 ? args.UniqueKeys[2] : string.Empty;
+            var comment = args.UniqueKeys.Count > 2 ? args.UniqueKeys[2] : string.Empty;
 
             args.TemporaryFiles.ForEach(
                 file =>
                 {
                     var res = new ResourceFile( file );
-                    res.Elements.Should().Contain( el => el.Key == key && el.Value == value /*&& el.Comment == comment*/ );
+
+                    if ( !res.ElementHasKey ) key = value;
+                    res.Elements.Should().Contain( el => 
+                        el.Key == key && 
+                        el.Value == value && 
+                        ( !res.ElementHasComment || el.Comment == comment ) );
                 } );
         }
         [TestCase( @"add [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] --dry-run" )]

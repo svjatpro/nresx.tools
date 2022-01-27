@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using nresx.Tools;
 using NUnit.Framework;
 
@@ -20,15 +22,15 @@ namespace nresx.Core.Tests
 
         //private static ResourceFormatType[] ResourceTypes = Enum.GetValues<ResourceFormatType>().Where( t => t != ResourceFormatType.NA ).ToArray();
         //private static readonly Random FormatTypeRandom = new( (int) DateTime.Now.Ticks );
-        private static readonly ResourceFormatType[] ResourceTypes =
+        private static readonly Dictionary<ResourceFormatType, bool> ResourceTypes = new()
         {
-            ResourceFormatType.Resx,
-            ResourceFormatType.Resw,
-            ResourceFormatType.Yaml,
-            ResourceFormatType.Yml,
-            ResourceFormatType.Po,
-            ResourceFormatType.PlainText,
-            ResourceFormatType.Json,
+            { ResourceFormatType.Resx, true },
+            { ResourceFormatType.Resw, true },
+            { ResourceFormatType.Yaml, true },
+            { ResourceFormatType.Yml, true },
+            { ResourceFormatType.Po, true },
+            { ResourceFormatType.PlainText, false },
+            { ResourceFormatType.Json, true }
         };
 
         public static IEnumerable ResourceFormats
@@ -68,9 +70,13 @@ namespace nresx.Core.Tests
             return key.Substring( 0, Math.Min( length, key.Length ) );
         }
         
-        public static ResourceFormatType GetRandomType()
+        public static ResourceFormatType GetRandomType( CommandRunOptions options = null )
         {
-            return ResourceTypes[new Random( (int) DateTime.Now.Ticks ).Next( 0, ResourceTypes.Length - 1 )];
+            var types = 
+                ( options ?? new CommandRunOptions() ).SkipFilesWithoutKey ?
+                ResourceTypes.Where( t => t.Value ).Select( t => t.Key ).ToArray() :
+                ResourceTypes.Keys.ToArray();
+            return types[new Random( (int) DateTime.Now.Ticks ).Next( 0, types.Length - 1 )];
         }
     }
 }

@@ -10,55 +10,57 @@ namespace nresx.CommandLine.Tests.Update
     [TestFixture]
     public class UpdateElementInMultipleFilesTests : TestBase
     {
-        [TestCase( @"update [TmpFile.resx] [TmpFile.resx] -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile.resx] [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update -s [TmpFile.resw] [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [TmpFile.po] [TmpFile.po] --key [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile.resx] [TmpFile.resw] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
-        [TestCase( @"update -s [TmpFile.po] [TmpFile.resx] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update -s [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update -s [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
         public void UpdateSingleElement( string commandLine )
         {
             var res1 = GetExampleResourceFile();
             var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { elementToUpdate.Key }} );
 
-            var value = args.UniqueKeys[0];
-            var comment = args.UniqueKeys.Count > 1 ? args.UniqueKeys[1] : elementToUpdate.Comment;
-            args.TemporaryFiles.ForEach(
-                file =>
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } )
+                .WithParams( args => new
                 {
-                    var res = new ResourceFile( file );
-                    res.Elements.Should().Contain( el => el.Key == elementToUpdate.Key && el.Value == value && el.Comment == comment );
+                    key = elementToUpdate.Key,
+                    value = args.UniqueKeys[1],
+                    comment = args.UniqueKeys.Count > 2 ? args.UniqueKeys[2] : null
+                } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( ( args, param ) =>
+                {
+                    args.TemporaryFiles.ForEach(
+                        file =>
+                        {
+                            var res = new ResourceFile( file );
+                            res.Elements.Should().NotContain( el =>
+                                el.Key == param.key &&
+                                el.Value == param.value &&
+                                ( ( res.ElementHasComment && param.comment != null && el.Comment == param.comment ) || true ) );
+                        } );
+                } )
+                .ValidateRun( ( args, param ) =>
+                {
+                    args.TemporaryFiles.ForEach(
+                        file =>
+                        {
+                            var res = new ResourceFile( file );
+                            res.Elements.Should().Contain( el => 
+                                el.Key == param.key && 
+                                el.Value == param.value &&
+                                ( ( res.ElementHasComment && param.comment != null && el.Comment == param.comment ) || true ) );
+                        } );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"'{param.key}' element have been updated in '{args.TemporaryFiles[0]}'",
+                        $"'{param.key}' element have been updated in '{args.TemporaryFiles[1]}'" );
                 } );
         }
-
-        [TestCase( @"update [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] --dry-run" )]
-        [TestCase( @"update [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --dry-run" )]
-        [TestCase( @"update -s [TmpFile] [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --dry-run" )]
-        [TestCase( @"update [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --dry-run" )]
-        [TestCase( @"update [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --dry-run" )]
-        [TestCase( @"update -s [TmpFile] [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --dry-run" )]
-        public void UpdateSingleElementDryRun( string commandLine )
-        {
-            var res1 = GetExampleResourceFile();
-            var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } );
-
-            var value = args.UniqueKeys[0];
-            var comment = args.UniqueKeys.Count > 1 ? args.UniqueKeys[1] : elementToUpdate.Comment;
-            args.TemporaryFiles.ForEach(
-                file =>
-                {
-                    var res = new ResourceFile( file );
-                    res.Elements.Should().NotContain( el => el.Key == elementToUpdate.Key && el.Value == value && el.Comment == comment );
-                } );
-
-            args.ConsoleOutput.Should().BeEquivalentTo( 
-                $"'{elementToUpdate.Key}' element have been updated in '{args.TemporaryFiles[0]}'",
-                $"'{elementToUpdate.Key}' element have been updated in '{args.TemporaryFiles[1]}'" );
-        }
-
-
         
         [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey]" )]
         [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
@@ -68,46 +70,39 @@ namespace nresx.CommandLine.Tests.Update
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
 
-            var key = elementToUpdate.Key;
-            var updated = new ResourceElement
-            {
-                Key = key,
-                Value = args.UniqueKeys[0],
-                Comment = args.UniqueKeys.Count > 1 ? args.UniqueKeys[1] : elementToUpdate.Comment,
-                Type = elementToUpdate.Type,
-            };
-
-            new ResourceFile( files[0] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( updated );
-            new ResourceFile( files[1] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( updated );
-            new ResourceFile( files[2] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } )
+                .WithParams( args => new
+                {
+                    updated = new ResourceElement
+                    {
+                        Key = elementToUpdate.Key,
+                        Value = args.UniqueKeys[2],
+                        Comment = args.UniqueKeys.Count > 3 ? args.UniqueKeys[3] : elementToUpdate.Comment,
+                        Type = elementToUpdate.Type
+                    }
+                } )
+                .ValidateDryRun( ( args, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                    new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                    new ResourceFile( files[2] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                } )
+                .ValidateRun( ( args, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
+                    new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
+                    new ResourceFile( files[2] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"'{param.updated.Key}' element have been updated in '{files[0].GetShortPath()}'",
+                        $"'{param.updated.Key}' element have been updated in '{files[1].GetShortPath()}'" );
+                } );
         }
-
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] --dry-run" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --dry-run" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --dry-run" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --dry-run" )]
-        public void UpdateSingleElementByNonRecursiveSpecDryRun( string commandLine )
-        {
-            var elementToUpdate = GetExampleResourceFile().Elements[1];
-            var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
-
-            var key = elementToUpdate.Key;
-
-            new ResourceFile( files[0] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
-            new ResourceFile( files[1] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
-            new ResourceFile( files[2] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
-
-            args.ConsoleOutput.Should().BeEquivalentTo(
-                $"'{elementToUpdate.Key}' element have been updated in '{files[0]}'",
-                $"'{elementToUpdate.Key}' element have been updated in '{files[1]}'" );
-        }
-
-
-
-
+        
         [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -r" )]
         [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r" )]
         [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --recursive" )]
@@ -116,42 +111,38 @@ namespace nresx.CommandLine.Tests.Update
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
 
-            var key = elementToUpdate.Key;
-            var updated = new ResourceElement
-            {
-                Key = key,
-                Value = args.UniqueKeys[0],
-                Comment = args.UniqueKeys.Count > 1 ? args.UniqueKeys[1] : elementToUpdate.Comment,
-                Type = elementToUpdate.Type,
-            };
-
-            new ResourceFile( files[0] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( updated );
-            new ResourceFile( files[1] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( updated );
-            new ResourceFile( files[2] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( updated );
-        }
-
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -r --dry-run" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r --dry-run" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --recursive --dry-run" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive --dry-run" )]
-        public void UpdateSingleElementByRecursiveSpecDryRun( string commandLine )
-        {
-            var elementToUpdate = GetExampleResourceFile().Elements[1];
-            var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
-
-            var key = elementToUpdate.Key;
-
-            new ResourceFile( files[0] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
-            new ResourceFile( files[1] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
-            new ResourceFile( files[2] ).Elements.Single( el => el.Key == key ).Should().BeEquivalentTo( elementToUpdate );
-
-            args.ConsoleOutput.Should().BeEquivalentTo(
-                $"'{elementToUpdate.Key}' element have been updated in '{files[0].GetShortPath()}'",
-                $"'{elementToUpdate.Key}' element have been updated in '{files[1].GetShortPath()}'",
-                $"'{elementToUpdate.Key}' element have been updated in '{files[2].GetShortPath()}'" );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } )
+                .WithParams( args => new
+                {
+                    updated = new ResourceElement
+                    {
+                        Key = elementToUpdate.Key,
+                        Value = args.UniqueKeys[2],
+                        Comment = args.UniqueKeys.Count > 3 ? args.UniqueKeys[3] : elementToUpdate.Comment,
+                        Type = elementToUpdate.Type
+                    }
+                } )
+                .ValidateDryRun( ( args, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                    new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                    new ResourceFile( files[2] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
+                } )
+                .ValidateRun( ( args, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
+                    new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
+                    new ResourceFile( files[2] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"'{param.updated.Key}' element have been updated in '{files[0].GetShortPath()}'",
+                        $"'{param.updated.Key}' element have been updated in '{files[1].GetShortPath()}'",
+                        $"'{param.updated.Key}' element have been updated in '{files[2].GetShortPath()}'" );
+                } );
         }
     }
 }

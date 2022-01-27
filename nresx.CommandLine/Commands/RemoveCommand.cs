@@ -62,14 +62,11 @@ namespace nresx.CommandLine.Commands
 
                     foreach ( var key in elementsToDelete )
                     {
-                        if ( DryRun )
-                        {
-                            Console.WriteLine( $"{shortFilePath}: '{key}' have been removed" );
-                        }
-                        else
+                        if ( !DryRun )
                         {
                             resource.Elements.Remove( key );
                         }
+                        Console.WriteLine( $"{shortFilePath}: '{key}' have been removed" );
                     }
 
                     if ( !DryRun && !resource.IsNewFile )

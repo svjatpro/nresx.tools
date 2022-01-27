@@ -209,5 +209,8 @@ namespace nresx.Tools.Formatters
             using var jsonTextWriter = new JsonTextWriter( writer );
             root.WriteTo( jsonTextWriter );
         }
+
+        public bool ElementHasKey => true;
+        public bool ElementHasComment => true; //
     }
 }

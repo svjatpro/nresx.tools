@@ -146,6 +146,7 @@ namespace nresx.Core.Tests
             return result;
         }
 
+        // todo: add "randomResourceType" option, false by default (resx)
         protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey, string dir = null )
         {
             fileKey = TestData.UniqueKey();

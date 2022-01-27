@@ -34,16 +34,13 @@ namespace nresx.CommandLine.Commands
                 sourceFiles,
                 ( file, resource ) =>
                 {
-                    if ( DryRun )
-                    {
-                        var shortFilePath = resource.AbsolutePath?.GetShortPath() ?? file.FullName.GetShortPath();
-                        Console.WriteLine( $"'{Key}: {Value}' element have been add to '{shortFilePath}'" );
-                    }
-                    else
+                    if ( !DryRun )
                     {
                         resource.Elements.Add( Key, Value, Comment );
                         resource.Save( file.FullName );
                     }
+                    var shortFilePath = resource.AbsolutePath?.GetShortPath() ?? file.FullName.GetShortPath();
+                    Console.WriteLine( $"'{Key}: {Value}' element have been add to '{shortFilePath}'" );
                 } );
         }
     }

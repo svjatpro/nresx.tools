@@ -10,36 +10,42 @@ namespace nresx.CommandLine.Tests.Update
     [TestFixture]
     public class UpdateElementInSingleFileTests : TestBase
     {
-        [TestCase( @"update [TmpFile.po] -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [TmpFile.po] --key [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [TmpFile.po] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
         public void UpdateSingleElement( string commandLine )
         {
             var res1 = GetExampleResourceFile();
             var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { elementToUpdate.Key }} );
-            
-            var res = new ResourceFile( args.TemporaryFiles[0] );
-            var element = res.Elements.First( el => el.Key == elementToUpdate.Key );
-            element.Value.Should().Be( args.UniqueKeys[0] );
-            if( args.UniqueKeys.Count > 1 ) element.Comment.Should().Be( args.UniqueKeys[1] );
+
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } )
+                .WithParams( args => new
+                {
+                    key = elementToUpdate.Key, 
+                    value = args.UniqueKeys[1], 
+                    comment = args.UniqueKeys.Count > 2 ? args.UniqueKeys[2] : null
+                } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( ( args, param ) =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    res.Elements.First( el => el.Key == param.key ).Value.Should().NotBe( param.value );
+                } )
+                .ValidateRun( ( args, param ) =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    var element = res.Elements.First( el => el.Key == param.key );
+                    element.Value.Should().Be( param.value );
+                    if ( res.ElementHasComment && param.comment != null ) 
+                        element.Comment.Should().Be( param.comment );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo( $"'{elementToUpdate.Key}' element have been updated in '{args.TemporaryFiles[0]}'" );
+                } );
         }
-
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] --dry-run" )]
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --dry-run" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --dry-run" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --dry-run" )]
-        public void UpdateSingleElementDryRun( string commandLine )
-        {
-            var res1 = GetExampleResourceFile();
-            var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } );
-
-            args.ConsoleOutput.Should().BeEquivalentTo( $"'{elementToUpdate.Key}' element have been updated in '{args.TemporaryFiles[0]}'" );
-        }
-
-
 
         [TestCase( @"update [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey]" )]
         [TestCase( @"update [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
@@ -49,7 +55,7 @@ namespace nresx.CommandLine.Tests.Update
         [TestCase( @"update [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --new-file" )] // ignored for update
         public void UpdateNonExistingFile( string commandLine )
         {
-            var args = Run( commandLine );
+            var args = TestHelper.RunCommandLine( commandLine );
 
             var file = GetOutputPath( args.UniqueKeys[0] );
             new FileInfo( file ).Exists.Should().BeFalse();
@@ -65,7 +71,7 @@ namespace nresx.CommandLine.Tests.Update
         [TestCase( @"update [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --new-file --recursive" )] // ignored for update
         public void UpdateNonExistingDir( string commandLine )
         {
-            var args = Run( commandLine );
+            var args = TestHelper.RunCommandLine( commandLine );
 
             var file = $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
@@ -79,7 +85,7 @@ namespace nresx.CommandLine.Tests.Update
         [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey]" )]
         public void UpdateNonExistingElement( string commandLine )
         {
-            var args = Run( commandLine );
+            var args = TestHelper.RunCommandLine( commandLine );
             
             var res = new ResourceFile( args.TemporaryFiles[0] );
             var element = res.Elements.FirstOrDefault( el => el.Key == args.UniqueKeys[0] );
@@ -87,34 +93,34 @@ namespace nresx.CommandLine.Tests.Update
 
             args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: '{args.UniqueKeys[0]}' element not found" );
         }
-
-
+        
 
         [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] --new-element" )]
-        [TestCase( @"update [TmpFile.po] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-element" )]
+        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-element" )]
         [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --new-element" )]
-        [TestCase( @"update [TmpFile.resx] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --new-element" )]
+        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --new-element" )]
         public void UpdateNonExistingElementShouldCreateOne( string commandLine )
         {
-            var args = Run( commandLine );
-
-            var res = new ResourceFile( args.TemporaryFiles[0] );
-            var element = res.Elements.First( el => el.Key == args.UniqueKeys[0] );
-            element.Key.Should().Be( args.UniqueKeys[0] );
-            element.Value.Should().Be( args.UniqueKeys[1] );
-            if( args.UniqueKeys.Count > 2 )
-                element.Comment.Should().Be( args.UniqueKeys[2] );
-        }
-
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] --new-element --dry-run" )]
-        [TestCase( @"update [TmpFile] -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-element --dry-run" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --new-element --dry-run" )]
-        [TestCase( @"update [TmpFile] --key [UniqueKey] -v [UniqueKey] --comment [UniqueKey] --new-element --dry-run" )]
-        public void UpdateNonExistingElementShouldCreateOneDryRun( string commandLine )
-        {
-            var args = Run( commandLine );
-
-            args.ConsoleOutput.Should().BeEquivalentTo( $"'{args.UniqueKeys[0]}: {args.UniqueKeys[1]}' element have been added in '{args.TemporaryFiles[0]}'" );
+            commandLine
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( args =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    res.Elements.FirstOrDefault( el => el.Key == args.UniqueKeys[0] ).Should().BeNull();
+                } )
+                .ValidateRun( args =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    var element = res.Elements.First( el => el.Key == args.UniqueKeys[0] );
+                    element.Key.Should().Be( args.UniqueKeys[0] );
+                    element.Value.Should().Be( args.UniqueKeys[1] );
+                    if ( res.ElementHasComment && args.UniqueKeys.Count > 2 )
+                        element.Comment.Should().Be( args.UniqueKeys[2] );
+                } )
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo( $"'{args.UniqueKeys[0]}: {args.UniqueKeys[1]}' element have been added in '{args.TemporaryFiles[0]}'" );
+                } );
         }
     }
 }

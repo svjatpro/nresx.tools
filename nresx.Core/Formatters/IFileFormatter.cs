@@ -9,5 +9,8 @@ namespace nresx.Tools.Formatters
         bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements );
         
         void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements );
+
+        bool ElementHasKey { get; }
+        bool ElementHasComment { get; }
     }
 }

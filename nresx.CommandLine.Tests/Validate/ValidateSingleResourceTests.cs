@@ -13,7 +13,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateEmptyValueElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             res.Elements[1].Value = string.Empty;
@@ -29,7 +29,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateEmptyKeyElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[1].Key, "" );
@@ -44,13 +44,12 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateDuplicatedElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[2].Key, res.Elements[1].Key );
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
-
             args.ConsoleOutput[0].Should().Be( $"Duplicate: {res.Elements[1].Key};" );
         }
 
@@ -59,7 +58,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidatePossibleDuplicatedElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[2].Key, $"{res.Elements[1].Key}.Text" );

@@ -22,7 +22,7 @@ namespace nresx.CommandLine.Tests.Validate
             TestHelper.ReplaceKey( preArgs.TemporaryFiles[0], res.Elements[2].Key, res.Elements[1].Key );
             TestHelper.ReplaceKey( preArgs.TemporaryFiles[1], res.Elements[1].Key, "" );
 
-            var args = TestHelper.RunCommandLine( commandLine, preArgs, mergeArgs: true );
+            var args = TestHelper.RunCommandLine( commandLine, preArgs, new CommandRunOptions { MergeArgs = true } );
 
             var r = ResourceFile.LoadRawElements( args.TemporaryFiles[1] );
 
