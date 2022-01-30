@@ -14,11 +14,11 @@ namespace nresx.Tools.Formatters
         KeyObject,
         Object
     }
-    internal class ResourceElementJson : ResourceElement
+    public class ResourceElementJson : ResourceElement
     {
         public string Path { get; set; }
         public string KeyProperyName { get; set; }
-        public string NameProperyName { get; set; }
+        public string ValueProperyName { get; set; }
         public string CommentProperyName { get; set; }
         public JsonElementType ElementType { get; set; }
 
@@ -33,8 +33,8 @@ namespace nresx.Tools.Formatters
         #region Private fields
 
         private readonly string[] KeyNames = { "key", "id", "name" };
-        private readonly string[] ValueNames = { "message", "string", "text", "value", "content", "translation" };
-        private readonly string[] CommentNames = { "description", "context", "comment", "developer_comment" };
+        private readonly string[] ValueNames = { "value", "message", "string", "text", "content", "translation" };
+        private readonly string[] CommentNames = { "comment", "description", "context", "developer_comment" };
         private readonly HashSet<string> PropertiesMap;
 
         #endregion
@@ -57,24 +57,35 @@ namespace nresx.Tools.Formatters
             return elements;
         }
 
-        private bool ParseElementNode( JObject node, out ResourceElementJson element )
+        private bool ParseElementNode( JObject node, string path, JsonElementType elType, out ResourceElementJson element )
         {
             var el = new ResourceElementJson();
+
+            el.Type = ResourceElementType.String;
+            el.Path = path;
+            el.ElementType = elType;
 
             var props = node?.Children<JProperty>() ?? new JEnumerable<JProperty>();
             if ( !props.Any() )
                 props = node?.Children<JObject>().FirstOrDefault()?.Children<JProperty>() ?? new JEnumerable<JProperty>();
-            el.Key = KeyNames
-                .Select( k => props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() )
-                .FirstOrDefault( k => k != null )?.ReplaceNewLine() ?? string.Empty;
 
-            el.Value = ValueNames
-                .Select( k => props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() )
-                .FirstOrDefault( k => k != null )?.ReplaceNewLine() ?? string.Empty;
+            var keyToken = KeyNames
+                .Select( k => new{ name = k, value = props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() } )
+                .FirstOrDefault( k => k.value != null );
+            el.KeyProperyName = keyToken?.name ?? KeyNames.First();
+            el.Key = keyToken?.value?.ReplaceNewLine() ?? string.Empty;
 
-            el.Comment = CommentNames
-                .Select( k => props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() )
-                .FirstOrDefault( k => k != null )?.ReplaceNewLine() ?? string.Empty;
+            var valueToken = ValueNames
+                .Select( k => new{ name = k, value = props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() } )
+                .FirstOrDefault( k => k.value != null );
+            el.ValueProperyName = valueToken?.name ?? ValueNames.First();
+            el.Value = valueToken?.value?.ReplaceNewLine() ?? string.Empty;
+
+            var commentToken = CommentNames
+                .Select( k => new { name = k, value = props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() } )
+                .FirstOrDefault( k => k.value != null );
+            el.CommentProperyName = commentToken?.name ?? CommentNames.First();
+            el.Comment = commentToken?.value?.ReplaceNewLine() ?? string.Empty;
 
             element = el;
             return !string.IsNullOrWhiteSpace( element.Key );
@@ -83,6 +94,7 @@ namespace nresx.Tools.Formatters
         private JToken ParseJson( JsonTextReader reader, List<ResourceElementJson> elements, out NodeType type )
         {
             if ( reader.TokenType == JsonToken.None ) reader.Read();
+            var path = reader.Path;
 
             // parse object
             if ( reader.TokenType == JsonToken.StartObject )
@@ -100,13 +112,13 @@ namespace nresx.Tools.Formatters
                     var item = ParseJson( reader, elements, out var childType );
 
                     // element property
-                    if ( childType == NodeType.Value && PropertiesMap.Contains( propName.Trim().ToLower() ) )
+                    if ( childType == NodeType.Value && PropertiesMap.Contains( propName?.Trim().ToLower() ) )
                     {
                         hasElProperties = true;
                         children.Add( new JProperty( propName, item ) );
                     }
                     // plain structure "key: value"
-                    else if ( childType == NodeType.Value && !PropertiesMap.Contains( propName.Trim().ToLower() ) )
+                    else if ( childType == NodeType.Value && !PropertiesMap.Contains( propName?.Trim().ToLower() ) )
                     {
                         hasElements = true;
                         elements.Add( new ResourceElementJson
@@ -114,6 +126,11 @@ namespace nresx.Tools.Formatters
                             Key = propName,
                             Value = item.Value<string>()?.ReplaceNewLine(),
 
+                            KeyProperyName = KeyNames.First(),
+                            ValueProperyName = ValueNames.First(),
+                            CommentProperyName = CommentNames.First(),
+
+                            Path = path,
                             Type = ResourceElementType.String,
                             ElementType = JsonElementType.KeyValue
                         } );
@@ -135,7 +152,7 @@ namespace nresx.Tools.Formatters
                     obj = new JArray();
                     foreach ( var child in children )
                     {
-                        if ( ParseElementNode( (JObject) child, out var el ) )
+                        if ( ParseElementNode( (JObject) child, path, JsonElementType.KeyObject, out var el ) )
                             elements.Add( el );
                         ( (JArray) obj ).Add( child );
                     }
@@ -171,7 +188,7 @@ namespace nresx.Tools.Formatters
                 {
                     foreach ( var token in array )
                     {
-                        if ( ParseElementNode( (JObject) token, out var el ) )
+                        if ( ParseElementNode( (JObject) token, path, JsonElementType.Object, out var el ) )
                             elements.Add( el );
                     }
                     type = NodeType.ElementsList;

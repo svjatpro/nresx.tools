@@ -62,25 +62,20 @@ namespace nresx.Core.Tests
             return TestHelper.RunCommandLine( cmdLine, parameters );
         }
 
-        protected void ValidateElements( ResourceFile resource, ResourceFormatType sourceType = ResourceFormatType.NA )
+        protected void ValidateElements( ResourceFile resource, ResourceFile example = null )
         {
-            var emptyKeyTypes = new[] {ResourceFormatType.PlainText};
-            var emptyComTypes = new[] {ResourceFormatType.PlainText, ResourceFormatType.Yaml, ResourceFormatType.Yml};
+            var validateKey = resource.ElementHasKey;
+            var validateComment = resource.ElementHasComment;
 
             var elements = resource.Elements.ToList();
-            var validateKey = !emptyKeyTypes.Contains( resource.FileFormat );
-            var validateComment = 
-                //!( elements.All( el => string.IsNullOrWhiteSpace( el.Comment ) ) && ( emptyComTypes.Contains( resource.FileFormat ) || emptyComTypes.Contains( sourceType ) ) );
-                !elements.All( el => string.IsNullOrWhiteSpace( el.Comment ) ) || ( !emptyComTypes.Contains( resource.FileFormat ) && !emptyComTypes.Contains( sourceType ) );
-
             var actual = elements
                 .Select( e => ( 
-                    key: validateKey ? (e.Key ?? string.Empty) : string.Empty, 
-                    val: e.Value ?? string.Empty, 
-                    comment: e.Comment ?? string.Empty) ); 
-            var target = GetExampleResourceFile().Elements
+                    key: validateKey ? (e.Key ?? string.Empty) : e.Value, 
+                    val: e.Value ?? string.Empty,
+                    comment: validateComment ? ( e.Comment ?? string.Empty ) : string.Empty) );
+            var target = ( example ?? GetExampleResourceFile() ).Elements
                 .Select( e => ( 
-                    key: validateKey ? (e.Key ?? string.Empty) : string.Empty, 
+                    key: validateKey ? (e.Key ?? string.Empty) : e.Value, 
                     val: e.Value ?? string.Empty, 
                     comment: validateComment ? (e.Comment ?? string.Empty) : string.Empty) );
 

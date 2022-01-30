@@ -4,17 +4,17 @@
           "strings":
           [
             {
-                "key": "Entry1.Text",
+                "id": "Entry1.Text",
                 "text": "Value1"
             },
             {
                 "key": "Entry2",
-                "text": "Value2",
-                "comment": "Comment2"
+                "value": "Value2",
+                "description": "Comment2"
             },
             {
-                "key": "Entry3",
-                "text": "Value3\nmultiline"
+                "name": "Entry3",
+                "content": "Value3\nmultiline"
             }
           ]
         }

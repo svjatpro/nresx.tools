@@ -68,7 +68,7 @@ namespace nresx.CommandLine.Tests.Copy
                 } )
                 .ValidateRun( ( args, param ) =>
                 {
-                    ValidateElements( new ResourceFile( args.NewFiles[0] ), param.tmp.FileFormat );
+                    ValidateElements( new ResourceFile( args.NewFiles[0] ), new ResourceFile( args.TemporaryFiles[0] ) );
                 } )
                 .ValidateStdout( ( args, param ) =>
                 {

@@ -65,9 +65,10 @@ namespace nresx.CommandLine.Tests.Convert
                 .WithParams( args => new { DestPath = Path.ChangeExtension( args.SourceFiles[0], OptionHelper.GetFormatOption( destType ) ) } )
                 .ValidateRun( (args, parameters) =>
                 {
+                    var source = new ResourceFile( args.SourceFiles[0] );
                     var res = new ResourceFile( parameters.DestPath );
                     res.FileFormat.Should().Be( destType );
-                    ValidateElements( res, sourceType );
+                    ValidateElements( res, source );
                 } )
                 .ValidateDryRun( ( args, parameters ) =>
                 {
