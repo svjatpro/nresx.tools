@@ -1,6 +1,8 @@
 {
     "parent": {
         "middle": {
+          "strings":
+          [
             {
                 "key": "Entry1.Text",
                 "text": "Value1"
@@ -14,6 +16,7 @@
                 "key": "Entry3",
                 "text": "Value3\nmultiline"
             }
+          ]
         }
     }
 }

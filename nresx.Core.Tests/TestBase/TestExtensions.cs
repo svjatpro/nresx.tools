@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace nresx.Core.Tests
 {
     public class CommandRunContext
     {
         public string CommandLine { get; set; }
+        public Action<CommandLineParameters> BeforeRunAction { get; set; }
         public Func<CommandLineParameters> PredefinedParameters { get; set; }
         public Func<CommandRunOptions> CommandOptions { get; set; } = () => new CommandRunOptions { MergeArgs = true };
 
@@ -68,14 +68,20 @@ namespace nresx.Core.Tests
             newContext.AdditionalParamsBuilder = builder;
             return newContext;
         }
-        public static CommandRunContext<T> WithParams<T>( this CommandRunContext<T> context, Func<CommandLineParameters, T> builder )
-            where T : class
+
+        #endregion
+
+        public static CommandRunContext BeforeRun( this CommandRunContext context, Action action )
         {
-            context.AdditionalParamsBuilder = builder;
+            context.BeforeRunAction = args => action();
             return context;
         }
 
-        #endregion
+        public static CommandRunContext BeforeRun( this CommandRunContext context, Action<CommandLineParameters> action )
+        {
+            context.BeforeRunAction = action;
+            return context;
+        }
 
         #region WithOptions
 
@@ -150,7 +156,7 @@ namespace nresx.Core.Tests
         }
 
         #endregion
-
+        
         #region ValidateRun
 
         public static CommandRunContext ValidateRun( this string commandLine, Action<CommandLineParameters> validateAction )
@@ -164,7 +170,12 @@ namespace nresx.Core.Tests
         
         public static CommandRunContext ValidateRun( this CommandRunContext context, Action<CommandLineParameters> validateAction )
         {
-            var result = TestHelper.RunCommandLine( context.CommandLine, context.PredefinedParameters?.Invoke(), context.CommandOptions?.Invoke() );
+            var preArgs = context.PredefinedParameters?.Invoke();
+            var options = context.CommandOptions?.Invoke();
+            var commandLine = TestHelper.PrepareCommandLine( context.CommandLine, out var args, preArgs, options );
+
+            context.BeforeRunAction?.Invoke( args );
+            var result = TestHelper.RunCommandLine( commandLine, args, options );
 
             Console.WriteLine( "run command:" );
             Console.WriteLine( $"\"{result.CommandLine}\"" );
@@ -198,7 +209,12 @@ namespace nresx.Core.Tests
         }
         public static CommandRunContext<T> ValidateRun<T>( this CommandRunContext<T> context, Action validateAction )
         {
-            return ( context as CommandRunContext ).ValidateRun( validateAction ) as CommandRunContext<T>;
+            return ( context as CommandRunContext )
+                .ValidateRun( args =>
+                {
+                    context.AdditionalParamsBuilder?.Invoke( args );
+                    validateAction();
+                } ) as CommandRunContext<T>;
         }
 
         #endregion
@@ -220,7 +236,12 @@ namespace nresx.Core.Tests
             if ( !cmdLine.Contains( TestData.DryRunOption ) )
                 cmdLine = $"{cmdLine} {TestData.DryRunOption}";
 
-            var result = TestHelper.RunCommandLine( cmdLine, context.PredefinedParameters?.Invoke(), context.CommandOptions?.Invoke() );
+            var preArgs = context.PredefinedParameters?.Invoke();
+            var options = context.CommandOptions?.Invoke();
+            var commandLine = TestHelper.PrepareCommandLine( cmdLine, out var args, preArgs, options );
+
+            context.BeforeRunAction?.Invoke( args );
+            var result = TestHelper.RunCommandLine( commandLine, args, options );
 
             Console.WriteLine( "run command:" );
             Console.WriteLine( $"\"{result.CommandLine}\"" );

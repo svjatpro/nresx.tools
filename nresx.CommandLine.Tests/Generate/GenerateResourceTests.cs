@@ -2,7 +2,6 @@ using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
-using nresx.Tools.Extensions;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Generate
@@ -11,11 +10,11 @@ namespace nresx.CommandLine.Tests.Generate
     public class GenerateResourceTests : TestBase
     {
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile] --new-file" )]
-        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.resx] --new-file" )]
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.resx] -f resx --new-file" )]
         public void GenerateNewFile( string commandLine )
         {
             commandLine
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
                 .ValidateRun( args =>
                 {
                     var res = new ResourceFile( args.NewFiles[0] );
@@ -41,11 +40,11 @@ namespace nresx.CommandLine.Tests.Generate
         }
 
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile] --new-file" )]
-        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile.resx] --new-file" )]
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [TmpFile.resx] -f resx --new-file" )]
         public void AddToExistingFile( string commandLine )
         {
             commandLine
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
                 .ValidateRun( args =>
                 {
                     var res = new ResourceFile( args.TemporaryFiles[0] );

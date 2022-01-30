@@ -39,7 +39,7 @@ namespace nresx.CommandLine.Tests.Validate
             args.ConsoleOutput[0].Should().Be( $"EmptyKey: (value: {res.Elements[1].Value});" );
         }
 
-        [TestCase( @"validate [TmpFile]" )]
+        [TestCase( @"validate [TmpFile.json]" )]
         [TestCase( @"validate -s [TmpFile]" )]
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateDuplicatedElements( string commandLine )

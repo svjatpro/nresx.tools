@@ -36,25 +36,9 @@ namespace nresx.Tools.Formatters
         private readonly string[] CommentNames = { "description", "context", "comment", "developer_comment" };
         private readonly HashSet<string> PropertiesMap;
 
-        public FileFormatterJson()
-        {
-            PropertiesMap = new HashSet<string>( KeyNames.Concat( ValueNames ).Concat( CommentNames )
-                .Select( k => k.Trim().ToLower() ) );
-        }
-
         #endregion
 
-        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
-        {
-            if ( LoadRawElements( stream, out var raw ) )
-            {
-                elements = raw;
-                return true;
-            }
-
-            elements = null;
-            return false;
-        }
+        #region Private methods
 
         private enum NodeType
         {
@@ -71,14 +55,14 @@ namespace nresx.Tools.Formatters
 
             return elements;
         }
-        
+
         private bool ParseElementNode( JObject node, out ResourceElementJson element )
         {
             var el = new ResourceElementJson();
 
             var props = node?.Children<JProperty>() ?? new JEnumerable<JProperty>();
-            if( !props.Any() )
-                props =  node?.Children<JObject>().FirstOrDefault()?.Children<JProperty>() ?? new JEnumerable<JProperty>();
+            if ( !props.Any() )
+                props = node?.Children<JObject>().FirstOrDefault()?.Children<JProperty>() ?? new JEnumerable<JProperty>();
             el.Key = KeyNames
                 .Select( k => props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() )
                 .FirstOrDefault( k => k != null )?.ReplaceNewLine() ?? string.Empty;
@@ -106,6 +90,7 @@ namespace nresx.Tools.Formatters
                 var children = new List<JToken>();
                 var hasElements = false;
                 var hasElProperties = false;
+
                 while ( reader.TokenType != JsonToken.EndObject )
                 {
                     var propName = (string) reader.Value;
@@ -117,6 +102,14 @@ namespace nresx.Tools.Formatters
                     {
                         hasElProperties = true;
                         children.Add( new JProperty( propName, item ) );
+                    }
+                    // plain structure "key: value"
+                    else if ( childType == NodeType.Value && !PropertiesMap.Contains( propName.Trim().ToLower() ) )
+                    {
+                        hasElements = true;
+                        children.Add( new JObject( 
+                            new JProperty( KeyNames.First(), propName ),
+                            new JProperty( ValueNames.First(), item ) ) );
                     }
                     else
                     {
@@ -131,14 +124,14 @@ namespace nresx.Tools.Formatters
 
                     reader.Read();
                 }
-
+                
                 JToken obj;
                 if ( hasElements )
                 {
                     obj = new JArray();
                     foreach ( var child in children )
                     {
-                        if ( ParseElementNode( (JObject)child, out var el ) )
+                        if ( ParseElementNode( (JObject) child, out var el ) )
                             elements.Add( el );
                         ( (JArray) obj ).Add( child );
                     }
@@ -178,6 +171,26 @@ namespace nresx.Tools.Formatters
             return new JValue( reader.Value );
         }
 
+        #endregion
+
+        public FileFormatterJson()
+        {
+            PropertiesMap = new HashSet<string>( KeyNames.Concat( ValueNames ).Concat( CommentNames )
+                .Select( k => k.Trim().ToLower() ) );
+        }
+
+        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
+        {
+            if ( LoadRawElements( stream, out var raw ) )
+            {
+                elements = raw;
+                return true;
+            }
+
+            elements = null;
+            return false;
+        }
+        
         public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
         {
             using var sr = new StreamReader( stream );
@@ -206,7 +219,7 @@ namespace nresx.Tools.Formatters
             }
 
             using var writer = new StreamWriter( stream );
-            using var jsonTextWriter = new JsonTextWriter( writer );
+            using var jsonTextWriter = new JsonTextWriter( writer ){ Formatting = Formatting.Indented };
             root.WriteTo( jsonTextWriter );
         }
 

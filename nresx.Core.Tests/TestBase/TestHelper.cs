@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using nresx.Tools;
@@ -271,6 +272,24 @@ namespace nresx.Core.Tests
             resultParams.CommandLine = result;
             resultParams.DryRun = result.Contains( TestData.DryRunOption );
             resultParams.Recursive = result.Contains( TestData.RecursiveOption ) || result.Contains( TestData.RecursiveShortOption );
+
+            if ( options.MergeArgs )
+            {
+                if( predefinedParams?.SourceFiles.Any() ?? false )
+                    resultParams.SourceFiles.AddRange( predefinedParams.SourceFiles );
+                if ( predefinedParams?.NewFiles.Any() ?? false )
+                    resultParams.NewFiles.AddRange( predefinedParams.NewFiles );
+                if ( predefinedParams?.TemporaryFiles.Any() ?? false )
+                    resultParams.TemporaryFiles.AddRange( predefinedParams.TemporaryFiles );
+                if ( predefinedParams?.UniqueKeys.Any() ?? false )
+                    resultParams.UniqueKeys.AddRange( predefinedParams.UniqueKeys );
+                if ( predefinedParams?.RandomExtensions.Any() ?? false )
+                    resultParams.RandomExtensions.AddRange( predefinedParams.RandomExtensions );
+                if ( predefinedParams?.NewDirectories.Any() ?? false )
+                    resultParams.NewDirectories.AddRange( predefinedParams.NewDirectories );
+                if ( predefinedParams?.TemporaryProjects.Any() ?? false )
+                    resultParams.TemporaryProjects.AddRange( predefinedParams.TemporaryProjects );
+            }
 
             parameters = resultParams;
             return result;
