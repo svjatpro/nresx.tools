@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -10,6 +9,7 @@ namespace nresx.Tools.Formatters
 {
     public enum JsonElementType
     {
+        None,
         KeyValue,
         KeyObject,
         Object
@@ -22,6 +22,7 @@ namespace nresx.Tools.Formatters
         public string CommentProperyName { get; set; }
         public JsonElementType ElementType { get; set; }
 
+        
     }
 
     /// <summary>
@@ -98,6 +99,7 @@ namespace nresx.Tools.Formatters
 
                     var item = ParseJson( reader, elements, out var childType );
 
+                    // element property
                     if ( childType == NodeType.Value && PropertiesMap.Contains( propName.Trim().ToLower() ) )
                     {
                         hasElProperties = true;
@@ -107,24 +109,26 @@ namespace nresx.Tools.Formatters
                     else if ( childType == NodeType.Value && !PropertiesMap.Contains( propName.Trim().ToLower() ) )
                     {
                         hasElements = true;
-                        children.Add( new JObject( 
-                            new JProperty( KeyNames.First(), propName ),
-                            new JProperty( ValueNames.First(), item ) ) );
-                    }
-                    else
-                    {
-                        children.Add( item );
-                    }
+                        elements.Add( new ResourceElementJson
+                        {
+                            Key = propName,
+                            Value = item.Value<string>()?.ReplaceNewLine(),
 
-                    if ( childType == NodeType.Element && item.Type == JTokenType.Object )
+                            Type = ResourceElementType.String,
+                            ElementType = JsonElementType.KeyValue
+                        } );
+                    }
+                    // object or "key : object"
+                    else if ( childType == NodeType.Element && item.Type == JTokenType.Object )
                     {
                         hasElements = true;
-                        ( (JObject) item ).Add( KeyNames.First(), propName );
+                        ( (JObject) item ).Add( KeyNames.First(), propName ); // todo: figure out possible conflict with existing key property
+                        children.Add( item );
                     }
 
                     reader.Read();
                 }
-                
+
                 JToken obj;
                 if ( hasElements )
                 {
@@ -158,11 +162,25 @@ namespace nresx.Tools.Formatters
                 while ( reader.TokenType != JsonToken.EndArray )
                 {
                     array.Add( ParseJson( reader, elements, out var childType ) );
-                    if ( childType == NodeType.Element ) hasElements = true;
+                    if ( childType == NodeType.Element ) 
+                        hasElements = true;
                     reader.Read();
                 }
 
-                type = hasElements ? NodeType.ElementsList : NodeType.Object;
+                if ( hasElements )
+                {
+                    foreach ( var token in array )
+                    {
+                        if ( ParseElementNode( (JObject) token, out var el ) )
+                            elements.Add( el );
+                    }
+                    type = NodeType.ElementsList;
+                }
+                else
+                {
+                    type = NodeType.Object;
+                }
+
                 return array;
             }
 
@@ -184,6 +202,7 @@ namespace nresx.Tools.Formatters
             if ( LoadRawElements( stream, out var raw ) )
             {
                 elements = raw;
+                ElementHasComment = elements?.All( el => ( (ResourceElementJson) el ).ElementType != JsonElementType.KeyValue ) ?? true;
                 return true;
             }
 
@@ -224,6 +243,6 @@ namespace nresx.Tools.Formatters
         }
 
         public bool ElementHasKey => true;
-        public bool ElementHasComment => true; //
+        public bool ElementHasComment { get; private set; } = true;
     }
 }

@@ -156,8 +156,7 @@ namespace nresx.Tools
             }
 
             using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
-            var parser = type.formatter();
-            if ( parser.LoadResourceFile( stream, out var elements ) )
+            if ( SourceFormatter.LoadResourceFile( stream, out var elements ) )
             {
                 Elements = new ResourceElements(elements);
             }
@@ -274,6 +273,7 @@ namespace nresx.Tools
         #region Format info
 
         public bool ElementHasKey => SourceFormatter?.ElementHasKey ?? true;
+
         public bool ElementHasComment => SourceFormatter?.ElementHasComment ?? true;
 
         #endregion

@@ -31,7 +31,7 @@ namespace nresx.Core.Tests.ResourceFiles.Json
             res.AbsolutePath.Should().Be( Path.GetFullPath( resPath ) );
             res.FileFormat.Should().Be( ResourceFormatType.Json );
             res.ElementHasKey.Should().BeTrue();
-            //res.ElementHasComment.Should().BeFalse();
+            res.ElementHasComment.Should().Be( hasComments );
 
             //ValidateElements( res, ResourceFormatType.Json );
             res.Elements.Select( el => (el.Key, el.Value) ).Should()
