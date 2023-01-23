@@ -11,6 +11,9 @@ namespace nresx.Tools
 
     public class ResourceFileOptionJson : ResourceFileOption
     {
-
+        public string Path { get; set; }
+        public string KeyName { get; set; }
+        public string ValueName { get; set; }
+        public string CommentName { get; set; }
     }
 }

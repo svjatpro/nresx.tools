@@ -29,8 +29,6 @@ namespace nresx.Core.Tests.ResourceFiles.Json
             res.ElementHasComment.Should().Be( hasComments );
 
             ValidateElements( res );
-            //res.Elements.Select( el => (el.Key, el.Value) ).Should()
-            //    .BeEquivalentTo( GetExampleResourceFile().Elements.Select( el => (el.Key, el.Value) ) );
         }
 
         [Test]
