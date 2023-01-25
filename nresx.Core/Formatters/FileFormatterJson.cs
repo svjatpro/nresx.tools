@@ -264,19 +264,60 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
         {
             var root = new JObject();
+            var elementsRoot = root;
+            var jsonOption = options as ResourceFileOptionJson;
+            if ( !string.IsNullOrWhiteSpace( jsonOption?.Path ) )
+            {
+                var pathParts = jsonOption.Path.Split( '.' );
+                foreach ( var part in pathParts )
+                {
+                    var pathNode = new JObject();
+                    elementsRoot.Add( part, pathNode );
+                    elementsRoot = pathNode;
+                }
+            }
+
+            JArray arrayRoot = null;
+            if ( jsonOption?.ElementType == JsonElementType.Object )
+            {
+                arrayRoot = new JArray();
+                elementsRoot.Add( "strings", arrayRoot );
+            }
             
             // add elements
             foreach ( var el in elements )
             {
-                var node = new JObject();
-                node.Add( "value", el.Value );
-                if( !string.IsNullOrWhiteSpace( el.Comment ) )
-                    node.Add( "comment", el.Comment );
-                
-                root.Add( el.Key, node );
+                var elJson = el as ResourceElementJson;
+                var key = jsonOption?.KeyName ?? elJson?.KeyProperyName ?? KeyNames.First();
+                var value = jsonOption?.ValueName ?? elJson?.ValueProperyName ?? ValueNames.First();
+                var comment = jsonOption?.CommentName ?? elJson?.CommentProperyName ?? CommentNames.First();
+                JObject node;
+
+                switch ( jsonOption?.ElementType ?? JsonElementType.KeyObject )
+                {
+                    case JsonElementType.KeyObject:
+                        node = new JObject { { value, el.Value } };
+                        if ( !string.IsNullOrWhiteSpace( el.Comment ) )
+                            node.Add( comment, el.Comment );
+                        elementsRoot.Add( el.Key, node );
+                        break;
+                    case JsonElementType.KeyValue:
+                        elementsRoot.Add( el.Key, el.Value );
+                        break;
+                    case JsonElementType.Object:
+                        node = new JObject
+                        {
+                            { key, el.Key },
+                            { value, el.Value }
+                        };
+                        if ( !string.IsNullOrWhiteSpace( el.Comment ) )
+                            node.Add( comment, el.Comment );
+                        arrayRoot?.Add( node );
+                        break;
+                }
             }
 
             using var writer = new StreamWriter( stream );

@@ -81,8 +81,6 @@ namespace nresx.Core.Tests.ResourceFiles.Json
                 .Should().BeEquivalentTo( ("Entry2.Text", "Value2") );
         }
 
-        // load with custom value/comment name (make special json file with extra properties)
-
         #endregion
     }
 }

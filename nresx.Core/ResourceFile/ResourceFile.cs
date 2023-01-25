@@ -222,11 +222,11 @@ namespace nresx.Tools
 
         #region Save
 
-        public void Save( string path, bool createDir = false )
+        public void Save( string path, bool createDir = false, ResourceFileOption options = null )
         {
-            Save( path, FileFormat, createDir );
+            Save( path, FileFormat, createDir, options );
         }
-        public void Save( string path, ResourceFormatType type, bool createDir = false )
+        public void Save( string path, ResourceFormatType type, bool createDir = false, ResourceFileOption options = null )
         {
             if ( !GetTypeInfo( t => t.type == type, out var tinfo ) )
             {
@@ -251,22 +251,22 @@ namespace nresx.Tools
             }
 
             using var stream = new FileStream( targetPath, FileMode.CreateNew );
-            formatter.SaveResourceFile( stream, Elements );
+            formatter.SaveResourceFile( stream, Elements, options );
         }
 
-        public void Save( Stream stream )
+        public void Save( Stream stream, ResourceFileOption options = null )
         {
-            Save( stream, FileFormat );
+            Save( stream, FileFormat, options );
         }
 
-        public void Save( Stream stream, ResourceFormatType type )
+        public void Save( Stream stream, ResourceFormatType type, ResourceFileOption options = null )
         {
             if ( !GetTypeInfo( t => t.type == type, out var tinfo ) )
             {
                 throw new InvalidOperationException( "Unknown format" );
             }
             var formatter = tinfo.formatter( null );
-            formatter.SaveResourceFile( stream, Elements );
+            formatter.SaveResourceFile( stream, Elements, options );
         }
 
         public Stream SaveToStream()

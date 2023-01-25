@@ -190,7 +190,7 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
         {
             XNamespace xml = "http://www.w3.org/XML/1998/namespace";
             var doc = new XDocument(

@@ -171,7 +171,7 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
         {
             using var writer = new StreamWriter( stream );
             var serializer = new SerializerBuilder()
