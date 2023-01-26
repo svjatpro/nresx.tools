@@ -10,7 +10,7 @@ Command line tool for analysing and manipulation of .net localization solution.
 - Help to analyse project to extract, validate and figureout project's resources
 
 ### Supported resource formats: 
-- resx (resw) 
+- resx (resw)
 - yaml (yml)
 - json
 - plain text
