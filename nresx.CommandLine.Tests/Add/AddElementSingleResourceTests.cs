@@ -25,7 +25,7 @@ namespace nresx.CommandLine.Tests.Add
                     value = args.UniqueKeys[1],
                     comment = args.UniqueKeys.Count > 2 ? args.UniqueKeys[2] : null
                 } )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     var res = new ResourceFile( param.file );
                     res.Elements.Should().NotContain( el =>
@@ -33,7 +33,7 @@ namespace nresx.CommandLine.Tests.Add
                         el.Value == param.value &&
                         ( param.comment == null || !res.ElementHasComment || el.Comment == param.comment ) );
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     var res = new ResourceFile( param.file );
                     res.Elements.Should().Contain( el =>
@@ -53,11 +53,11 @@ namespace nresx.CommandLine.Tests.Add
             commandLine
                 .WithOptions( opt => opt.SkipFilesWithoutKey = true )
                 .WithParams( args => new { file = args.NewFiles[0].GetShortPath() } )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new FileInfo( param.file ).Exists.Should().BeFalse();
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     new FileInfo( param.file ).Exists.Should().BeFalse();
                 } )
@@ -106,11 +106,11 @@ namespace nresx.CommandLine.Tests.Add
             commandLine
                 .WithOptions( opt => opt.SkipFilesWithoutKey = true )
                 .WithParams( args => new { file = $"{GetOutputPath( $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}{args.RandomExtensions[0]}" )}" } )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new FileInfo( param.file ).Exists.Should().BeFalse();
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     new FileInfo( param.file ).Exists.Should().BeFalse();
                 } )
@@ -132,11 +132,11 @@ namespace nresx.CommandLine.Tests.Add
                     key = args.UniqueKeys[2],
                     value = args.UniqueKeys[3]
                 } )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new FileInfo( param.file ).Exists.Should().BeFalse();
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     var res = new ResourceFile( param.file );
                     res.Elements.Should().ContainSingle( el => el.Key == param.key && el.Value == param.value );

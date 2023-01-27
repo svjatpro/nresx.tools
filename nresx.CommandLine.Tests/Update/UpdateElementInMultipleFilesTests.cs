@@ -83,13 +83,13 @@ namespace nresx.CommandLine.Tests.Update
                         Type = elementToUpdate.Type
                     }
                 } )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
                     new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
                     new ResourceFile( files[2] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
                     new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
@@ -124,13 +124,13 @@ namespace nresx.CommandLine.Tests.Update
                         Type = elementToUpdate.Type
                     }
                 } )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
                     new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
                     new ResourceFile( files[2] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( elementToUpdate );
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );
                     new ResourceFile( files[1] ).Elements.Single( el => el.Key == param.updated.Key ).Should().BeEquivalentTo( param.updated );

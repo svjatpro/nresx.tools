@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -56,12 +55,6 @@ namespace nresx.Core.Tests
             return TestHelper.GetOutputPath( fileName, type );
         }
 
-        [Obsolete( "use TestHelper.Run() instead" )]
-        protected CommandLineParameters Run( string cmdLine, CommandLineParameters parameters = null )
-        {
-            return TestHelper.RunCommandLine( cmdLine, parameters );
-        }
-
         protected void ValidateElements( ResourceFile resource, ResourceFile example = null )
         {
             var validateKey = resource.ElementHasKey;
@@ -93,16 +86,6 @@ namespace nresx.Core.Tests
             var example = GetExampleResourceFile();
             foreach ( var el in example.Elements )
                 res.Elements.Add( el.Key, el.Value, el.Comment );
-        }
-
-        [Obsolete( "use TestHelper.CopyTemporaryFile() instead" )]
-        protected string CopyTemporaryFile(
-            string sourcePath = null, 
-            string destPath = null,
-            string destDir = null,
-            ResourceFormatType copyType = ResourceFormatType.Resx )
-        {
-            return TestHelper.CopyTemporaryFile( sourcePath, destPath, destDir, copyType );
         }
 
         protected List<string> PrepareGroupedFiles( string[] locales, out string fileKey, bool dirLocales = false, string dir = null )

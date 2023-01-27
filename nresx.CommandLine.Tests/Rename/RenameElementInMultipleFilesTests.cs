@@ -59,13 +59,13 @@ namespace nresx.CommandLine.Tests.Rename
                 .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } )
                 .WithParams( args => new { oldKey = elementToUpdate.Key, newKey = args.UniqueKeys[2] } )
                 .WithOptions( opt => opt.SkipFilesWithoutKey = true )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Should().NotContain( el => el.Key == param.newKey );
                     new ResourceFile( files[1] ).Elements.Should().NotContain( el => el.Key == param.newKey );
                     new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == param.newKey );
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
                     new ResourceFile( files[1] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
@@ -90,13 +90,13 @@ namespace nresx.CommandLine.Tests.Rename
                 .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } )
                 .WithParams( args => new { oldKey = elementToUpdate.Key, newKey = args.UniqueKeys[2] } )
                 .WithOptions( opt => opt.SkipFilesWithoutKey = true )
-                .ValidateDryRun( ( args, param ) =>
+                .ValidateDryRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Should().NotContain( el => el.Key == param.newKey );
                     new ResourceFile( files[1] ).Elements.Should().NotContain( el => el.Key == param.newKey );
                     new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == param.newKey );
                 } )
-                .ValidateRun( ( args, param ) =>
+                .ValidateRun( ( _, param ) =>
                 {
                     new ResourceFile( files[0] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
                     new ResourceFile( files[1] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
