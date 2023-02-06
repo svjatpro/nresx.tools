@@ -16,6 +16,9 @@ namespace nresx.CommandLine.Commands
         [Option( 'd', "destination", HelpText = "Destination resource file" )]
         public IEnumerable<string> DestinationFiles { get; set; }
 
+        [Option( "link", HelpText = "Replace raw text with resource tag in source files", Required = false, Default = false )]
+        public bool LinkResources { get; set; }
+
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
         protected override bool IsDryRunAllowed => true;
@@ -97,28 +100,27 @@ namespace nresx.CommandLine.Commands
                 var tmpFile = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() );
                 var fileChanged = false;
                 using var reader = new StreamReader( new FileStream( context.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
-                using var writer = DryRun ? null : new StreamWriter( new FileStream( tmpFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite ) );
+                using var writer = 
+                    ( DryRun ||  !LinkResources ) ? null : 
+                    new StreamWriter( new FileStream( tmpFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite ) );
                 while ( !reader.EndOfStream )
                 {
                     var line = reader.ReadLine();
                     var processedLine = parser.ExtractFromLine( line, elNamePath, out var elExtracted );
+
                     writer?.WriteLine( processedLine );
 
                     if ( elExtracted?.Count > 0 )
                     {
                         fileChanged = true;
-                        elements.AddRange( elExtracted.Select( r => new ResourceElement
-                        {
-                            Key = r.Key,
-                            Value = r.Value
-                        } ) );
+                        elements.AddRange( elExtracted.Select( r => new ResourceElement { Key = r.Key, Value = r.Value } ) );
                     }
                 }
 
-                if ( !DryRun && fileChanged )
+                reader.Close();
+                if ( !DryRun && LinkResources && fileChanged )
                 {
-                    reader.Close();
-                    writer.Close();
+                    writer?.Close();
                     new FileInfo( context.FullName ).Delete(); // todo: rename until new one moved
                     new FileInfo( tmpFile ).MoveTo( context.FullName );
                 }
@@ -132,7 +134,7 @@ namespace nresx.CommandLine.Commands
                 {
                     // write to destination file
                     if( !DryRun )
-                        destination.Elements.Add( el.Key, el.Value );
+                        destination?.Elements.Add( el.Key, el.Value );
 
                     // write to output
                     Console.WriteLine( $"\"{sourceFile.GetShortPath()}\": \"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
@@ -142,7 +144,7 @@ namespace nresx.CommandLine.Commands
             // save destination resource file
             if ( !DryRun )
             {
-                destination.Save( destFile );
+                destination?.Save( destFile );
             }
         }
     }

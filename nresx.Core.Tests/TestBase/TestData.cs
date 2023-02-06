@@ -24,7 +24,7 @@ namespace nresx.Core.Tests
         //private static readonly Random FormatTypeRandom = new( (int) DateTime.Now.Ticks );
         private static readonly Dictionary<ResourceFormatType, bool> ResourceTypes = new()
         {
-            { ResourceFormatType.Resx, true },
+            { ResourceFormatType.Resx, true }, // type, HasKey
             { ResourceFormatType.Resw, true },
             { ResourceFormatType.Yaml, true },
             { ResourceFormatType.Yml, true },

@@ -15,6 +15,8 @@ namespace nresx.Core.Tests
         public bool MergeArgs { get; set; } = false;
         public bool SkipFilesWithoutKey { get; set; } = false;
         public bool SkipFilesWithoutComment { get; set; } = false;
+
+        public string WorkingDirectory { get; set; }
     }
 
     public class TestHelper
@@ -27,7 +29,6 @@ namespace nresx.Core.Tests
         {
             const string dirPlaceholder = @"Dir\";
             var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
-            //var regx = new Regex( $"\\[{tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
             var regx = new Regex( $"\\[(Dir\\\\|){tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
             var matches = regx.Matches( resultCmdLine.ToString() );
 
@@ -142,7 +143,7 @@ namespace nresx.Core.Tests
             // get resource files and replace its paths
             ReplaceTags(
                 resultCmdLine, CommandLineTags.SourceFile,
-                ( type, dir, parameter ) =>
+                ( type, _, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
                     {
@@ -160,7 +161,7 @@ namespace nresx.Core.Tests
             // generate output files paths and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.NewFile,
-                ( type, dir, parameter ) =>
+                ( type, dir, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
                     {
@@ -179,7 +180,7 @@ namespace nresx.Core.Tests
             // generate temporary files and replace its paths
             ReplaceTags(
                 resultCmdLine, CommandLineTags.TemporaryFile,
-                ( type, dir, parameter ) =>
+                ( type, dir, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
                     {
@@ -197,7 +198,7 @@ namespace nresx.Core.Tests
             // generate unique key(s) and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.UniqueKey,
-                ( type, dir, parameter ) =>
+                ( _, _, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )
                     {
@@ -215,7 +216,7 @@ namespace nresx.Core.Tests
             // generate unique key(s) and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.RandomExtension,
-                ( type, dir, parameter ) =>
+                ( type, _, _ ) =>
                 {
                     var ext = ResourceFormatHelper.GetExtension( type );
                     resultParams.RandomExtensions.Add( ext );
@@ -226,7 +227,7 @@ namespace nresx.Core.Tests
             // create new directory
             ReplaceTags(
                 resultCmdLine, CommandLineTags.NewDir,
-                ( type, dir, parameter ) =>
+                ( _, dir, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewDirectories.TryTake( out var p ) )
                     {
@@ -249,7 +250,7 @@ namespace nresx.Core.Tests
             // create copy of the project in temporary output directory
             ReplaceTags(
                 resultCmdLine, CommandLineTags.TemporaryProjectDir,
-                ( type, dir, parameter ) =>
+                ( _, _, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryProjects.TryTake( out var p ) )
                     {
@@ -306,6 +307,8 @@ namespace nresx.Core.Tests
             var process = new Process();
             process.StartInfo = new ProcessStartInfo( "CMD.exe", cmd );
             process.StartInfo.RedirectStandardOutput = true;
+            if ( !string.IsNullOrWhiteSpace( options?.WorkingDirectory ) ) 
+                process.StartInfo.WorkingDirectory = options.WorkingDirectory;
             process.Start();
             process.WaitForExit( 5000 );
 
