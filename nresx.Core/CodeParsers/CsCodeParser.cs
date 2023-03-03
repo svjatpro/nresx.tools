@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -82,15 +83,12 @@ namespace nresx.Tools.CodeParsers
             return $"GetString(\"{key}\")";
         }
 
-        public string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements )
+        public void ProcessNextLine( string line, string elementPath,
+            Func<string, string, bool> validateElement,
+            Action<string, string> extractResourceElement,
+            Action<string> writeProcessedLine )
         {
-            var result = new Dictionary<string, string>();
-
-            if ( !ValidateLine( line ) )
-            {
-                elements = null;
-                return line;
-            }
+            if ( !ValidateLine( line ) ) return;
 
             var matchIndex = 0;
             var prevIndex = 0;
@@ -112,20 +110,24 @@ namespace nresx.Tools.CodeParsers
                     ElementsCounts.Add( keyIndex, 1 );
                 }
 
-                result.Add( key, value );
-                
+                var elementExtracted = validateElement( key, value );
+
+                if ( elementExtracted )
+                    extractResourceElement( key, value );
+
                 // add matches part to result line
                 if ( prevIndex < match.Index )
                     replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
-                replacedLine.Append( GetStringPlaceholder( key ) );
+                if( elementExtracted )
+                    replacedLine.Append( GetStringPlaceholder( key ) );
+                else
+                    replacedLine.Append( line.Substring( match.Index, match.Length ) );
                 prevIndex = match.Index + match.Length;
             }
             
-            elements = result;
-
             if( prevIndex < line.Length )
                 replacedLine.Append( line.Substring( prevIndex ) );
-            return replacedLine.ToString();
+            writeProcessedLine( replacedLine.ToString() );
         }
     }
 }

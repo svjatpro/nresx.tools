@@ -22,19 +22,33 @@ namespace nresx.Core.Tests.CodeParsers
             @"        <Button Grid.Row=""2"" x:Uid=""TheFile_Button_TheButton1""/>" )]
         public async Task ParseVariableDeclaration( string line, string elPath, string key, string value, string replacedLine )
         {
-            var newLine = new XamlCodeParser().ExtractFromLine( line, elPath, out var result );
+            string processedLine = null;
+            var result = new Dictionary<string, string>();
+
+            new XamlCodeParser().ProcessNextLine( 
+                line, elPath,
+                ( k, v ) => true,
+                ( k, v ) => result.Add( k, v ),
+                l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
 
             result.Should().BeEquivalentTo( new Dictionary<string, string>{ {key, value} } );
 
-            newLine.Should().Be( replacedLine );
+            processedLine.Should().Be( replacedLine );
         }
 
         [Test]
         public async Task DuplicatedVariableHaveIndex()
         {
-            var newLine = new XamlCodeParser().ExtractFromLine( @"<Button Grid.Row=""2"" Content=""The text""/> <Button Grid.Row=""3"" Content=""The text""/>", "TheFile", out var result );
+            string processedLine = null;
+            var result = new Dictionary<string, string>();
+
+            new XamlCodeParser().ProcessNextLine(
+                @"<Button Grid.Row=""2"" Content=""The text""/> <Button Grid.Row=""3"" Content=""The text""/>", "TheFile",
+                ( k, v ) => true,
+                ( k, v ) => result.Add( k, v ),
+                l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
 
@@ -44,7 +58,7 @@ namespace nresx.Core.Tests.CodeParsers
                 { "TheFile_Button1_TheText.Content", "The text" }
             } );
 
-            newLine.Should()
+            processedLine.Should()
                 .Be( @"<Button Grid.Row=""2"" x:Uid=""TheFile_Button_TheText""/> <Button Grid.Row=""3"" x:Uid=""TheFile_Button1_TheText""/>" );
         }
     }

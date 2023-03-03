@@ -67,7 +67,7 @@ namespace nresx.CommandLine.Commands
             };
             var dirSkipList = new HashSet<string>( StringComparer.CurrentCultureIgnoreCase )
             {
-                ".git", ".vs", "bin", "obj"
+                ".git", ".vs", "bin", "obj" //
             };
             
             var elementsMap = new Dictionary<string, List<ResourceElement>>();
@@ -106,15 +106,17 @@ namespace nresx.CommandLine.Commands
                 while ( !reader.EndOfStream )
                 {
                     var line = reader.ReadLine();
-                    var processedLine = parser.ExtractFromLine( line, elNamePath, out var elExtracted );
-
-                    writer?.WriteLine( processedLine );
-
-                    if ( elExtracted?.Count > 0 )
-                    {
-                        fileChanged = true;
-                        elements.AddRange( elExtracted.Select( r => new ResourceElement { Key = r.Key, Value = r.Value } ) );
-                    }
+                    parser.ProcessNextLine( line, elNamePath,
+                        ( key, value ) =>
+                        {
+                            return destination?.Elements.All( el => el.Key != value ) ?? true;
+                        },
+                        ( key, val ) =>
+                        {
+                            fileChanged = true;
+                            elements.Add( new ResourceElement { Key = key, Value = val } );
+                        },
+                        processedLine => writer?.WriteLine( processedLine ) );
                 }
 
                 reader.Close();
@@ -132,12 +134,18 @@ namespace nresx.CommandLine.Commands
             {
                 foreach ( var el in elementsMap[sourceFile] )
                 {
+                    var newElement = !(destination?.Elements.Any( e => e.Key == el.Key ) ?? false);
                     // write to destination file
-                    if( !DryRun )
+                    if ( !DryRun && newElement )
+                    {
                         destination?.Elements.Add( el.Key, el.Value );
+                    }
 
                     // write to output
-                    Console.WriteLine( $"\"{sourceFile.GetShortPath()}\": \"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
+                    if ( newElement )
+                    {
+                        Console.WriteLine( $"\"{sourceFile.GetShortPath()}\": \"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
+                    }
                 }
             }
 

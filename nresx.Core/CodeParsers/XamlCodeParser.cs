@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -92,10 +93,12 @@ namespace nresx.Tools.CodeParsers
             return $" x:Uid=\"{keyRef}\"";
         }
 
-        public string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements )
+        public void ProcessNextLine(
+            string line, string elementPath,
+            Func<string, string, bool> validateElement,
+            Action<string, string> extractResourceElement,
+            Action<string> writeProcessedLine )
         {
-            var result = new Dictionary<string, string>();
-
             var matchIndex = 0;
             var prevIndex = 0;
             var replacedLine = new StringBuilder();
@@ -104,7 +107,7 @@ namespace nresx.Tools.CodeParsers
             {
                 if ( !GetValue( match, out var value ) ) continue;
                 var key = GenerateElementName( line, elementPath, match, ref matchIndex );
-                result.Add( key, value );
+                extractResourceElement( key, value );
 
                 // add matches part to result line
                 if ( prevIndex < match.Index )
@@ -112,12 +115,10 @@ namespace nresx.Tools.CodeParsers
                 replacedLine.Append( GetStringPlaceholder( key ) );
                 prevIndex = match.Index + match.Length;
             }
-            
-            elements = result;
 
             if ( prevIndex < line.Length )
                 replacedLine.Append( line.Substring( prevIndex ) );
-            return replacedLine.ToString();
+            writeProcessedLine( replacedLine.ToString() );
         }
     }
 }

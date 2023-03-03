@@ -2,8 +2,8 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "validate",
-      "workingDirectory": "D:\\_Projects\\nresx.tools\\nresx.CommandLine.Tests\\bin\\Debug\\net7.0"
+      "commandLineArgs": "generate -s D:\\Tmp\\appUwp\\* -r -d res.json --new-file --dry-run",
+      "workingDirectory": "D:\\Tmp"
     }
   }
 }
