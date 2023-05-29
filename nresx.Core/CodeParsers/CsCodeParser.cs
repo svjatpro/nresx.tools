@@ -80,7 +80,8 @@ namespace nresx.Tools.CodeParsers
 
         private string GetStringPlaceholder( string key )
         {
-            return $"GetString(\"{key}\")";
+            //return $"GetString(\"{key}\")";
+            return $"GetStringLocale(\"{key}\")";
         }
 
         public void ProcessNextLine( string line, string elementPath,

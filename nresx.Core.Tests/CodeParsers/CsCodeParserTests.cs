@@ -11,17 +11,17 @@ namespace nresx.Core.Tests.CodeParsers
     public class CsCodeParserTests : TestBase
     {
         [TestCase( @"        public string Description = ""The long description""; ", "TheFile", 
-            "TheFile_Description", "The long description", @"        public string Description = GetString(""TheFile_Description""); " )]
+            "TheFile_Description", "The long description", @"        public string Description = GetStringLocale(""TheFile_Description""); " )]
         [TestCase( @"var description = ""The long description"";", "TheFile", 
-            "TheFile_Description", "The long description", @"var description = GetString(""TheFile_Description"");" )]
+            "TheFile_Description", "The long description", @"var description = GetStringLocale(""TheFile_Description"");" )]
         
         [TestCase( @"string description => ""The long description"";", "TheFile", 
-            "TheFile_Description", "The long description", @"string description => GetString(""TheFile_Description"");" )]
+            "TheFile_Description", "The long description", @"string description => GetStringLocale(""TheFile_Description"");" )]
         [TestCase( @"private static string Description => ""The long description""; ", "TheFile", 
-            "TheFile_Description", "The long description", @"private static string Description => GetString(""TheFile_Description""); " )]
+            "TheFile_Description", "The long description", @"private static string Description => GetStringLocale(""TheFile_Description""); " )]
 
         [TestCase( @"var prop1 = obj2.TheMethod3( ""The long description"" );", "TheFile", 
-            "TheFile_TheLong", "The long description", @"var prop1 = obj2.TheMethod3( GetString(""TheFile_TheLong"") );" )]
+            "TheFile_TheLong", "The long description", @"var prop1 = obj2.TheMethod3( GetStringLocale(""TheFile_TheLong"") );" )]
         
         public async Task ParseVariableDeclaration( string line, string elPath, string key, string value, string newLine )
         {
@@ -60,7 +60,7 @@ namespace nresx.Core.Tests.CodeParsers
                 { "TheFile_TheText1", "The text" }
             } );
 
-            processedLine.Should().Be( @"var prop1 = obj2.TheMethod3( GetString(""TheFile_TheText""), GetString(""TheFile_TheText1"") );" );
+            processedLine.Should().Be( @"var prop1 = obj2.TheMethod3( GetStringLocale(""TheFile_TheText""), GetStringLocale(""TheFile_TheText1"") );" );
         }
     }
 }
