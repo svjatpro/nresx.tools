@@ -84,7 +84,8 @@ namespace nresx.Tools.CodeParsers
             return $"GetStringLocale(\"{key}\")";
         }
 
-        public void ProcessNextLine( string line, string elementPath,
+        public void ProcessNextLine( 
+            string line, string elementPath,
             Func<string, string, bool> validateElement,
             Action<string, string> extractResourceElement,
             Action<string> writeProcessedLine )

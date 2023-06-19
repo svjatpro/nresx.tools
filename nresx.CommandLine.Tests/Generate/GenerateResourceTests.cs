@@ -192,6 +192,22 @@ namespace nresx.CommandLine.Tests.Generate
                 } );
         }
 
+        #endregion
+
+        #region Exclude dir
+
+        [TestCase( @"generate [TmpProj.appUwp]\* -d [NewFile] -r --new-file --exclude ""obj""", 4 )]
+        [TestCase( @"generate [TmpProj.appUwp]\* -d [NewFile] -r --new-file --exclude ""obj2""", 6 )]
+        public void ExcludeDir( string commandLine, int resourceCount )
+        {
+            commandLine
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateRun( args =>
+                {
+                    var res = new ResourceFile( args.NewFiles[0] );
+                    res.Elements.Should().HaveCount( resourceCount );
+                } );
+        }
 
         #endregion
     }

@@ -19,6 +19,9 @@ namespace nresx.CommandLine.Commands
         [Option( "link", HelpText = "Replace raw text with resource tag in source files", Required = false, Default = false )]
         public bool LinkResources { get; set; }
 
+        [Option( "exclude", HelpText = "Define directories, which will be excluded during", Required = false, Default = null )]
+        public string ExcludeDir { get; set; }
+
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
         protected override bool IsDryRunAllowed => true;
@@ -28,7 +31,7 @@ namespace nresx.CommandLine.Commands
 
         private bool ValidateFile( string path )
         {
-            //
+            // check if path is null or empty
 
             return true;
         }
@@ -65,10 +68,12 @@ namespace nresx.CommandLine.Commands
                 { ".cs", new CsCodeParser() },
                 { ".xaml", new XamlCodeParser() }
             };
-            var dirSkipList = new HashSet<string>( StringComparer.CurrentCultureIgnoreCase )
-            {
-                ".git", ".vs", "bin", "obj" //
-            };
+            var dirSkipList = 
+                string.IsNullOrWhiteSpace( ExcludeDir ) ?
+                new [] { ".git", ".vs", "bin", "obj" } :
+                ExcludeDir
+                    .Split( ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries )
+                    .ToArray();
             
             var elementsMap = new Dictionary<string, List<ResourceElement>>();
             ForEachFile( sourceFiles, context =>

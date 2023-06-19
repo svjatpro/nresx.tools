@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "generate -s D:\\Tmp\\appUwp\\* -r -d res.json --new-file --dry-run",
+      "commandLineArgs": "generate .test_output\\appUwp_k9zjWoC4\\* -d .test_output\\Y11W79Bc.resx -r --new-file",
       "workingDirectory": "D:\\Tmp"
     }
   }

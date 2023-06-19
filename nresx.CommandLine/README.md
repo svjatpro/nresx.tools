@@ -26,7 +26,7 @@ nresx convert [-s] <pathspec> [-d <pathspec>] [-f <format>] [--dry-run] [--recur
 **-r | --recursive**  Process resource files in subdirectories\
 **-d | --destination**  Destination resource file(s), can be a pathspec\
 **-f | --format**  Format of destination file(s)\
-**--dry-run** 
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -73,7 +73,7 @@ nresx format [-s] <pathspec>
 **--start-with**  Add or remove new part at the beginning of elements value\
 **--end-with**  Add or remove new part at the end of elements value\
 **--delete**  remove format pattern from element value\
-**--dry-run** 
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -159,7 +159,7 @@ nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comme
 **-k | --key**  Element key\
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
-**--dry-run**
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -194,7 +194,7 @@ nresx update [-s] <pathspec> -k <element key> [-v <element value>] [-c <element 
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
 **--new-element** Will create new element, if it not exist\
-**--dry-run**
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -228,7 +228,7 @@ nresx rename [-s] <pathspec> -k <element key> -n <new key>
 **-r | --recursive**  Process resource files in subdirectories\
 **-k | --key**  Element key\
 **-n | --new-key**  New key\
-**--dry-run**
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -258,7 +258,7 @@ nresx remove [-s] <pathspec> [<pathspec> ..] [-k <element key> [<element key> ..
 **--empty**  Will remove all elements with empty key OR value\
 **--empty-key**  Will remove all elements with empty key\
 **--empty-value**  Will remove all elements with empty value\
-**--dry-run** 
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -293,7 +293,7 @@ nresx copy [-s] <pathspec> [-d] <pathspec>
 **-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **--skip**  Will skip duplicated elements (default option)
 **--overwrite**  Will overwrite duplicated elements
-**--dry-run**
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
@@ -344,6 +344,9 @@ nresx generate [-s] <pathspec> [-d] <pathspec> [--recursive] [--dry-run]
 **-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-f | --format**  Format of destination file(s)\
 **--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
+**--link** We will replace the existing texts in the project's source code with links to localized resources.
+**--exclude** Exclude directories when generating resources. By default it equals to ".git,.vs,bin,obj"
 
 #### Examples
 
