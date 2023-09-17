@@ -17,7 +17,7 @@ namespace nresx.CommandLine.Commands
         [Option( 't', "template", HelpText = "Resource element output template.\n \\k - element key, \\v - element value, \\c - element comment" )]
         public string Template { get; set; }
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Single( SourceFiles, out var source, mandatory: true )

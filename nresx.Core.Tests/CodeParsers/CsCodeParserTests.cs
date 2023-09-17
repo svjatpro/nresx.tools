@@ -23,14 +23,17 @@ namespace nresx.Core.Tests.CodeParsers
         [TestCase( @"var prop1 = obj2.TheMethod3( ""The long description"" );", "TheFile", 
             "TheFile_TheLong", "The long description", @"var prop1 = obj2.TheMethod3( GetStringLocale(""TheFile_TheLong"") );" )]
         
-        public async Task ParseVariableDeclaration( string line, string elPath, string key, string value, string newLine )
+        public Task ParseVariableDeclaration( string line, string elPath, string key, string value, string newLine )
         {
             string processedLine = null;
             var result = new Dictionary<string, string>();
 
             new CsCodeParser().ProcessNextLine( line, elPath,
-                ( k, v ) => true,
-                ( k, v ) => result.Add( k, v ),
+                ( k, v ) =>
+                {
+                    result.Add( k, v );
+                    return k;
+                },
                 l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
@@ -38,18 +41,22 @@ namespace nresx.Core.Tests.CodeParsers
             result.Should().BeEquivalentTo( new Dictionary<string, string>{ {key, value} } );
 
             processedLine.Should().Be( newLine );
+            return Task.CompletedTask;
         }
 
         [Test]
-        public async Task DuplicatedVariableHaveIndex()
+        public Task DuplicatedVariableHaveIndex()
         {
             string processedLine = null;
             var result = new Dictionary<string, string>();
 
             new CsCodeParser().ProcessNextLine( 
                 @"var prop1 = obj2.TheMethod3( ""The text"", ""The text"" );", "TheFile",
-                ( k, v ) => true,
-                ( k, v ) => result.Add( k, v ),
+                ( k, v ) =>
+                {
+                    result.Add( k, v );
+                    return k;
+                },
                 l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
@@ -61,6 +68,7 @@ namespace nresx.Core.Tests.CodeParsers
             } );
 
             processedLine.Should().Be( @"var prop1 = obj2.TheMethod3( GetStringLocale(""TheFile_TheText""), GetStringLocale(""TheFile_TheText1"") );" );
+            return Task.CompletedTask;
         }
     }
 }

@@ -86,8 +86,9 @@ namespace nresx.Tools.CodeParsers
 
         public void ProcessNextLine( 
             string line, string elementPath,
-            Func<string, string, bool> validateElement,
-            Action<string, string> extractResourceElement,
+            //Func<string, string, bool> validateElement,
+            //Action<string, string> extractResourceElement,
+            Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine )
         {
             if ( !ValidateLine( line ) ) return;
@@ -112,19 +113,28 @@ namespace nresx.Tools.CodeParsers
                     ElementsCounts.Add( keyIndex, 1 );
                 }
 
-                var elementExtracted = validateElement( key, value );
+                var newKey = processExtractedElement( key, value );
 
-                if ( elementExtracted )
-                    extractResourceElement( key, value );
-
-                // add matches part to result line
                 if ( prevIndex < match.Index )
                     replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
-                if( elementExtracted )
+                if ( newKey != null )
                     replacedLine.Append( GetStringPlaceholder( key ) );
                 else
                     replacedLine.Append( line.Substring( match.Index, match.Length ) );
                 prevIndex = match.Index + match.Length;
+
+                //var elementValidated = validateElement( key, value );
+                //if ( elementValidated )
+                //    extractResourceElement( key, value );
+
+                // add matches part to result line
+                //if ( prevIndex < match.Index )
+                //    replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
+                //if( elementValidated )
+                //    replacedLine.Append( GetStringPlaceholder( key ) );
+                //else
+                //    replacedLine.Append( line.Substring( match.Index, match.Length ) );
+                //prevIndex = match.Index + match.Length;
             }
             
             if( prevIndex < line.Length )

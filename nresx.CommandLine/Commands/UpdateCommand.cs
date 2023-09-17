@@ -21,7 +21,7 @@ namespace nresx.CommandLine.Commands
         protected override bool IsCreateNewElementAllowed => true;
         protected override bool IsRecursiveAllowed => true;
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )

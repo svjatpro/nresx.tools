@@ -301,16 +301,29 @@ namespace nresx.Core.Tests
             CommandLineParameters parameters = null,
             CommandRunOptions options = null )
         {
-            var args = PrepareCommandLine( cmdLine, out var p, parameters, options );
+            var debugCommandLine = false;
+#if DEBUG
+            bool.TryParse( Environment.GetEnvironmentVariable( "DEBUG_COMMAND_LINE" ), out debugCommandLine );
+#endif
 
-            var cmd = $"/C nresx {args}";
+            var args = PrepareCommandLine( cmdLine, out var p, parameters, options );
+            if( debugCommandLine )
+                args += " --debug";
+
             var process = new Process();
-            process.StartInfo = new ProcessStartInfo( "CMD.exe", cmd );
+            
+            process.StartInfo = new ProcessStartInfo( "nresx", args );
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
             if ( !string.IsNullOrWhiteSpace( options?.WorkingDirectory ) ) 
                 process.StartInfo.WorkingDirectory = options.WorkingDirectory;
+
             process.Start();
-            process.WaitForExit( 5000 );
+            if ( debugCommandLine )
+                process.WaitForExit();
+            else
+                process.WaitForExit( 5000 );
 
             p.ExitCode = process.ExitCode;
 
@@ -320,8 +333,8 @@ namespace nresx.Core.Tests
                 p.ConsoleOutput.Add( line );
             }
 
-            Console.WriteLine( $"============ command line run: =============" );
-            Console.WriteLine( cmd );
+            Console.WriteLine( $@"============ command line run: =============" );
+            Console.WriteLine( $@"nresx {args}" );
             Console.WriteLine( new string( '=', 50 ) );
             foreach ( var line in p.ConsoleOutput )
                 Console.WriteLine( line );

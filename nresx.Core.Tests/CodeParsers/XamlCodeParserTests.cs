@@ -20,15 +20,18 @@ namespace nresx.Core.Tests.CodeParsers
         [TestCase( @"        <Button Grid.Row=""2"" Content=""The Button1""/>",
             "TheFile", "TheFile_Button_TheButton1.Content", "The Button1",
             @"        <Button Grid.Row=""2"" x:Uid=""TheFile_Button_TheButton1""/>" )]
-        public async Task ParseVariableDeclaration( string line, string elPath, string key, string value, string replacedLine )
+        public Task ParseVariableDeclaration( string line, string elPath, string key, string value, string replacedLine )
         {
             string processedLine = null;
             var result = new Dictionary<string, string>();
 
             new XamlCodeParser().ProcessNextLine( 
                 line, elPath,
-                ( k, v ) => true,
-                ( k, v ) => result.Add( k, v ),
+                ( k, v ) =>
+                {
+                    result.Add( k, v );
+                    return k;
+                },
                 l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
@@ -36,18 +39,22 @@ namespace nresx.Core.Tests.CodeParsers
             result.Should().BeEquivalentTo( new Dictionary<string, string>{ {key, value} } );
 
             processedLine.Should().Be( replacedLine );
+            return Task.CompletedTask;
         }
 
         [Test]
-        public async Task DuplicatedVariableHaveIndex()
+        public Task DuplicatedVariableHaveIndex()
         {
             string processedLine = null;
             var result = new Dictionary<string, string>();
 
             new XamlCodeParser().ProcessNextLine(
                 @"<Button Grid.Row=""2"" Content=""The text""/> <Button Grid.Row=""3"" Content=""The text""/>", "TheFile",
-                ( k, v ) => true,
-                ( k, v ) => result.Add( k, v ),
+                ( k, v ) =>
+                {
+                    result.Add( k, v );
+                    return k;
+                },
                 l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
@@ -60,6 +67,7 @@ namespace nresx.Core.Tests.CodeParsers
 
             processedLine.Should()
                 .Be( @"<Button Grid.Row=""2"" x:Uid=""TheFile_Button_TheText""/> <Button Grid.Row=""3"" x:Uid=""TheFile_Button1_TheText""/>" );
+            return Task.CompletedTask;
         }
     }
 }

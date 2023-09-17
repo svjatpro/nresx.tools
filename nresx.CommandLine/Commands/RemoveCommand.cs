@@ -28,7 +28,7 @@ namespace nresx.CommandLine.Commands
         //[Option( "duplicates", HelpText = "Remove all empty elements - key or value" )]
         //public bool Duplicates { get; set; }
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )

@@ -23,7 +23,7 @@ namespace nresx.CommandLine.Commands
         protected override bool IsCreateNewFileAllowed => true;
         protected override bool IsFormatAllowed => true;
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true )

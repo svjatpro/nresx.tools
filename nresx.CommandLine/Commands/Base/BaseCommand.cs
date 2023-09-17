@@ -73,9 +73,30 @@ namespace nresx.CommandLine.Commands
         public bool DryRun { get; set; }
         protected virtual bool IsDryRunAllowed => true;
 
+        [Option( "debug", HelpText = "Debug command", Hidden = true )]
+        public bool Debugger { get; set; }
+
         #endregion
 
-        public abstract void Execute();
+        public virtual void Execute()
+        {
+#if DEBUG // available only in debug configuration (not for release)
+            
+            if ( Debugger ) // while this is --debug option for nresx command line
+            {
+                Console.WriteLine();
+                Console.WriteLine( @"============== Debugger mode! ==============" );
+                Console.WriteLine();
+
+                System.Diagnostics.Debugger.Launch();
+            }
+
+#endif
+
+            ExecuteCommand();
+        }
+
+        protected abstract void ExecuteCommand();
 
         public bool Successful { get; protected set; } = true;
         public Exception Exception { get; protected set; } = null;

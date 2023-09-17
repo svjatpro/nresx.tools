@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
@@ -27,6 +28,12 @@ namespace nresx.CommandLine.Commands
         protected override bool IsDryRunAllowed => true;
         protected override bool IsCreateNewFileAllowed => true;
 
+        #region Private members
+
+        private readonly Regex KeyIndexRegex = new( @"(\d+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
+
+        #endregion
+
         #region Private methods
 
         private bool ValidateFile( string path )
@@ -36,12 +43,30 @@ namespace nresx.CommandLine.Commands
             return true;
         }
 
+        private string IncrementKey( string key, List<ResourceElement> elements )
+        {
+            var keyIndexMatch = KeyIndexRegex.Match( key );
+            var index = 0;
+            var keyCore = key;
+            string newKey;
+            if ( keyIndexMatch.Success )
+            {
+                index = int.Parse( keyIndexMatch.Groups[1].Value );
+                keyCore = key.Substring( 0, key.Length - keyIndexMatch.Groups[1].Value.Length );
+            }
+
+            do { newKey = $"{keyCore}{++index}"; } 
+            while ( elements.Any( el => el.Key == newKey ) );
+
+            return newKey;
+        }
+
         #endregion
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
-                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true ) 
                 .Single( DestinationFiles, out var destFile, mandatory: !DryRun )
                 .Validate();
             if ( !optionsParsed )
@@ -104,6 +129,13 @@ namespace nresx.CommandLine.Commands
 
                 var tmpFile = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() );
                 var fileChanged = false;
+                string AddNewElement( string key1, string value1 )
+                {
+                    fileChanged = true;
+                    elements.Add( new ResourceElement { Key = key1, Value = value1 } );
+                    return key1;
+                }
+
                 using var reader = new StreamReader( new FileStream( context.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
                 using var writer = 
                     ( DryRun ||  !LinkResources ) ? null : 
@@ -114,14 +146,51 @@ namespace nresx.CommandLine.Commands
                     parser.ProcessNextLine( line, elNamePath,
                         ( key, value ) =>
                         {
-                            return destination?.Elements.All( el => el.Key != value ) ?? true;
+                            var existingElement = destination?.Elements.FirstOrDefault( el => el.Key == key );
+                            if ( existingElement != null )
+                            {
+                                //  1. the key already exists, and value is the same, no need to generate new one
+                                if ( existingElement.Value == value )
+                                    return key;
+
+                                //  2. the key already exists, but value is different, generate new element
+                                return AddNewElement( IncrementKey( key, elements ), value );
+                            }
+
+                            // 5. try to localize already localized entry
+                            if ( destination?.Elements.Any( el => el.Key == value ) ?? false )
+                                return null;
+
+                            // 4. the key doesn't exist, but value is the same, reuse existing element
+                            var existingValue = destination?.Elements.FirstOrDefault( el => el.Value == value );
+                            if ( existingValue != null )
+                                return existingValue.Key;
+
+                            // 3. the key doesn't exist, new one
+                            return AddNewElement( key, value );
+
+                            //return destination?.Elements.All( el => el.Key != key && el.Value != value ) ?? true;
+
                         },
-                        ( key, val ) =>
-                        {
-                            fileChanged = true;
-                            elements.Add( new ResourceElement { Key = key, Value = val } );
-                        },
+                        //( key, val ) =>
+                        //{
+                        //    fileChanged = true;
+                        //    elements.Add( new ResourceElement { Key = key, Value = val } );
+                        //},
                         processedLine => writer?.WriteLine( processedLine ) );
+
+                    //parser.ProcessNextLine( line, elNamePath,
+                    //    ( key, value ) =>
+                    //    {
+                    //        //return destination?.Elements.All( el => el.Key != value ) ?? true;
+                    //        return destination?.Elements.All( el => el.Key != key && el.Value != value ) ?? true;
+                    //    },
+                    //    ( key, val ) =>
+                    //    {
+                    //        fileChanged = true;
+                    //        elements.Add( new ResourceElement { Key = key, Value = val } );
+                    //    },
+                    //    processedLine => writer?.WriteLine( processedLine ) );
                 }
 
                 reader.Close();

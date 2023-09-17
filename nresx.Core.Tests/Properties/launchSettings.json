@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "nresx.Core.Tests": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
@@ -157,7 +158,7 @@ namespace nresx.CommandLine.Tests.Generate
                     args.ConsoleOutput.Should().BeEmpty();
                 } );
         }
-
+        
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.po] --new-file --link" )]
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.json] -f json --new-file --link" )]
         public void DoNotOverwriteLinkedResources( string commandLine )
@@ -194,6 +195,45 @@ namespace nresx.CommandLine.Tests.Generate
 
         #endregion
 
+        #region Reuse resources
+
+        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.po] --new-file" )]
+        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.json] -f json --new-file" )]
+        public void ReuseResourceWithTheSameKeyAndValue( string commandLine )
+        {
+            var argsFirst = TestHelper.RunCommandLine(
+                commandLine,
+                options: new CommandRunOptions { SkipFilesWithoutKey = true, MergeArgs = true } );
+
+            var res = new ResourceFile( argsFirst.NewFiles[0] );
+            res.Elements[0].Value += " (modified)";
+            res.Save( res.AbsolutePath );
+
+            commandLine
+                .PrepareArgs( () => argsFirst )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateRun( args =>
+                {
+                    var res = new ResourceFile( args.NewFiles[0] );
+                    res.Elements.Should().HaveCount( 5 );
+                    res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle.Text1" && el.Value == "The title" );
+                    //res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle1.Text" && el.Value == "The title (modified)" );
+                    res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle.Text" && el.Value == "The title (modified)" );
+                    
+                    var dir = args.TemporaryProjects[0];
+                    File.ReadAllText( $"{dir}\\MainPage.xaml" ).Should()
+                        .Contain( "x:Uid=\"MainPage_SampleTitle1\"" );
+                } )
+                .ValidateStdout( args =>
+                {
+                    var dir = Path.GetFileName( args.TemporaryProjects[0] );
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        @$"""{dir}\MainPage.xaml"": ""The title"" string has been extracted to ""MainPage_SampleTitle1.Text"" resource element" );
+                } );
+        }
+
+        #endregion
+
         #region Exclude dir
 
         [TestCase( @"generate [TmpProj.appUwp]\* -d [NewFile] -r --new-file --exclude ""obj""", 4 )]
@@ -210,5 +250,6 @@ namespace nresx.CommandLine.Tests.Generate
         }
 
         #endregion
+
     }
 }

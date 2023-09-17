@@ -156,7 +156,21 @@ namespace nresx.Core.Tests
         }
 
         #endregion
-        
+
+        #region Run
+
+        public static CommandRunContext Run( this string commandLine )
+        {
+            return commandLine.ValidateRun( () => { } );
+        }
+
+        public static CommandRunContext Run( this CommandRunContext context )
+        {
+            return context.ValidateRun( () => { } );
+        }
+
+        #endregion
+
         #region ValidateRun
 
         public static CommandRunContext ValidateRun( this string commandLine, Action<CommandLineParameters> validateAction )
