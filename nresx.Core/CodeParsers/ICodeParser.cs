@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace nresx.Tools.CodeParsers
 {
@@ -6,9 +7,9 @@ namespace nresx.Tools.CodeParsers
     {
         void ProcessNextLine( 
             string line, string elementPath,
-            //Func<string, string, bool> validateElement,
-            //Action<string, string> extractResourceElement,
             Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine );
+
+        string IncrementKey( string key, List<ResourceElement> elements );
     }
 }

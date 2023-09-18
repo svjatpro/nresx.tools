@@ -301,9 +301,10 @@ namespace nresx.Core.Tests
             CommandLineParameters parameters = null,
             CommandRunOptions options = null )
         {
-            var debugCommandLine = false;
 #if DEBUG
-            bool.TryParse( Environment.GetEnvironmentVariable( "DEBUG_COMMAND_LINE" ), out debugCommandLine );
+            bool.TryParse( Environment.GetEnvironmentVariable( "DEBUG_COMMAND_LINE" ), out var debugCommandLine );
+#else
+            var debugCommandLine = false;
 #endif
 
             var args = PrepareCommandLine( cmdLine, out var p, parameters, options );

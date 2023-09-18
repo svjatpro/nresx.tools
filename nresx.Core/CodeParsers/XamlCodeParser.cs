@@ -7,7 +7,7 @@ using nresx.Tools.Extensions;
 
 namespace nresx.Tools.CodeParsers
 {
-    public class XamlCodeParser : ICodeParser
+    public class XamlCodeParser : CodeParserBase
     {
         private readonly Dictionary<string, int> ElementsCounts = new();
 
@@ -57,7 +57,7 @@ namespace nresx.Tools.CodeParsers
                 var tagMatch = ElementTagRegex.Match( line, prevIndex, match.Length + match.Index - prevIndex + 1 );
                 if ( tagMatch.Success )
                 {
-                    var tag = tagMatch.Groups[1].Value.ToFirstCapital();
+                    //var tag = tagMatch.Groups[1].Value.ToFirstCapital();
                     keyCore = $"{elementPath}_{tagMatch.Groups[1].Value.ToFirstCapital()}";
                     keyExtra = $"_{valueKey}.{prop}";
                     key = $"{keyCore}{keyExtra}";
@@ -93,10 +93,8 @@ namespace nresx.Tools.CodeParsers
             return $" x:Uid=\"{keyRef}\"";
         }
 
-        public void ProcessNextLine(
+        public override void ProcessNextLine(
             string line, string elementPath,
-            //Func<string, string, bool> validateElement,
-            //Action<string, string> extractResourceElement,
             Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine )
         {
@@ -120,22 +118,22 @@ namespace nresx.Tools.CodeParsers
                     replacedLine.Append( line.Substring( match.Index, match.Length ) );
 
                 prevIndex = match.Index + match.Length;
-                
-                //var elementValidated = validateElement( key, value );
-                //if ( elementValidated )
-                //    extractResourceElement( key, value );
-                //extractResourceElement( key, value );
-
-                //// add matches part to result line
-                //if ( prevIndex < match.Index )
-                //    replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
-                //replacedLine.Append( GetStringPlaceholder( key ) );
-                //prevIndex = match.Index + match.Length;
             }
 
             if ( prevIndex < line.Length )
                 replacedLine.Append( line.Substring( prevIndex ) );
             writeProcessedLine( replacedLine.ToString() );
+        }
+
+        public override string IncrementKey( string key, List<ResourceElement> elements )
+        {
+            var parts = key.Split( '.' );
+            if ( parts.Length > 1 )
+            {
+                var newKeyCore = IncrementKeyName( key.Substring( 0, key.Length - parts.Last().Length - 1 ), elements );
+                return $"{newKeyCore}.{parts.Last()}";
+            }
+            return IncrementKeyName( key, elements );
         }
     }
 }

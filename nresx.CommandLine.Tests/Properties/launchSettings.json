@@ -3,7 +3,7 @@
     "nresx.CommandLine.Tests": {
       "commandName": "Project",
       "environmentVariables": {
-        "DEBUG_COMMAND_LINE": "true"
+        "DEBUG_COMMAND_LINE": "false"
       }
     }
   }

@@ -7,7 +7,7 @@ using nresx.Tools.Extensions;
 
 namespace nresx.Tools.CodeParsers
 {
-    public class CsCodeParser : ICodeParser
+    public class CsCodeParser : CodeParserBase
     {
         private readonly Dictionary<string, int> ElementsCounts = new();
 
@@ -80,14 +80,11 @@ namespace nresx.Tools.CodeParsers
 
         private string GetStringPlaceholder( string key )
         {
-            //return $"GetString(\"{key}\")";
             return $"GetStringLocale(\"{key}\")";
         }
 
-        public void ProcessNextLine( 
+        public override void ProcessNextLine( 
             string line, string elementPath,
-            //Func<string, string, bool> validateElement,
-            //Action<string, string> extractResourceElement,
             Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine )
         {
@@ -122,19 +119,6 @@ namespace nresx.Tools.CodeParsers
                 else
                     replacedLine.Append( line.Substring( match.Index, match.Length ) );
                 prevIndex = match.Index + match.Length;
-
-                //var elementValidated = validateElement( key, value );
-                //if ( elementValidated )
-                //    extractResourceElement( key, value );
-
-                // add matches part to result line
-                //if ( prevIndex < match.Index )
-                //    replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
-                //if( elementValidated )
-                //    replacedLine.Append( GetStringPlaceholder( key ) );
-                //else
-                //    replacedLine.Append( line.Substring( match.Index, match.Length ) );
-                //prevIndex = match.Index + match.Length;
             }
             
             if( prevIndex < line.Length )

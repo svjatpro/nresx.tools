@@ -199,14 +199,15 @@ namespace nresx.CommandLine.Tests.Generate
 
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.po] --new-file" )]
         [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.json] -f json --new-file" )]
-        public void ReuseResourceWithTheSameKeyAndValue( string commandLine )
+        public void ReuseResourceWithTheDifferentValue( string commandLine )
         {
             var argsFirst = TestHelper.RunCommandLine(
                 commandLine,
                 options: new CommandRunOptions { SkipFilesWithoutKey = true, MergeArgs = true } );
 
             var res = new ResourceFile( argsFirst.NewFiles[0] );
-            res.Elements[0].Value += " (modified)";
+            res.Elements[0].Value += " (modified)"; // .xaml
+            res.Elements[2].Value += " (modified)"; // .cs
             res.Save( res.AbsolutePath );
 
             commandLine
@@ -215,20 +216,53 @@ namespace nresx.CommandLine.Tests.Generate
                 .ValidateRun( args =>
                 {
                     var res = new ResourceFile( args.NewFiles[0] );
-                    res.Elements.Should().HaveCount( 5 );
-                    res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle.Text1" && el.Value == "The title" );
-                    //res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle1.Text" && el.Value == "The title (modified)" );
+                    res.Elements.Should().HaveCount( 6 );
+                    res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle1.Text" && el.Value == "The title" );
                     res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle.Text" && el.Value == "The title (modified)" );
-                    
-                    var dir = args.TemporaryProjects[0];
-                    File.ReadAllText( $"{dir}\\MainPage.xaml" ).Should()
-                        .Contain( "x:Uid=\"MainPage_SampleTitle1\"" );
+                    res.Elements.Should().Contain( el => el.Key == "MainViewModel_Description1" && el.Value == "The long description" );
+                    res.Elements.Should().Contain( el => el.Key == "MainViewModel_Description" && el.Value == "The long description (modified)" );
                 } )
                 .ValidateStdout( args =>
                 {
                     var dir = Path.GetFileName( args.TemporaryProjects[0] );
                     args.ConsoleOutput.Should().BeEquivalentTo(
+                        @$"""{dir}\MainViewModel.cs"": ""The long description"" string has been extracted to ""MainViewModel_Description1"" resource element",
                         @$"""{dir}\MainPage.xaml"": ""The title"" string has been extracted to ""MainPage_SampleTitle1.Text"" resource element" );
+                } );
+        }
+
+        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.po] --link --new-file" )]
+        [TestCase( @"generate -s [TmpProj.appUwp]\* -r -d [NewFile.json] -f json --link --new-file" )]
+        public void DoNotOverrideAlreadyReplacedResource( string commandLine )
+        {
+            var argsFirst = TestHelper.RunCommandLine(
+                commandLine,
+                options: new CommandRunOptions { SkipFilesWithoutKey = true, MergeArgs = true } );
+
+            var res = new ResourceFile( argsFirst.NewFiles[0] );
+            res.Elements[0].Value += " (modified)"; // .xaml
+            res.Elements[2].Value += " (modified)"; // .cs
+            res.Save( res.AbsolutePath );
+
+            commandLine
+                .PrepareArgs( () => argsFirst )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateRun( args =>
+                {
+                    var res = new ResourceFile( args.NewFiles[0] );
+                    res.Elements.Should().HaveCount( 4 );
+                    res.Elements.Should().Contain( el => el.Key == "MainPage_SampleTitle.Text" && el.Value == "The title (modified)" );
+                    res.Elements.Should().Contain( el => el.Key == "MainViewModel_Description" && el.Value == "The long description (modified)" );
+
+                    var dir = args.TemporaryProjects[0];
+                    File.ReadAllText( $"{dir}\\MainPage.xaml" ).Should()
+                        .Contain( "x:Uid=\"MainPage_SampleTitle\"" );
+                    File.ReadAllText( $"{dir}\\MainViewModel.cs" ).Should()
+                        .Contain( "public string Description => GetStringLocale(\"MainViewModel_Description\");" );
+                } )
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEmpty();
                 } );
         }
 

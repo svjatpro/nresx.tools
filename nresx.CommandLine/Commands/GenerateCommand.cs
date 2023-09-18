@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
@@ -28,37 +27,12 @@ namespace nresx.CommandLine.Commands
         protected override bool IsDryRunAllowed => true;
         protected override bool IsCreateNewFileAllowed => true;
 
-        #region Private members
-
-        private readonly Regex KeyIndexRegex = new( @"(\d+)$", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
-
-        #endregion
-
         #region Private methods
 
         private bool ValidateFile( string path )
         {
             // check if path is null or empty
-
-            return true;
-        }
-
-        private string IncrementKey( string key, List<ResourceElement> elements )
-        {
-            var keyIndexMatch = KeyIndexRegex.Match( key );
-            var index = 0;
-            var keyCore = key;
-            string newKey;
-            if ( keyIndexMatch.Success )
-            {
-                index = int.Parse( keyIndexMatch.Groups[1].Value );
-                keyCore = key.Substring( 0, key.Length - keyIndexMatch.Groups[1].Value.Length );
-            }
-
-            do { newKey = $"{keyCore}{++index}"; } 
-            while ( elements.Any( el => el.Key == newKey ) );
-
-            return newKey;
+            return path != null && File.Exists( path );
         }
 
         #endregion
@@ -73,7 +47,7 @@ namespace nresx.CommandLine.Commands
                 return;
 
             // generate destination file
-            if ( OptionHelper.DetectResourceFormat( Format, out var format ) )
+            if ( OptionHelper.DetectResourceFormat( Format, out _ ) )
             {
                 destFile = Path.ChangeExtension( destFile, Format.ToExtension() );
             }
@@ -111,7 +85,7 @@ namespace nresx.CommandLine.Commands
 
                 // filter by skip dirs
                 var rootDir = Path.GetDirectoryName( new DirectoryInfo( context.SourcePathSpec ).FullName );
-                var relPath = Path.GetRelativePath( rootDir, context.FullName );
+                var relPath = rootDir != null ? Path.GetRelativePath( rootDir, context.FullName ) : context.FullName;
                 if ( relPath.ContainsDir( dirSkipList.ToArray() ) ) return;
 
                 var nameParts = ( Path.GetDirectoryName( relPath ) ?? "" )
@@ -154,7 +128,7 @@ namespace nresx.CommandLine.Commands
                                     return key;
 
                                 //  2. the key already exists, but value is different, generate new element
-                                return AddNewElement( IncrementKey( key, elements ), value );
+                                return AddNewElement( parser.IncrementKey( key, elements ), value );
                             }
 
                             // 5. try to localize already localized entry
@@ -168,29 +142,8 @@ namespace nresx.CommandLine.Commands
 
                             // 3. the key doesn't exist, new one
                             return AddNewElement( key, value );
-
-                            //return destination?.Elements.All( el => el.Key != key && el.Value != value ) ?? true;
-
                         },
-                        //( key, val ) =>
-                        //{
-                        //    fileChanged = true;
-                        //    elements.Add( new ResourceElement { Key = key, Value = val } );
-                        //},
                         processedLine => writer?.WriteLine( processedLine ) );
-
-                    //parser.ProcessNextLine( line, elNamePath,
-                    //    ( key, value ) =>
-                    //    {
-                    //        //return destination?.Elements.All( el => el.Key != value ) ?? true;
-                    //        return destination?.Elements.All( el => el.Key != key && el.Value != value ) ?? true;
-                    //    },
-                    //    ( key, val ) =>
-                    //    {
-                    //        fileChanged = true;
-                    //        elements.Add( new ResourceElement { Key = key, Value = val } );
-                    //    },
-                    //    processedLine => writer?.WriteLine( processedLine ) );
                 }
 
                 reader.Close();
@@ -218,7 +171,7 @@ namespace nresx.CommandLine.Commands
                     // write to output
                     if ( newElement )
                     {
-                        Console.WriteLine( $"\"{sourceFile.GetShortPath()}\": \"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
+                        Console.WriteLine( $@"""{sourceFile.GetShortPath()}"": ""{el.Value}"" string has been extracted to ""{el.Key}"" resource element" );
                     }
                 }
             }
