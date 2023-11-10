@@ -42,7 +42,7 @@ EPPlus дозволяє парсити та генерувати файли Excel при відсутності встановленого 
 <table>
   <tr>
     <td style="background-color: lightblue;">Клітина 1</td>
-    <td style="background-color: lightgreen;">Клітина 2</td>
+    <td style="color: lightgreen;">Клітина 2</td>
   </tr>
   <tr>
     <td style="background-color: lightcoral;">Клітина 3</td>
