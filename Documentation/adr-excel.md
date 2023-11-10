@@ -37,3 +37,15 @@ EPPlus дозволяє парсити та генерувати файли Excel при відсутності встановленого 
 | NPOI          | так                | Висока                | Так                | Так               | Висока (1700ms)  | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)    |
 | SmartXLS      | так                | Середня               | Так                | Так               | Висока           | Commercial opensource     |
 | Spire         | так                | Висока                | Так                | Так               | Висока           | Commercial opensource     |
+
+
+<table>
+  <tr>
+    <td style="background-color: lightblue;">Клітина 1</td>
+    <td style="background-color: lightgreen;">Клітина 2</td>
+  </tr>
+  <tr>
+    <td style="background-color: lightcoral;">Клітина 3</td>
+    <td style="background-color: lightgoldenrodyellow;">Клітина 4</td>
+  </tr>
+</table>
