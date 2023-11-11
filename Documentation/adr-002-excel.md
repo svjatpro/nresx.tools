@@ -39,5 +39,5 @@ EPPlus дозволяє парсити та генерувати файли Excel при відсутності встановленого 
 | [**EPPlus 7.x**](https://www.epplussoftware.com)                          | **так**            | **Висока**             | **Так**           | **Так**           | **Висока (677ms)**   | **[PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)**    |
 | [NPOI](https://github.com/dotnetcore/NPOI)                                | так                | Висока                 | Так               | Так               | Висока (1700ms)  | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)    |
 | [SmartXLS](https://www.smartxls.com/index.htm)                            | так                | ~~Середня~~            | Так               | Так               | Висока           | ~~Commercial opensource~~     |
-| [Spire](https://www.e-iceblue.com/Introduce/excel-for-net-introduce.html) | так                | Висока                 | Так               | Так               | Висока           | ~~Commercial opensource~~     |
+| [Spire](https://www.e-iceblue.com/Introduce/excel-for-net-introduce.html) | так                | Висока                 | Так               | Так               | Висока (1800)    | Free edition with restrictions   |
 
