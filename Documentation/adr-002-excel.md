@@ -1,5 +1,7 @@
 # ADR 002: Вибір технології (бібліотеки) для роботи з файлами \*.xlsx для C\#
 
+:white_check_mark:
+
 ### Дата: 10.11.2023
 
 ### Статус: Запропоновано
@@ -31,15 +33,15 @@ EPPlus дозволяє парсити та генерувати файли Excel при відсутності встановленого 
 
 Були розглянуті наступні альтернативи:
 
-| Технологія                                                                          | Працює без MSExcel | Зручність використання | Активна підтримка | Підтримка формул  | Швидкість роботи   | Можливість друку | Вартість       |
-|-------------------------------------------------------------------------------------|--------------------| -----------------------|-------------------|-------------------|--------------------|------------------|----------------|
-| [**Spire.Xls**](https://www.syncfusion.com/document-processing/excel-framework/net) | :white_check_mark: | **Висока**             | **так**           | **так**           | **Висока (1800ms)**| **так**          | **Free edition with restrictions** |
-| [**Spire.Xls**](https://www.e-iceblue.com/Introduce/excel-for-net-introduce.html)   | **так**            | **Висока**             | **так**           | **так**           | **Висока (1800ms)**| **так**          | **Free edition with restrictions** |
-| [EPPlus 7.x](https://www.epplussoftware.com)                                        | так                | Висока                 | так               | так               | Висока (677ms)     | ~~ні~~           | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)    |
-| [NPOI](https://github.com/dotnetcore/NPOI)                                          | так                | Висока                 | так               | так               | Висока (1700ms)    | ні               | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)    |
-| [Aspose.Cells](https://docs.aspose.com/cells/net)                                   | так                | Висока                 | так               | так               | Висока             | так              | ~~Комерційна~~     |
-| [SmartXLS](https://www.smartxls.com/index.htm)                                      | так                | ~~Середня~~            | так               | так               | Висока             | ні               | ~~Commercial opensource~~     |
-| OpenXML                                                                             | так                | ~~Середня~~            | так               | так               | Висока             | ні               | Безкоштовно    |
-| Office interop                                                                      | ~~ні~~             | ~~Низька~~             | так               | так               | ~~Низька~~         | так              | Безкоштовно    |
+| Технологія                                                                           | Працює без MSExcel | Зручність використання | Активна підтримка | Підтримка формул  | Швидкість роботи   | Можливість друку | Вартість       |
+|--------------------------------------------------------------------------------------|--------------------| -----------------------|-------------------|-------------------|--------------------|------------------|----------------|
+| [**Syncfusion**](https://www.syncfusion.com/document-processing/excel-framework/net) | :white_check_mark: | **Висока**             | **так**           | **так**           | **Висока (1800ms)**| **так**          | **Free edition with restrictions** |
+| [**Spire.Xls**](https://www.e-iceblue.com/Introduce/excel-for-net-introduce.html)    | **так**            | **Висока**             | **так**           | **так**           | **Висока (1800ms)**| **так**          | **Free edition with restrictions** |
+| [EPPlus 7.x](https://www.epplussoftware.com)                                         | так                | Висока                 | так               | так               | Висока (677ms)     | ~~ні~~           | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)    |
+| [NPOI](https://github.com/dotnetcore/NPOI)                                           | так                | Висока                 | так               | так               | Висока (1700ms)    | ні               | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)    |
+| [Aspose.Cells](https://docs.aspose.com/cells/net)                                    | так                | Висока                 | так               | так               | Висока             | так              | ~~Комерційна~~     |
+| [SmartXLS](https://www.smartxls.com/index.htm)                                       | так                | ~~Середня~~            | так               | так               | Висока             | ні               | ~~Commercial opensource~~     |
+| OpenXML                                                                              | так                | ~~Середня~~            | так               | так               | Висока             | ні               | Безкоштовно    |
+| Office interop                                                                       | ~~ні~~             | ~~Низька~~             | так               | так               | ~~Низька~~         | так              | Безкоштовно    |
 
 
