@@ -40,6 +40,6 @@ EPPlus дозволяє парсити та генерувати файли Excel при відсутності встановленого 
 | [Aspose.Cells](https://docs.aspose.com/cells/net)                                    | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока             | :heavy_check_mark: | :x: Комерційна |
 | [SmartXLS](https://www.smartxls.com/index.htm)                                       | :heavy_check_mark: | :heavy_multiplication_x:| :heavy_check_mark: | :heavy_check_mark: | Висока             | :x:                | :x: Commercial opensource      |
 | OpenXML                                                                              | :heavy_check_mark: | :heavy_multiplication_x:| :heavy_check_mark: | :heavy_check_mark: | Висока             | :x:                | :heavy_check_mark: Безкоштовно |
-| Office interop                                                                       | :x:                | :x:                     | :heavy_check_mark: | :heavy_check_mark: | Низька             | :heavy_check_mark: | :heavy_check_mark: Безкоштовно |
+| Office interop                                                                       | :x:                | :x:                     | :heavy_check_mark: | :heavy_check_mark: | :x: Низька         | :heavy_check_mark: | :heavy_check_mark: Безкоштовно |
 
 
