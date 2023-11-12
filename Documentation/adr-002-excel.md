@@ -1,10 +1,5 @@
 # ADR 002: Вибір технології (бібліотеки) для роботи з файлами \*.xlsx для C\#
 
-:white_check_mark:
-:heavy_check_mark:
-:no_entry:
-:x:
-
 ### Дата: 10.11.2023
 
 ### Статус: Запропоновано
@@ -38,13 +33,13 @@ EPPlus дозволяє парсити та генерувати файли Excel при відсутності встановленого 
 
 | Технологія                                                                           | Працює без MSExcel | Зручність використання  | Активна підтримка  | Підтримка формул   | Швидкість роботи   | Можливість друку   | Вартість       |
 |--------------------------------------------------------------------------------------|--------------------| ------------------------|--------------------|--------------------|--------------------|--------------------|----------------|
-| [**Syncfusion**](https://www.syncfusion.com/document-processing/excel-framework/net) | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | **Висока (2100ms)**| :heavy_check_mark: | **Free edition with restrictions** |
-| [**Spire.Xls**](https://www.e-iceblue.com/Introduce/excel-for-net-introduce.html)    | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | **Висока (1800ms)**| :heavy_check_mark: | **Free edition with restrictions** |
-| [EPPlus 7.x](https://www.epplussoftware.com)                                         | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока (677ms)     | :x:                | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)    |
-| [NPOI](https://github.com/dotnetcore/NPOI)                                           | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока (1700ms)    | :x:                | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)    |
-| [Aspose.Cells](https://docs.aspose.com/cells/net)                                    | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока             | :heavy_check_mark: | ~~Комерційна~~     |
-| [SmartXLS](https://www.smartxls.com/index.htm)                                       | :heavy_check_mark: | :heavy_multiplication_x:| :heavy_check_mark: | :heavy_check_mark: | Висока             | :x:                | ~~Commercial opensource~~     |
-| OpenXML                                                                              | :heavy_check_mark: | :heavy_multiplication_x:| :heavy_check_mark: | :heavy_check_mark: | Висока             | :x:                | Безкоштовно    |
-| Office interop                                                                       | :x:                | :x:                     | :heavy_check_mark: | :heavy_check_mark: | Низька             | :heavy_check_mark: | Безкоштовно    |
+| [**Syncfusion**](https://www.syncfusion.com/document-processing/excel-framework/net) | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | **Висока (2100ms)**| :heavy_check_mark: | :heavy_check_mark: **Comunity edition** |
+| [**Spire.Xls**](https://www.e-iceblue.com/Introduce/excel-for-net-introduce.html)    | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | **Висока (1800ms)**| :heavy_check_mark: | :heavy_check_mark: **Free edition with restrictions** |
+| [EPPlus 7.x](https://www.epplussoftware.com)                                         | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока (677ms)     | :x:                | :heavy_check_mark: [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)    |
+| [NPOI](https://github.com/dotnetcore/NPOI)                                           | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока (1700ms)    | :x:                | :heavy_check_mark: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)    |
+| [Aspose.Cells](https://docs.aspose.com/cells/net)                                    | :heavy_check_mark: | :heavy_check_mark:      | :heavy_check_mark: | :heavy_check_mark: | Висока             | :heavy_check_mark: | :x: Комерційна |
+| [SmartXLS](https://www.smartxls.com/index.htm)                                       | :heavy_check_mark: | :heavy_multiplication_x:| :heavy_check_mark: | :heavy_check_mark: | Висока             | :x:                | :x: Commercial opensource      |
+| OpenXML                                                                              | :heavy_check_mark: | :heavy_multiplication_x:| :heavy_check_mark: | :heavy_check_mark: | Висока             | :x:                | :heavy_check_mark: Безкоштовно |
+| Office interop                                                                       | :x:                | :x:                     | :heavy_check_mark: | :heavy_check_mark: | Низька             | :heavy_check_mark: | :heavy_check_mark: Безкоштовно |
 
 
