@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -6,7 +7,7 @@ using nresx.Tools.Extensions;
 
 namespace nresx.Tools.CodeParsers
 {
-    public class CsCodeParser : ICodeParser
+    public class CsCodeParser : CodeParserBase
     {
         private readonly Dictionary<string, int> ElementsCounts = new();
 
@@ -79,18 +80,15 @@ namespace nresx.Tools.CodeParsers
 
         private string GetStringPlaceholder( string key )
         {
-            return $"GetString(\"{key}\")";
+            return $"GetStringLocale(\"{key}\")";
         }
 
-        public string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements )
+        public override void ProcessNextLine( 
+            string line, string elementPath,
+            Func<string, string, string> processExtractedElement,
+            Action<string> writeProcessedLine )
         {
-            var result = new Dictionary<string, string>();
-
-            if ( !ValidateLine( line ) )
-            {
-                elements = null;
-                return line;
-            }
+            if ( !ValidateLine( line ) ) return;
 
             var matchIndex = 0;
             var prevIndex = 0;
@@ -112,20 +110,20 @@ namespace nresx.Tools.CodeParsers
                     ElementsCounts.Add( keyIndex, 1 );
                 }
 
-                result.Add( key, value );
-                
-                // add matches part to result line
+                var newKey = processExtractedElement( key, value );
+
                 if ( prevIndex < match.Index )
                     replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
-                replacedLine.Append( GetStringPlaceholder( key ) );
+                if ( newKey != null )
+                    replacedLine.Append( GetStringPlaceholder( key ) );
+                else
+                    replacedLine.Append( line.Substring( match.Index, match.Length ) );
                 prevIndex = match.Index + match.Length;
             }
             
-            elements = result;
-
             if( prevIndex < line.Length )
                 replacedLine.Append( line.Substring( prevIndex ) );
-            return replacedLine.ToString();
+            writeProcessedLine( replacedLine.ToString() );
         }
     }
 }

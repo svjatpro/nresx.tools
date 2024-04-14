@@ -22,7 +22,7 @@ namespace nresx.CommandLine.Commands
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
@@ -34,16 +34,13 @@ namespace nresx.CommandLine.Commands
                 sourceFiles,
                 ( file, resource ) =>
                 {
-                    if ( DryRun )
-                    {
-                        var shortFilePath = resource.AbsolutePath?.GetShortPath() ?? file.FullName.GetShortPath();
-                        Console.WriteLine( $"'{Key}: {Value}' element have been add to '{shortFilePath}'" );
-                    }
-                    else
+                    if ( !DryRun )
                     {
                         resource.Elements.Add( Key, Value, Comment );
                         resource.Save( file.FullName );
                     }
+                    var shortFilePath = resource.AbsolutePath?.GetShortPath() ?? file.FullName.GetShortPath();
+                    Console.WriteLine( $"'{Key}: {Value}' element have been add to '{shortFilePath}'" );
                 } );
         }
     }

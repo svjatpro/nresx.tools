@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using nresx.Tools.Exceptions;
@@ -10,7 +9,7 @@ namespace nresx.Tools
 {
     public class ResourceFile
     {
-        #region Private fields
+        #region Static members
 
         private static readonly List<(string extensions, ResourceFormatType type, Type formatter)> TypesMap =
             new()
@@ -20,7 +19,16 @@ namespace nresx.Tools
                 ( extensions: ".yml", type: ResourceFormatType.Yml, typeof(FileFormatterYaml) ),
                 ( extensions: ".yaml", type: ResourceFormatType.Yaml, typeof(FileFormatterYaml) ),
                 ( extensions: ".txt", type: ResourceFormatType.PlainText, typeof(FileFormatterPlainText) ),
+                ( extensions: ".po", type: ResourceFormatType.Po, typeof(FileFormatterPo) ),
+                ( extensions: ".json", type: ResourceFormatType.Json, typeof(FileFormatterJson) ),
             };
+
+        #endregion
+
+        #region Private fields
+
+        private IFileFormatter SourceFormatter;
+        private ResourceFileOption ResourceOptions;
 
         #endregion
 
@@ -28,20 +36,23 @@ namespace nresx.Tools
 
         private static bool GetTypeInfo( 
             Func<(string extensions, ResourceFormatType type, Type formatter),bool> comparer, 
-            out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
+            out (string extensions, ResourceFormatType type, Func<ResourceFileOption, IFileFormatter> formatter) type )
         {
             var tinfo = TypesMap.SingleOrDefault( comparer );
             var result = tinfo.type != ResourceFormatType.NA;
             
             if(result)
-                type = (tinfo.extensions, tinfo.type, () => (IFileFormatter) Activator.CreateInstance( tinfo.formatter ));
+                type = (tinfo.extensions, tinfo.type, options => 
+                    tinfo.formatter.GetConstructor( new []{ typeof(ResourceFileOption) } ) != null ? 
+                    (IFileFormatter) Activator.CreateInstance( tinfo.formatter, options ) :
+                    (IFileFormatter) Activator.CreateInstance( tinfo.formatter ));
             else
                 type = default;
 
             return result;
         }
 
-        private static bool GetTypeInfo( string path, out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
+        private static bool GetTypeInfo( string path, out (string extensions, ResourceFormatType type, Func<ResourceFileOption, IFileFormatter> formatter) type )
         {
             var ext = Path.GetExtension( path );
             if ( string.IsNullOrWhiteSpace( ext ) )
@@ -56,7 +67,7 @@ namespace nresx.Tools
             return result;
         }
 
-        private static bool GetTypeInfo( Stream stream, out (string extensions, ResourceFormatType type, Func<IFileFormatter> formatter) type )
+        private static bool GetTypeInfo( Stream stream, out (string extensions, ResourceFormatType type, Func<ResourceFileOption, IFileFormatter> formatter) type )
         {
             var name = ( stream as FileStream )?.Name;
             var result = GetTypeInfo( name, out var tinfo );
@@ -92,7 +103,7 @@ namespace nresx.Tools
                 return new ResourceElement[0];
 
             using var stream = new FileStream( fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
-            var parser = type.formatter();
+            var parser = type.formatter( null );
             if ( parser.LoadRawElements( stream, out var elements ) )
                 return elements;
 
@@ -103,11 +114,11 @@ namespace nresx.Tools
             IFileFormatter parser;
             if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
             {
-                parser = t1.formatter();
+                parser = t1.formatter( null );
             }
             else if ( GetTypeInfo( stream, out var type ) )
             {
-                parser = type.formatter();
+                parser = type.formatter( null );
             }
             else
             {
@@ -125,11 +136,13 @@ namespace nresx.Tools
 
         #endregion
 
-        public ResourceFile( string path )
+        public ResourceFile( string path, ResourceFileOption options = null )
         {
             if( GetTypeInfo( path, out var type ) )
             {
                 FileFormat = type.type;
+                SourceFormatter = type.formatter( options );
+                ResourceOptions = options;
             }
             else
             {
@@ -148,25 +161,25 @@ namespace nresx.Tools
             }
 
             using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
-            var parser = type.formatter();
-            if ( parser.LoadResourceFile( stream, out var elements ) )
+            if ( SourceFormatter.LoadResourceFile( stream, out var elements ) )
             {
                 Elements = new ResourceElements(elements);
             }
         }
 
-        public ResourceFile( Stream stream, ResourceFormatType resourceFormat = ResourceFormatType.NA )
+        public ResourceFile( Stream stream, ResourceFormatType resourceFormat = ResourceFormatType.NA, ResourceFileOption options = null )
         {
-            IFileFormatter parser;
             if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
             {
                 FileFormat = resourceFormat;
-                parser = t1.formatter();
+                SourceFormatter = t1.formatter( options );
+                ResourceOptions = options;
             }
             else if ( GetTypeInfo( stream, out var type ) )
             {
                 FileFormat = type.type;
-                parser = type.formatter();
+                SourceFormatter = type.formatter( options );
+                ResourceOptions = options;
             }
             else
             {
@@ -182,32 +195,38 @@ namespace nresx.Tools
                 AbsolutePath = fileInfo.FullName;
             }
 
-            if ( parser.LoadResourceFile( stream, out var elements ) )
+            if ( SourceFormatter.LoadResourceFile( stream, out var elements ) )
             {
                 Elements = new ResourceElements( elements );
             }
         }
 
-        public ResourceFile()
+        public ResourceFile( ResourceFileOption options = null )
         {
             IsNewFile = true;
             FileFormat = ResourceFormatType.NA;
             Elements = new ResourceElements();
+            ResourceOptions = options;
         }
-        public ResourceFile( ResourceFormatType fileFormat )
+        public ResourceFile( ResourceFormatType fileFormat, ResourceFileOption options = null )
         {
             IsNewFile = true;
+            ResourceOptions = options;
+
             FileFormat = fileFormat;
+            if ( GetTypeInfo( t => t.type == fileFormat, out var tinfo ) )
+                SourceFormatter = tinfo.formatter( options );
+
             Elements = new ResourceElements();
         }
 
         #region Save
 
-        public void Save( string path, bool createDir = false )
+        public void Save( string path, bool createDir = false, ResourceFileOption options = null )
         {
-            Save( path, FileFormat, createDir );
+            Save( path, FileFormat, createDir, options );
         }
-        public void Save( string path, ResourceFormatType type, bool createDir = false )
+        public void Save( string path, ResourceFormatType type, bool createDir = false, ResourceFileOption options = null )
         {
             if ( !GetTypeInfo( t => t.type == type, out var tinfo ) )
             {
@@ -215,7 +234,7 @@ namespace nresx.Tools
             }
 
             var targetPath = Path.ChangeExtension( path, tinfo.extensions );
-            var formatter = tinfo.formatter();
+            var formatter = tinfo.formatter( null );
 
             var fileInfo = new FileInfo( targetPath );
             if( fileInfo.Exists )
@@ -232,22 +251,22 @@ namespace nresx.Tools
             }
 
             using var stream = new FileStream( targetPath, FileMode.CreateNew );
-            formatter.SaveResourceFile( stream, Elements );
+            formatter.SaveResourceFile( stream, Elements, options );
         }
 
-        public void Save( Stream stream )
+        public void Save( Stream stream, ResourceFileOption options = null )
         {
-            Save( stream, FileFormat );
+            Save( stream, FileFormat, options );
         }
 
-        public void Save( Stream stream, ResourceFormatType type )
+        public void Save( Stream stream, ResourceFormatType type, ResourceFileOption options = null )
         {
             if ( !GetTypeInfo( t => t.type == type, out var tinfo ) )
             {
                 throw new InvalidOperationException( "Unknown format" );
             }
-            var formatter = tinfo.formatter();
-            formatter.SaveResourceFile( stream, Elements );
+            var formatter = tinfo.formatter( null );
+            formatter.SaveResourceFile( stream, Elements, options );
         }
 
         public Stream SaveToStream()
@@ -255,8 +274,16 @@ namespace nresx.Tools
             using var ms = new MemoryStream();
             Save( ms );
             
-            return new MemoryStream( ms.GetBuffer() );
+            return new MemoryStream( ms.ToArray() );
         }
+
+        #endregion
+
+        #region Format info
+
+        public bool ElementHasKey => SourceFormatter?.ElementHasKey ?? true;
+
+        public bool ElementHasComment => SourceFormatter?.ElementHasComment ?? true;
 
         #endregion
     }

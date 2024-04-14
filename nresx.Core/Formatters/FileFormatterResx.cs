@@ -161,7 +161,7 @@ namespace nresx.Tools.Formatters
                 var dictionary = new Dictionary<string, ResourceElement>();
                 foreach ( var el in raw )
                 {
-                    if( !dictionary.ContainsKey( el.Key ) )
+                    if ( !string.IsNullOrWhiteSpace( el.Key ) && !dictionary.ContainsKey( el.Key ) )
                         dictionary.Add( el.Key, el );
                 }
                 elements = dictionary.Values.ToList();
@@ -190,7 +190,7 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, bool validate = true )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
         {
             XNamespace xml = "http://www.w3.org/XML/1998/namespace";
             var doc = new XDocument(
@@ -235,5 +235,8 @@ namespace nresx.Tools.Formatters
 
             doc.Save( stream );
         }
+
+        public bool ElementHasKey => true;
+        public bool ElementHasComment => true;
     }
 }

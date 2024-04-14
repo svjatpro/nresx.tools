@@ -43,7 +43,7 @@ namespace nresx.Core.Tests.ResourceFiles
             var ms = new MemoryStream();
             source.Save( ms, targetType );
 
-            var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            var saved = new ResourceFile( new MemoryStream( ms.ToArray() ), targetType );
             ValidateElements( saved );
         }
     }

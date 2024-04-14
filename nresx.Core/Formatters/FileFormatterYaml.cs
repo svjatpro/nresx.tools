@@ -138,13 +138,13 @@ namespace nresx.Tools.Formatters
                     {
                         key = node;
                     }
-                    else if ( key?.Start.Line == node.Start.Line )
+                    else if ( key?.Start.Line == node.Start.Line || string.IsNullOrEmpty( key?.Value ) )
                     {
                         result.Add( new ResourceElement
                         {
-                            Key = key.Value,
+                            Key = key?.Value ?? string.Empty,
                             Value = node.Value,
-                            
+                            Type = ResourceElementType.String
                         } );
                         key = null;
                     }
@@ -171,7 +171,7 @@ namespace nresx.Tools.Formatters
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, bool validate = true )
+        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
         {
             using var writer = new StreamWriter( stream );
             var serializer = new SerializerBuilder()
@@ -180,5 +180,8 @@ namespace nresx.Tools.Formatters
             var body = elements.ToDictionary( el => el.Key, el => el.Value );
             serializer.Serialize( writer, body );
         }
+
+        public bool ElementHasKey => true;
+        public bool ElementHasComment => false;
     }
 }

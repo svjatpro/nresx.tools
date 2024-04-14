@@ -19,27 +19,25 @@ namespace nresx.CommandLine.Tests.Remove
         {
             var resTemplate = GetExampleResourceFile();
             var elementToDelete = resTemplate.Elements[1].Key;
-            var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { elementToDelete }} );
-            
-            new ResourceFile( args.TemporaryFiles[0] ).Elements.Should().NotContain( el => el.Key == elementToDelete );
-            new ResourceFile( args.TemporaryFiles[1] ).Elements.Should().NotContain( el => el.Key == elementToDelete );
-        }
 
-        [TestCase( @"remove [TmpFile] [TmpFile] -k [UniqueKey] --dry-run" )]
-        [TestCase( @"remove [TmpFile] [TmpFile] --key [UniqueKey] --dry-run" )]
-        [TestCase( @"remove -s [TmpFile] [TmpFile] -k [UniqueKey] --dry-run" )]
-        [TestCase( @"remove --source [TmpFile] [TmpFile] --key [UniqueKey] --dry-run" )]
-        public void RemoveSingleElementByKeyDryRun( string commandLine )
-        {
-            var resTemplate = GetExampleResourceFile();
-            var elementToDelete = resTemplate.Elements[1].Key;
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementToDelete } } );
-
-            new ResourceFile( args.TemporaryFiles[0] ).Elements.Should().Contain( el => el.Key == elementToDelete );
-            new ResourceFile( args.TemporaryFiles[1] ).Elements.Should().Contain( el => el.Key == elementToDelete );
-
-            args.ConsoleOutput[0].Should().Be( $"{args.TemporaryFiles[0]}: '{elementToDelete}' have been removed" );
-            args.ConsoleOutput[1].Should().Be( $"{args.TemporaryFiles[1]}: '{elementToDelete}' have been removed" );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { elementToDelete } } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( args =>
+                {
+                    new ResourceFile( args.TemporaryFiles[0] ).Elements.Should().Contain( el => el.Key == elementToDelete );
+                    new ResourceFile( args.TemporaryFiles[1] ).Elements.Should().Contain( el => el.Key == elementToDelete );
+                } )
+                .ValidateRun( args =>
+                {
+                    new ResourceFile( args.TemporaryFiles[0] ).Elements.Should().NotContain( el => el.Key == elementToDelete );
+                    new ResourceFile( args.TemporaryFiles[1] ).Elements.Should().NotContain( el => el.Key == elementToDelete );
+                } )
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput[0].Should().Be( $"{args.TemporaryFiles[0]}: '{elementToDelete}' have been removed" );
+                    args.ConsoleOutput[1].Should().Be( $"{args.TemporaryFiles[1]}: '{elementToDelete}' have been removed" );
+                } );
         }
 
         [TestCase( @"remove [TmpFile] [TmpFile] -k [UniqueKey] [UniqueKey]" )]
@@ -50,40 +48,38 @@ namespace nresx.CommandLine.Tests.Remove
         {
             var resTemplate = GetExampleResourceFile();
             var elementsToDelete = new []{resTemplate.Elements[0].Key, resTemplate.Elements[2].Key};
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementsToDelete[0], elementsToDelete[1] } } );
 
-            var res1 = new ResourceFile( args.TemporaryFiles[0] );
-            res1.Elements.Should().NotContain( el => el.Key == elementsToDelete[0] );
-            res1.Elements.Should().NotContain( el => el.Key == elementsToDelete[1] );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { elementsToDelete[0], elementsToDelete[1] } } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( args =>
+                {
+                    var res1 = new ResourceFile( args.TemporaryFiles[0] );
+                    res1.Elements.Should().Contain( el => el.Key == elementsToDelete[0] );
+                    res1.Elements.Should().Contain( el => el.Key == elementsToDelete[1] );
 
-            var res2 = new ResourceFile( args.TemporaryFiles[1] );
-            res2.Elements.Should().NotContain( el => el.Key == elementsToDelete[0] );
-            res2.Elements.Should().NotContain( el => el.Key == elementsToDelete[1] );
-        }
+                    var res2 = new ResourceFile( args.TemporaryFiles[1] );
+                    res2.Elements.Should().Contain( el => el.Key == elementsToDelete[0] );
+                    res2.Elements.Should().Contain( el => el.Key == elementsToDelete[1] );
+                } )
+                .ValidateRun( args =>
+                {
+                    var res1 = new ResourceFile( args.TemporaryFiles[0] );
+                    res1.Elements.Should().NotContain( el => el.Key == elementsToDelete[0] );
+                    res1.Elements.Should().NotContain( el => el.Key == elementsToDelete[1] );
 
-        [TestCase( @"remove [TmpFile] [TmpFile] -k [UniqueKey] [UniqueKey] --dry-run" )]
-        [TestCase( @"remove [TmpFile] [TmpFile] --key [UniqueKey] [UniqueKey] --dry-run" )]
-        [TestCase( @"remove -s [TmpFile] [TmpFile] -k [UniqueKey] [UniqueKey] --dry-run" )]
-        [TestCase( @"remove --source [TmpFile] [TmpFile] --key [UniqueKey] [UniqueKey] --dry-run" )]
-        public void RemoveElementsByKeyDryRun( string commandLine )
-        {
-            var resTemplate = GetExampleResourceFile();
-            var elementsToDelete = new[] { resTemplate.Elements[0].Key, resTemplate.Elements[2].Key };
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementsToDelete[0], elementsToDelete[1] } } );
-
-            var res1 = new ResourceFile( args.TemporaryFiles[0] );
-            res1.Elements.Should().Contain( el => el.Key == elementsToDelete[0] );
-            res1.Elements.Should().Contain( el => el.Key == elementsToDelete[1] );
-
-            var res2 = new ResourceFile( args.TemporaryFiles[1] );
-            res2.Elements.Should().Contain( el => el.Key == elementsToDelete[0] );
-            res2.Elements.Should().Contain( el => el.Key == elementsToDelete[1] );
-
-            args.ConsoleOutput.Should().BeEquivalentTo( 
-                $"{args.TemporaryFiles[0]}: '{elementsToDelete[0]}' have been removed",
-                $"{args.TemporaryFiles[0]}: '{elementsToDelete[1]}' have been removed",
-                $"{args.TemporaryFiles[1]}: '{elementsToDelete[0]}' have been removed",
-                $"{args.TemporaryFiles[1]}: '{elementsToDelete[1]}' have been removed" );
+                    var res2 = new ResourceFile( args.TemporaryFiles[1] );
+                    res2.Elements.Should().NotContain( el => el.Key == elementsToDelete[0] );
+                    res2.Elements.Should().NotContain( el => el.Key == elementsToDelete[1] );
+                } )
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"{args.TemporaryFiles[0]}: '{elementsToDelete[0]}' have been removed",
+                        $"{args.TemporaryFiles[0]}: '{elementsToDelete[1]}' have been removed",
+                        $"{args.TemporaryFiles[1]}: '{elementsToDelete[0]}' have been removed",
+                        $"{args.TemporaryFiles[1]}: '{elementsToDelete[1]}' have been removed" );
+                } );
         }
 
         #endregion
@@ -105,53 +101,35 @@ namespace nresx.CommandLine.Tests.Remove
             resTemplate.Save( path1 );
             resTemplate.Save( path2 );
 
-            Run( commandLine, new CommandLineParameters { TemporaryFiles = { path1, path2 } } );
-
-            new ResourceFile( path1 )
-                .Elements.Select( el => el.Key )
-                .Should().BeEquivalentTo( 
-                    resTemplate.Elements[0].Key,
-                    resTemplate.Elements[2].Key,
-                    resTemplate.Elements[4].Key );
-            new ResourceFile( path2 )
-                .Elements.Select( el => el.Key )
-                .Should().BeEquivalentTo(
-                    resTemplate.Elements[0].Key,
-                    resTemplate.Elements[2].Key,
-                    resTemplate.Elements[4].Key );
-        }
-
-        [TestCase( @"remove [TmpFile] [TmpFile] --empty --dry-run" )]
-        [TestCase( @"remove [TmpFile] [TmpFile] --empty-value  --dry-run" )]
-        [TestCase( @"remove -s [TmpFile] [TmpFile] --empty --dry-run" )]
-        [TestCase( @"remove --source [TmpFile] [TmpFile] --empty-value --dry-run" )]
-        public void RemoveEmptyElementsDryRun( string commandLine )
-        {
-            var resTemplate = new ResourceFile( ResourceFormatType.Resx );
-            resTemplate.Elements.Add( "Key1", "Value1" );
-            resTemplate.Elements.Add( "Key2", "" );
-            resTemplate.Elements.Add( "Key3", "Value3" );
-            resTemplate.Elements.Add( "Key4", "" );
-            resTemplate.Elements.Add( "Key5", "Value5" );
-            var path1 = GetOutputPath( UniqueKey() );
-            var path2 = GetOutputPath( UniqueKey() );
-            resTemplate.Save( path1 );
-            resTemplate.Save( path2 );
-
-            var args = Run( commandLine, new CommandLineParameters { TemporaryFiles = { path1, path2 } } );
-
-            new ResourceFile( path1 )
-                .Elements.Select( el => el.Key )
-                .Should().BeEquivalentTo( resTemplate.Elements.Select( el => el.Key) );
-            new ResourceFile( path2 )
-                .Elements.Select( el => el.Key )
-                .Should().BeEquivalentTo( resTemplate.Elements.Select( el => el.Key ) );
-
-            args.ConsoleOutput.Should().BeEquivalentTo( 
-                $"{path1}: '{resTemplate.Elements[1].Key}' have been removed",
-                $"{path1}: '{resTemplate.Elements[3].Key}' have been removed",
-                $"{path2}: '{resTemplate.Elements[1].Key}' have been removed",
-                $"{path2}: '{resTemplate.Elements[3].Key}' have been removed" );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { TemporaryFiles = { path1, path2 } } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( () =>
+                {
+                    new ResourceFile( path1 )
+                        .Elements.Select( el => el.Key )
+                        .Should().BeEquivalentTo( resTemplate.Elements.Select( el => el.Key ) );
+                    new ResourceFile( path2 )
+                        .Elements.Select( el => el.Key )
+                        .Should().BeEquivalentTo( resTemplate.Elements.Select( el => el.Key ) );
+                } )
+                .ValidateRun( () =>
+                {
+                    new ResourceFile( path1 )
+                        .Elements.Select( el => el.Key )
+                        .Should().BeEquivalentTo( resTemplate.Elements[0].Key, resTemplate.Elements[2].Key, resTemplate.Elements[4].Key );
+                    new ResourceFile( path2 )
+                        .Elements.Select( el => el.Key )
+                        .Should().BeEquivalentTo( resTemplate.Elements[0].Key, resTemplate.Elements[2].Key, resTemplate.Elements[4].Key );
+                } )
+                .ValidateStdout( args =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"{path1}: '{resTemplate.Elements[1].Key}' have been removed",
+                        $"{path1}: '{resTemplate.Elements[3].Key}' have been removed",
+                        $"{path2}: '{resTemplate.Elements[1].Key}' have been removed",
+                        $"{path2}: '{resTemplate.Elements[3].Key}' have been removed" );
+                } );
         }
     }
 }

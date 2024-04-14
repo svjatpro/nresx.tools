@@ -1,0 +1,18 @@
+{
+  "strings":
+  [
+    {
+        "id": "Entry1.Text",
+        "text": "Value1"
+    },
+    {
+        "key": "Entry2",
+        "value": "Value2",
+        "description": "Comment2"
+    },
+    {
+        "name": "Entry3",
+        "content": "Value3\nmultiline"
+    }
+  ]
+}

@@ -16,34 +16,36 @@ namespace nresx.CommandLine.Tests.Rename
         {
             var res1 = GetExampleResourceFile();
             var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters{UniqueKeys = { elementToUpdate.Key }} );
-            
-            var res = new ResourceFile( args.TemporaryFiles[0] );
-            var element = res.Elements.First( el => el.Key == args.UniqueKeys[0] );
-            element.Should().BeEquivalentTo( elementToUpdate, config => config.Excluding( el => el.Key ) );
+
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } )
+                .WithParams( args => new { oldKey = elementToUpdate.Key, newKey = args.UniqueKeys[1] } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( ( args, param ) =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    res.Elements.FirstOrDefault( el => el.Key == param.newKey ).Should().BeNull();
+                    res.Elements.FirstOrDefault( el => el.Key == param.oldKey ).Should().NotBeNull();
+                } )
+                .ValidateRun( ( args, param ) =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    var element = res.Elements.First( el => el.Key == param.newKey );
+                    element.Should().BeEquivalentTo( elementToUpdate, config => config.Excluding( el => el.Key ).Excluding( el => el.Comment ) );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should()
+                        .BeEquivalentTo(
+                            $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{args.TemporaryFiles[0]}'" );
+                } );
         }
-
-        [TestCase( @"rename [TmpFile] -k [UniqueKey] -n [UniqueKey] --dry-run" )]
-        [TestCase( @"rename [TmpFile] --key [UniqueKey] --new-key [UniqueKey] --dry-run" )]
-        public void RenameSingleElementDryRun( string commandLine )
-        {
-            var res1 = GetExampleResourceFile();
-            var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } );
-
-            var res = new ResourceFile( args.TemporaryFiles[0] );
-            res.Elements.FirstOrDefault( el => el.Key == args.UniqueKeys[0] ).Should().BeNull();
-
-            args.ConsoleOutput.Should().BeEquivalentTo( $"'{elementToUpdate.Key}' element have been renamed to '{args.UniqueKeys[0]}' in '{args.TemporaryFiles[0]}'" );
-        }
-
-
 
         [TestCase( @"rename [Output]\[UniqueKey].resx -k [UniqueKey] -n [UniqueKey]" )]
         [TestCase( @"rename [Output]\[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey]" )]
         public void RenameInNonExistingFile( string commandLine )
         {
-            var args = Run( commandLine );
+            var args = TestHelper.RunCommandLine( commandLine );
 
             var file = GetOutputPath( args.UniqueKeys[0] );
             new FileInfo( file ).Exists.Should().BeFalse();
@@ -56,7 +58,7 @@ namespace nresx.CommandLine.Tests.Rename
         [TestCase( @"rename [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey] --new-file --recursive" )] // ignored for rename
         public void RenameNonExistingDir( string commandLine )
         {
-            var args = Run( commandLine );
+            var args = TestHelper.RunCommandLine( commandLine );
 
             var file = $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
@@ -68,8 +70,8 @@ namespace nresx.CommandLine.Tests.Rename
         [TestCase( @"rename [TmpFile] --key [UniqueKey] --new-key [UniqueKey]" )]
         public void RenameNonExistingElement( string commandLine )
         {
-            var args = Run( commandLine );
-            
+            var args = TestHelper.RunCommandLine( commandLine, options: new CommandRunOptions{ SkipFilesWithoutKey = true } );
+
             var res = new ResourceFile( args.TemporaryFiles[0] );
             var element = res.Elements.FirstOrDefault( el => el.Key == args.UniqueKeys[0] );
             element?.Should().BeNull();

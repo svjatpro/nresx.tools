@@ -16,6 +16,12 @@ namespace nresx.CommandLine.Commands
         [Option( 'd', "destination", HelpText = "Destination resource file" )]
         public IEnumerable<string> DestinationFiles { get; set; }
 
+        [Option( "link", HelpText = "Replace raw text with resource tag in source files", Required = false, Default = false )]
+        public bool LinkResources { get; set; }
+
+        [Option( "exclude", HelpText = "Define directories, which will be excluded during", Required = false, Default = null )]
+        public string ExcludeDir { get; set; }
+
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
         protected override bool IsDryRunAllowed => true;
@@ -25,24 +31,23 @@ namespace nresx.CommandLine.Commands
 
         private bool ValidateFile( string path )
         {
-            //
-
-            return true;
+            // check if path is null or empty
+            return path != null && File.Exists( path );
         }
 
         #endregion
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
-                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true ) 
                 .Single( DestinationFiles, out var destFile, mandatory: !DryRun )
                 .Validate();
             if ( !optionsParsed )
                 return;
 
             // generate destination file
-            if ( OptionHelper.DetectResourceFormat( Format, out var format ) )
+            if ( OptionHelper.DetectResourceFormat( Format, out _ ) )
             {
                 destFile = Path.ChangeExtension( destFile, Format.ToExtension() );
             }
@@ -62,10 +67,12 @@ namespace nresx.CommandLine.Commands
                 { ".cs", new CsCodeParser() },
                 { ".xaml", new XamlCodeParser() }
             };
-            var dirSkipList = new HashSet<string>( StringComparer.CurrentCultureIgnoreCase )
-            {
-                ".git", ".vs", "bin", "obj"
-            };
+            var dirSkipList = 
+                string.IsNullOrWhiteSpace( ExcludeDir ) ?
+                new [] { ".git", ".vs", "bin", "obj" } :
+                ExcludeDir
+                    .Split( ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries )
+                    .ToArray();
             
             var elementsMap = new Dictionary<string, List<ResourceElement>>();
             ForEachFile( sourceFiles, context =>
@@ -78,7 +85,7 @@ namespace nresx.CommandLine.Commands
 
                 // filter by skip dirs
                 var rootDir = Path.GetDirectoryName( new DirectoryInfo( context.SourcePathSpec ).FullName );
-                var relPath = Path.GetRelativePath( rootDir, context.FullName );
+                var relPath = rootDir != null ? Path.GetRelativePath( rootDir, context.FullName ) : context.FullName;
                 if ( relPath.ContainsDir( dirSkipList.ToArray() ) ) return;
 
                 var nameParts = ( Path.GetDirectoryName( relPath ) ?? "" )
@@ -96,29 +103,53 @@ namespace nresx.CommandLine.Commands
 
                 var tmpFile = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() );
                 var fileChanged = false;
+                string AddNewElement( string key1, string value1 )
+                {
+                    fileChanged = true;
+                    elements.Add( new ResourceElement { Key = key1, Value = value1 } );
+                    return key1;
+                }
+
                 using var reader = new StreamReader( new FileStream( context.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
-                using var writer = DryRun ? null : new StreamWriter( new FileStream( tmpFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite ) );
+                using var writer = 
+                    ( DryRun ||  !LinkResources ) ? null : 
+                    new StreamWriter( new FileStream( tmpFile, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite ) );
                 while ( !reader.EndOfStream )
                 {
                     var line = reader.ReadLine();
-                    var processedLine = parser.ExtractFromLine( line, elNamePath, out var elExtracted );
-                    writer?.WriteLine( processedLine );
-
-                    if ( elExtracted?.Count > 0 )
-                    {
-                        fileChanged = true;
-                        elements.AddRange( elExtracted.Select( r => new ResourceElement
+                    parser.ProcessNextLine( line, elNamePath,
+                        ( key, value ) =>
                         {
-                            Key = r.Key,
-                            Value = r.Value
-                        } ) );
-                    }
+                            var existingElement = destination?.Elements.FirstOrDefault( el => el.Key == key );
+                            if ( existingElement != null )
+                            {
+                                //  1. the key already exists, and value is the same, no need to generate new one
+                                if ( existingElement.Value == value )
+                                    return key;
+
+                                //  2. the key already exists, but value is different, generate new element
+                                return AddNewElement( parser.IncrementKey( key, elements ), value );
+                            }
+
+                            // 5. try to localize already localized entry
+                            if ( destination?.Elements.Any( el => el.Key == value ) ?? false )
+                                return null;
+
+                            // 4. the key doesn't exist, but value is the same, reuse existing element
+                            var existingValue = destination?.Elements.FirstOrDefault( el => el.Value == value );
+                            if ( existingValue != null )
+                                return existingValue.Key;
+
+                            // 3. the key doesn't exist, new one
+                            return AddNewElement( key, value );
+                        },
+                        processedLine => writer?.WriteLine( processedLine ) );
                 }
 
-                if ( !DryRun && fileChanged )
+                reader.Close();
+                if ( !DryRun && LinkResources && fileChanged )
                 {
-                    reader.Close();
-                    writer.Close();
+                    writer?.Close();
                     new FileInfo( context.FullName ).Delete(); // todo: rename until new one moved
                     new FileInfo( tmpFile ).MoveTo( context.FullName );
                 }
@@ -130,19 +161,25 @@ namespace nresx.CommandLine.Commands
             {
                 foreach ( var el in elementsMap[sourceFile] )
                 {
+                    var newElement = !(destination?.Elements.Any( e => e.Key == el.Key ) ?? false);
                     // write to destination file
-                    if( !DryRun )
-                        destination.Elements.Add( el.Key, el.Value );
+                    if ( !DryRun && newElement )
+                    {
+                        destination?.Elements.Add( el.Key, el.Value );
+                    }
 
                     // write to output
-                    Console.WriteLine( $"\"{sourceFile.GetShortPath()}\": \"{el.Value}\" string has been extracted to \"{el.Key}\" resource element" );
+                    if ( newElement )
+                    {
+                        Console.WriteLine( $@"""{sourceFile.GetShortPath()}"": ""{el.Value}"" string has been extracted to ""{el.Key}"" resource element" );
+                    }
                 }
             }
 
             // save destination resource file
             if ( !DryRun )
             {
-                destination.Save( destFile );
+                destination?.Save( destFile );
             }
         }
     }

@@ -48,7 +48,7 @@ namespace nresx.Core.Tests.ResourceFiles
             var ms = new MemoryStream();
             res.Save( ms );
 
-            var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            var saved = new ResourceFile( new MemoryStream( ms.ToArray() ), targetType );
             saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }
@@ -62,7 +62,7 @@ namespace nresx.Core.Tests.ResourceFiles
             var ms = new MemoryStream();
             res.Save( ms, targetType );
 
-            var saved = new ResourceFile( new MemoryStream( ms.GetBuffer() ), targetType );
+            var saved = new ResourceFile( new MemoryStream( ms.ToArray() ), targetType );
             saved.FileFormat.Should().Be( targetType );
             ValidateElements( saved );
         }

@@ -1,0 +1,16 @@
+{
+    "parent": {
+        "middle": {
+            "Entry1.Text": {
+                "text": "Value1"
+            },
+            "Entry2": {
+                "text": "Value2",
+                "comment": "Comment2"
+            },
+            "Entry3": {
+                "text": "Value3\nmultiline"
+            }
+        }
+    }
+}

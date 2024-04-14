@@ -11,6 +11,26 @@ using nresx.Tools.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
+    public class ResourceFileInfo
+    {
+        public FileInfo FileInfo { get; }
+
+        private ResourceFile _resource;
+        public ResourceFile Resource
+        {
+            get
+            {
+                if ( _resource == null )
+                    _resource = new ResourceFile( FileInfo.FullName );
+                return _resource;
+            }
+        }
+
+        public ResourceFileInfo( string path )
+        {
+            FileInfo = new FileInfo( path );
+        }
+    }
     public abstract class BaseCommand : ICommand
     {
         #region private fields
@@ -53,9 +73,30 @@ namespace nresx.CommandLine.Commands
         public bool DryRun { get; set; }
         protected virtual bool IsDryRunAllowed => true;
 
+        [Option( "debug", HelpText = "Debug command", Hidden = true )]
+        public bool Debugger { get; set; }
+
         #endregion
 
-        public abstract void Execute();
+        public virtual void Execute()
+        {
+#if DEBUG // available only in debug configuration (not for release)
+            
+            if ( Debugger ) // while this is --debug option for nresx command line
+            {
+                Console.WriteLine();
+                Console.WriteLine( @"============== Debugger mode! ==============" );
+                Console.WriteLine();
+
+                System.Diagnostics.Debugger.Launch();
+            }
+
+#endif
+
+            ExecuteCommand();
+        }
+
+        protected abstract void ExecuteCommand();
 
         public bool Successful { get; protected set; } = true;
         public Exception Exception { get; protected set; } = null;
@@ -67,7 +108,7 @@ namespace nresx.CommandLine.Commands
 
         protected void ForEachResourceGroup(
             List<string> sourceFiles,
-            Action<GroupSearchContext, List<ResourceFile>> resourceAction,
+            Action<GroupSearchContext, List<ResourceFileInfo>> resourceAction,
             Action<GroupSearchContext, Exception> errorHandler = null,
             bool splitFiles = false )
         {
@@ -161,7 +202,8 @@ namespace nresx.CommandLine.Commands
 
                 groups.ForEach( group =>
                 {
-                    var files = group.Select( g => new ResourceFile( g.FullName ) ).ToList();
+                    //var files = group.Select( g => new ResourceFile( g.FullName ) ).ToList();
+                    var files = group.Select( g => new ResourceFileInfo( g.FullName ) ).ToList();
                     var context = new GroupSearchContext( groups.Count, groups.Select( g => g.Count ).Sum() );
                     resourceAction( context, files );
                 } );

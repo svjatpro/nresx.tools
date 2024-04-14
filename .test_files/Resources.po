@@ -1,0 +1,11 @@
+#
+msgid "Entry1.Text"
+msgstr "Value1"
+
+# Comment2
+msgid "Entry2"
+msgstr "Value2"
+
+msgid "Entry3"
+msgstr "Value3\n"
+"multiline"

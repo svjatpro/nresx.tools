@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -46,7 +45,7 @@ namespace nresx.Core.Tests
             return TestData.UniqueKey();
         }
 
-        protected string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
+        protected string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.NA )
         {
             return TestHelper.GetTestPath( fileName, type );
         }
@@ -56,22 +55,24 @@ namespace nresx.Core.Tests
             return TestHelper.GetOutputPath( fileName, type );
         }
 
-        [Obsolete( "use TestHelper.Run() instead" )]
-        protected CommandLineParameters Run( string cmdLine, CommandLineParameters parameters = null )
+        protected void ValidateElements( ResourceFile resource, ResourceFile example = null )
         {
-            return TestHelper.RunCommandLine( cmdLine, parameters );
-        }
+            var validateKey = resource.ElementHasKey;
+            var validateComment = resource.ElementHasComment;
 
-        protected void ValidateElements( ResourceFile resource )
-        {
             var elements = resource.Elements.ToList();
+            var actual = elements
+                .Select( e => ( 
+                    key: validateKey ? (e.Key ?? string.Empty) : e.Value, 
+                    val: e.Value ?? string.Empty,
+                    comment: validateComment ? ( e.Comment ?? string.Empty ) : string.Empty) );
+            var target = ( example ?? GetExampleResourceFile() ).Elements
+                .Select( e => ( 
+                    key: validateKey ? (e.Key ?? string.Empty) : e.Value, 
+                    val: e.Value ?? string.Empty, 
+                    comment: validateComment ? (e.Comment ?? string.Empty) : string.Empty) );
 
-            elements
-                .Select( e => (key: e.Key, val: e.Value) )
-                .Should().BeEquivalentTo(
-                    (key: "Entry1.Text", val: "Value1"),
-                    (key: "Entry2", val: "Value2"),
-                    (key: "Entry3", val: "Value3\r\nmultiline") );
+            actual.Should().BeEquivalentTo( target );
         }
         
         protected ResourceFile GetExampleResourceFile()
@@ -85,16 +86,6 @@ namespace nresx.Core.Tests
             var example = GetExampleResourceFile();
             foreach ( var el in example.Elements )
                 res.Elements.Add( el.Key, el.Value, el.Comment );
-        }
-
-        [Obsolete( "use TestHelper.CopyTemporaryFile() instead" )]
-        protected string CopyTemporaryFile(
-            string sourcePath = null, 
-            string destPath = null,
-            string destDir = null,
-            ResourceFormatType copyType = ResourceFormatType.Resx )
-        {
-            return TestHelper.CopyTemporaryFile( sourcePath, destPath, destDir, copyType );
         }
 
         protected List<string> PrepareGroupedFiles( string[] locales, out string fileKey, bool dirLocales = false, string dir = null )
@@ -133,6 +124,7 @@ namespace nresx.Core.Tests
             return result;
         }
 
+        // todo: add "randomResourceType" option, false by default (resx)
         protected List<string> PrepareTemporaryFiles( int rootFiles, int firstDirFiles, out string fileKey, string dir = null )
         {
             fileKey = TestData.UniqueKey();

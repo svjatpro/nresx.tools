@@ -1,9 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace nresx.Tools.CodeParsers
 {
     public interface ICodeParser
     {
-        string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements );
+        void ProcessNextLine( 
+            string line, string elementPath,
+            Func<string, string, string> processExtractedElement,
+            Action<string> writeProcessedLine );
+
+        string IncrementKey( string key, List<ResourceElement> elements );
     }
 }

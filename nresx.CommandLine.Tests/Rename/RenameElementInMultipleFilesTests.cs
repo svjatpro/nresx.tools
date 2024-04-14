@@ -16,109 +16,99 @@ namespace nresx.CommandLine.Tests.Rename
         {
             var res1 = GetExampleResourceFile();
             var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters{UniqueKeys = { elementToUpdate.Key }} );
 
-            args.TemporaryFiles.ForEach(
-                file =>
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } )
+                .WithParams( args => new { oldKey = elementToUpdate.Key, newKey = args.UniqueKeys[1] } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( ( args, param ) =>
                 {
-                    var res = new ResourceFile( file );
-                    var element = res.Elements.First( el => el.Key == args.UniqueKeys[0] );
-                    element.Should().BeEquivalentTo( elementToUpdate, config => config.Excluding( el => el.Key ) );
+                    args.TemporaryFiles.ForEach(
+                        file =>
+                        {
+                            var res = new ResourceFile( file );
+                            res.Elements.FirstOrDefault( el => el.Key == param.newKey ).Should().BeNull();
+                        } );
+                } )
+                .ValidateRun( ( args, param ) =>
+                {
+                    args.TemporaryFiles.ForEach(
+                        file =>
+                        {
+                            var res = new ResourceFile( file );
+                            var element = res.Elements.First( el => el.Key == param.newKey );
+                            element.Should().BeEquivalentTo( elementToUpdate, config => config.Excluding( el => el.Key ).Excluding( el => el.Comment ) );
+                        } );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{args.TemporaryFiles[0]}'",
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{args.TemporaryFiles[1]}'" );
                 } );
         }
 
-        [TestCase( @"rename [TmpFile] [TmpFile] -k [UniqueKey] -n [UniqueKey] --dry-run" )]
-        [TestCase( @"rename [TmpFile] [TmpFile] --key [UniqueKey] --new-key [UniqueKey] --dry-run" )]
-        public void RenameSingleElementDryRun( string commandLine )
-        {
-            var res1 = GetExampleResourceFile();
-            var elementToUpdate = res1.Elements.Skip( 1 ).First();
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { elementToUpdate.Key } } );
-
-            args.TemporaryFiles.ForEach(
-                file =>
-                {
-                    var res = new ResourceFile( file );
-                    res.Elements.FirstOrDefault( el => el.Key == args.UniqueKeys[0] ).Should().BeNull();
-                } );
-
-            args.ConsoleOutput.Should().BeEquivalentTo( 
-                $"'{elementToUpdate.Key}' element have been renamed to '{args.UniqueKeys[0]}' in '{args.TemporaryFiles[0]}'",
-                $"'{elementToUpdate.Key}' element have been renamed to '{args.UniqueKeys[0]}' in '{args.TemporaryFiles[1]}'" );
-        }
-
-
-
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx -k [UniqueKey] -n [UniqueKey]" )]
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx --key [UniqueKey] --new-key [UniqueKey]" )]
+        [TestCase( @"rename [Output]\[UniqueKey]* -k [UniqueKey] -n [UniqueKey]" )]
+        [TestCase( @"rename [Output]\[UniqueKey]* --key [UniqueKey] --new-key [UniqueKey]" )]
         public void RenameSingleElementByNonRecursiveSpec( string commandLine )
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
 
-            var key = args.UniqueKeys[0];
-
-            new ResourceFile( files[0] ).Elements.Should().ContainSingle( el => el.Key == key );
-            new ResourceFile( files[1] ).Elements.Should().ContainSingle( el => el.Key == key );
-            new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == key );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } )
+                .WithParams( args => new { oldKey = elementToUpdate.Key, newKey = args.UniqueKeys[2] } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( ( _, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                    new ResourceFile( files[1] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                    new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                } )
+                .ValidateRun( ( _, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
+                    new ResourceFile( files[1] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
+                    new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{files[0].GetShortPath()}'",
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{files[1].GetShortPath()}'" );
+                } );
         }
 
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx -k [UniqueKey] -n [UniqueKey] --dry-run" )]
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx --key [UniqueKey] --new-key [UniqueKey] --dry-run" )]
-        public void RenameSingleElementByNonRecursiveSpecDryRun( string commandLine )
-        {
-            var elementToUpdate = GetExampleResourceFile().Elements[1];
-            var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
-
-            var key = args.UniqueKeys[0];
-
-            new ResourceFile( files[0] ).Elements.Should().NotContain( el => el.Key == key );
-            new ResourceFile( files[1] ).Elements.Should().NotContain( el => el.Key == key );
-            new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == key );
-
-            args.ConsoleOutput.Should().BeEquivalentTo(
-                $"'{elementToUpdate.Key}' element have been renamed to '{key}' in '{files[0]}'",
-                $"'{elementToUpdate.Key}' element have been renamed to '{key}' in '{files[1]}'" );
-        }
-
-
-
-
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx -k [UniqueKey] -n [UniqueKey] -r" )]
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx --key [UniqueKey] --new-key [UniqueKey] --recursive" )]
+        [TestCase( @"rename [Output]\[UniqueKey]* -k [UniqueKey] -n [UniqueKey] -r" )]
+        [TestCase( @"rename [Output]\[UniqueKey]* --key [UniqueKey] --new-key [UniqueKey] --recursive" )]
         public void RenameSingleElementByRecursiveSpec( string commandLine )
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
 
-            var key = args.UniqueKeys[0];
-
-            new ResourceFile( files[0] ).Elements.Should().ContainSingle( el => el.Key == key );
-            new ResourceFile( files[1] ).Elements.Should().ContainSingle( el => el.Key == key );
-            new ResourceFile( files[2] ).Elements.Should().ContainSingle( el => el.Key == key );
-        }
-
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx -k [UniqueKey] -n [UniqueKey] -r --dry-run" )]
-        [TestCase( @"rename [Output]\[UniqueKey]*.resx --key [UniqueKey] --new-key [UniqueKey] --recursive --dry-run" )]
-        public void RenameSingleElementByRecursiveSpecDryRun( string commandLine )
-        {
-            var elementToUpdate = GetExampleResourceFile().Elements[1];
-            var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
-            var args = Run( commandLine, new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } );
-
-            var key = args.UniqueKeys[0];
-
-            new ResourceFile( files[0] ).Elements.Should().NotContain( el => el.Key == key );
-            new ResourceFile( files[1] ).Elements.Should().NotContain( el => el.Key == key );
-            new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == key );
-
-            args.ConsoleOutput.Should().BeEquivalentTo(
-                $"'{elementToUpdate.Key}' element have been renamed to '{key}' in '{files[0].GetShortPath()}'",
-                $"'{elementToUpdate.Key}' element have been renamed to '{key}' in '{files[1].GetShortPath()}'",
-                $"'{elementToUpdate.Key}' element have been renamed to '{key}' in '{files[2].GetShortPath()}'" );
+            commandLine
+                .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey, elementToUpdate.Key } } )
+                .WithParams( args => new { oldKey = elementToUpdate.Key, newKey = args.UniqueKeys[2] } )
+                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .ValidateDryRun( ( _, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                    new ResourceFile( files[1] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                    new ResourceFile( files[2] ).Elements.Should().NotContain( el => el.Key == param.newKey );
+                } )
+                .ValidateRun( ( _, param ) =>
+                {
+                    new ResourceFile( files[0] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
+                    new ResourceFile( files[1] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
+                    new ResourceFile( files[2] ).Elements.Should().ContainSingle( el => el.Key == param.newKey );
+                } )
+                .ValidateStdout( ( args, param ) =>
+                {
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{files[0].GetShortPath()}'",
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{files[1].GetShortPath()}'",
+                        $"'{param.oldKey}' element have been renamed to '{param.newKey}' in '{files[2].GetShortPath()}'" );
+                } );
         }
     }
 }

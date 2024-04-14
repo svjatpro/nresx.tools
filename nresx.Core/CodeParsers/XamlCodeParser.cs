@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -6,7 +7,7 @@ using nresx.Tools.Extensions;
 
 namespace nresx.Tools.CodeParsers
 {
-    public class XamlCodeParser : ICodeParser
+    public class XamlCodeParser : CodeParserBase
     {
         private readonly Dictionary<string, int> ElementsCounts = new();
 
@@ -56,7 +57,7 @@ namespace nresx.Tools.CodeParsers
                 var tagMatch = ElementTagRegex.Match( line, prevIndex, match.Length + match.Index - prevIndex + 1 );
                 if ( tagMatch.Success )
                 {
-                    var tag = tagMatch.Groups[1].Value.ToFirstCapital();
+                    //var tag = tagMatch.Groups[1].Value.ToFirstCapital();
                     keyCore = $"{elementPath}_{tagMatch.Groups[1].Value.ToFirstCapital()}";
                     keyExtra = $"_{valueKey}.{prop}";
                     key = $"{keyCore}{keyExtra}";
@@ -92,10 +93,11 @@ namespace nresx.Tools.CodeParsers
             return $" x:Uid=\"{keyRef}\"";
         }
 
-        public string ExtractFromLine( string line, string elementPath, out Dictionary<string, string> elements )
+        public override void ProcessNextLine(
+            string line, string elementPath,
+            Func<string, string, string> processExtractedElement,
+            Action<string> writeProcessedLine )
         {
-            var result = new Dictionary<string, string>();
-
             var matchIndex = 0;
             var prevIndex = 0;
             var replacedLine = new StringBuilder();
@@ -104,20 +106,34 @@ namespace nresx.Tools.CodeParsers
             {
                 if ( !GetValue( match, out var value ) ) continue;
                 var key = GenerateElementName( line, elementPath, match, ref matchIndex );
-                result.Add( key, value );
-
+                var newKey = processExtractedElement( key, value );
+                
                 // add matches part to result line
                 if ( prevIndex < match.Index )
                     replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
-                replacedLine.Append( GetStringPlaceholder( key ) );
+
+                if ( newKey != null ) 
+                    replacedLine.Append( GetStringPlaceholder( newKey ) );
+                else
+                    replacedLine.Append( line.Substring( match.Index, match.Length ) );
+
                 prevIndex = match.Index + match.Length;
             }
-            
-            elements = result;
 
             if ( prevIndex < line.Length )
                 replacedLine.Append( line.Substring( prevIndex ) );
-            return replacedLine.ToString();
+            writeProcessedLine( replacedLine.ToString() );
+        }
+
+        public override string IncrementKey( string key, List<ResourceElement> elements )
+        {
+            var parts = key.Split( '.' );
+            if ( parts.Length > 1 )
+            {
+                var newKeyCore = IncrementKeyName( key.Substring( 0, key.Length - parts.Last().Length - 1 ), elements );
+                return $"{newKeyCore}.{parts.Last()}";
+            }
+            return IncrementKeyName( key, elements );
         }
     }
 }

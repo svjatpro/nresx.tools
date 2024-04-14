@@ -1,0 +1,21 @@
+{
+  "strings":
+  [
+    {
+        "id1": "Entry1.Text",
+        "id2": "Entry2.Text",
+        "id3": "Entry3.Text",
+        "text_custom1": "Value1",
+        "text_custom2": "Value2"
+    },
+    {
+        "key": "Entry2",
+        "value": "Value2",
+        "description": "Comment2"
+    },
+    {
+        "name": "Entry3",
+        "content": "Value3\nmultiline"
+    }
+  ]
+}

@@ -14,12 +14,16 @@ namespace nresx.CommandLine.Tests.Info
         [TestCase( @"info --source [TmpFile]" )]
         public void GetSingleFileInfo( string commandLine )
         {
-            var args = Run( commandLine );
-            var res = new ResourceFile( args.TemporaryFiles[0] );
-
-            args.ConsoleOutput[0].Should().Be( $"Resource file name: \"{res.FileName}\", (\"{res.AbsolutePath})\"" );
-            args.ConsoleOutput[1].Should().Be( $"resource format type: {res.FileFormat}" );
-            args.ConsoleOutput[2].Should().Be( $"text elements: {res.Elements.Count()}" );
+            commandLine
+                .ValidateRun( _ => { } )
+                .ValidateStdout( args =>
+                {
+                    var res = new ResourceFile( args.TemporaryFiles[0] );
+                    args.ConsoleOutput.Should().BeEquivalentTo(
+                        $"Resource file name: \"{res.FileName}\", (\"{res.AbsolutePath})\"",
+                        $"resource format type: {res.FileFormat}",
+                        $"text elements: {res.Elements.Count()}" );
+                } );
         }
     }
 }

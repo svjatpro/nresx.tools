@@ -11,33 +11,53 @@ namespace nresx.Core.Tests.CodeParsers
     public class CsCodeParserTests : TestBase
     {
         [TestCase( @"        public string Description = ""The long description""; ", "TheFile", 
-            "TheFile_Description", "The long description", @"        public string Description = GetString(""TheFile_Description""); " )]
+            "TheFile_Description", "The long description", @"        public string Description = GetStringLocale(""TheFile_Description""); " )]
         [TestCase( @"var description = ""The long description"";", "TheFile", 
-            "TheFile_Description", "The long description", @"var description = GetString(""TheFile_Description"");" )]
+            "TheFile_Description", "The long description", @"var description = GetStringLocale(""TheFile_Description"");" )]
         
         [TestCase( @"string description => ""The long description"";", "TheFile", 
-            "TheFile_Description", "The long description", @"string description => GetString(""TheFile_Description"");" )]
+            "TheFile_Description", "The long description", @"string description => GetStringLocale(""TheFile_Description"");" )]
         [TestCase( @"private static string Description => ""The long description""; ", "TheFile", 
-            "TheFile_Description", "The long description", @"private static string Description => GetString(""TheFile_Description""); " )]
+            "TheFile_Description", "The long description", @"private static string Description => GetStringLocale(""TheFile_Description""); " )]
 
         [TestCase( @"var prop1 = obj2.TheMethod3( ""The long description"" );", "TheFile", 
-            "TheFile_TheLong", "The long description", @"var prop1 = obj2.TheMethod3( GetString(""TheFile_TheLong"") );" )]
+            "TheFile_TheLong", "The long description", @"var prop1 = obj2.TheMethod3( GetStringLocale(""TheFile_TheLong"") );" )]
         
-        public async Task ParseVariableDeclaration( string line, string elPath, string key, string value, string newLine )
+        public Task ParseVariableDeclaration( string line, string elPath, string key, string value, string newLine )
         {
-            var processedLine = new CsCodeParser().ExtractFromLine( line, elPath, out var result );
+            string processedLine = null;
+            var result = new Dictionary<string, string>();
+
+            new CsCodeParser().ProcessNextLine( line, elPath,
+                ( k, v ) =>
+                {
+                    result.Add( k, v );
+                    return k;
+                },
+                l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
 
             result.Should().BeEquivalentTo( new Dictionary<string, string>{ {key, value} } );
 
             processedLine.Should().Be( newLine );
+            return Task.CompletedTask;
         }
 
         [Test]
-        public async Task DuplicatedVariableHaveIndex()
+        public Task DuplicatedVariableHaveIndex()
         {
-            var processedLine = new CsCodeParser().ExtractFromLine( @"var prop1 = obj2.TheMethod3( ""The text"", ""The text"" );", "TheFile", out var result );
+            string processedLine = null;
+            var result = new Dictionary<string, string>();
+
+            new CsCodeParser().ProcessNextLine( 
+                @"var prop1 = obj2.TheMethod3( ""The text"", ""The text"" );", "TheFile",
+                ( k, v ) =>
+                {
+                    result.Add( k, v );
+                    return k;
+                },
+                l => processedLine = l );
             foreach ( var keyValue in result )
                 Console.WriteLine( $"{keyValue.Key}: {keyValue.Value}" );
 
@@ -47,7 +67,8 @@ namespace nresx.Core.Tests.CodeParsers
                 { "TheFile_TheText1", "The text" }
             } );
 
-            processedLine.Should().Be( @"var prop1 = obj2.TheMethod3( GetString(""TheFile_TheText""), GetString(""TheFile_TheText1"") );" );
+            processedLine.Should().Be( @"var prop1 = obj2.TheMethod3( GetStringLocale(""TheFile_TheText""), GetStringLocale(""TheFile_TheText1"") );" );
+            return Task.CompletedTask;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace nresx.CommandLine.Commands
         //[Option( "duplicates", HelpText = "Remove all empty elements - key or value" )]
         //public bool Duplicates { get; set; }
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
@@ -62,14 +62,11 @@ namespace nresx.CommandLine.Commands
 
                     foreach ( var key in elementsToDelete )
                     {
-                        if ( DryRun )
-                        {
-                            Console.WriteLine( $"{shortFilePath}: '{key}' have been removed" );
-                        }
-                        else
+                        if ( !DryRun )
                         {
                             resource.Elements.Remove( key );
                         }
+                        Console.WriteLine( $"{shortFilePath}: '{key}' have been removed" );
                     }
 
                     if ( !DryRun && !resource.IsNewFile )

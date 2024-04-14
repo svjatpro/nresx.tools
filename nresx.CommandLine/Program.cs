@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands;
@@ -71,6 +73,10 @@ namespace nresx.CommandLine
 
         static int Main( string[] args )
         {
+            //var res1 = new ResourceFile( @"C:\Tmp\2\WebApp.po" );
+            //res1.Save( @"C:\Tmp\2\WebApp1.po" );
+            //return 0;
+
             //using var stream = new FileStream( @"C:\Tmp\Resources.resw", FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
             //using var reader = new ResXResourceReader( stream );
             //reader.UseResXDataNodes = true;
@@ -124,8 +130,10 @@ namespace nresx.CommandLine
                 }
             }
 
-            return Parser.Default
+            //return Parser.Default
+            return new Parser( settings => settings.AutoVersion = false)
                 .ParseArguments<
+                    VersionCommand,
                     InfoCommand, ListCommand,
                     ConvertCommand, FormatCommand, CopyCommand,
                     AddCommand, RemoveCommand, UpdateCommand, RenameCommand,

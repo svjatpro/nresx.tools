@@ -21,7 +21,7 @@ namespace nresx.CommandLine.Commands
         [Option( 'd', "destination", HelpText = "Destination resource file" )]
         public IEnumerable<string> DestinationFiles { get; set; }
 
-        public override void Execute()
+        protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true )

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using nresx.Tools;
@@ -9,23 +10,32 @@ using nresx.Tools.Helpers;
 
 namespace nresx.Core.Tests
 {
+    public class CommandRunOptions
+    {
+        public bool MergeArgs { get; set; } = false;
+        public bool SkipFilesWithoutKey { get; set; } = false;
+        public bool SkipFilesWithoutComment { get; set; } = false;
+
+        public string WorkingDirectory { get; set; }
+    }
+
     public class TestHelper
     {
         private static void ReplaceTags( 
             StringBuilder resultCmdLine, 
             string tagPlaceholder, 
-            Func<ResourceFormatType, string, string, string> getTagValue)
+            Func<ResourceFormatType, string, string, string> getTagValue,
+            CommandRunOptions options = null )
         {
             const string dirPlaceholder = @"Dir\";
             var tagName = tagPlaceholder.TrimStart( ' ', '[' ).TrimEnd( ' ', ']' );
-            //var regx = new Regex( $"\\[{tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
             var regx = new Regex( $"\\[(Dir\\\\|){tagName}(.[\\w]+|)\\]", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant );
             var matches = regx.Matches( resultCmdLine.ToString() );
 
             foreach ( Match match in matches )
             {
                 string tag;
-                var formatType = ResourceFormatType.Resx;
+                var formatType = TestData.GetRandomType( options );
                 var param = "";
                 var dir = "";
                 var dirPrefix = match.Groups[1].Value;
@@ -57,10 +67,13 @@ namespace nresx.Core.Tests
             }
         }
 
-        public static string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.Resx )
+        public static string GetTestPath( string fileName, ResourceFormatType type = ResourceFormatType.NA )
         {
             var path = Path.Combine( TestData.TestFileFolder, fileName );
-            if ( !Path.HasExtension( path ) && ResourceFormatHelper.DetectExtension( type, out var extension ) )
+            if ( !Path.HasExtension( path ) && type != ResourceFormatType.NA )
+                type = ResourceFormatType.Resx;
+
+            if ( type != ResourceFormatType.NA && ResourceFormatHelper.DetectExtension( type, out var extension ) )
                 path = Path.ChangeExtension( path, extension );
             return path;
         }
@@ -114,8 +127,11 @@ namespace nresx.Core.Tests
             string cmdLine,
             out CommandLineParameters parameters,
             CommandLineParameters predefinedParams = null,
-            bool mergeArgs = false ) // temporary solution, eventually it must be default behavior
+            CommandRunOptions options = null )
         {
+            if ( options == null )
+                options = new CommandRunOptions();
+
             var resultParams = new CommandLineParameters();
             var resultCmdLine = new StringBuilder( cmdLine );
 
@@ -127,11 +143,11 @@ namespace nresx.Core.Tests
             // get resource files and replace its paths
             ReplaceTags(
                 resultCmdLine, CommandLineTags.SourceFile,
-                ( type, dir, parameter ) =>
+                ( type, _, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.SourceFiles.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.SourceFiles.Add( p );
                         return p;
                     }
@@ -139,16 +155,17 @@ namespace nresx.Core.Tests
                     var path = GetTestPath( Path.ChangeExtension( TestData.ExampleResourceFile, "" ), type );
                     resultParams.SourceFiles.Add( path );
                     return path;
-                } );
+                },
+                options );
 
             // generate output files paths and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.NewFile,
-                ( type, dir, parameter ) =>
+                ( type, dir, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewFiles.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.NewFiles.Add( p );
                         return p;
                     }
@@ -157,16 +174,17 @@ namespace nresx.Core.Tests
                     var path = GetOutputPath( file, type );
                     resultParams.NewFiles.Add( path );
                     return path;
-                } );
+                },
+                options );
 
             // generate temporary files and replace its paths
             ReplaceTags(
                 resultCmdLine, CommandLineTags.TemporaryFile,
-                ( type, dir, parameter ) =>
+                ( type, dir, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryFiles.TryTake( out var p ) )
                     {
-                        if ( mergeArgs )
+                        if ( options.MergeArgs )
                             resultParams.TemporaryFiles.Add( p );
                         return p;
                     }
@@ -174,16 +192,17 @@ namespace nresx.Core.Tests
                     var destPath = CopyTemporaryFile( copyType: type, destDir: dir );
                     resultParams.TemporaryFiles.Add( destPath );
                     return destPath;
-                } );
+                },
+                options);
 
             // generate unique key(s) and replace in command line
             ReplaceTags(
                 resultCmdLine, CommandLineTags.UniqueKey,
-                ( type, dir, parameter ) =>
+                ( _, _, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.UniqueKeys.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.UniqueKeys.Add( p );
                         return p;
                     }
@@ -191,16 +210,28 @@ namespace nresx.Core.Tests
                     var key = TestData.UniqueKey();
                     resultParams.UniqueKeys.Add( key );
                     return key;
-                } );
+                },
+                options );
+
+            // generate unique key(s) and replace in command line
+            ReplaceTags(
+                resultCmdLine, CommandLineTags.RandomExtension,
+                ( type, _, _ ) =>
+                {
+                    var ext = ResourceFormatHelper.GetExtension( type );
+                    resultParams.RandomExtensions.Add( ext );
+                    return ext;
+                },
+                options );
 
             // create new directory
             ReplaceTags(
                 resultCmdLine, CommandLineTags.NewDir,
-                ( type, dir, parameter ) =>
+                ( _, dir, _ ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.NewDirectories.TryTake( out var p ) )
                     {
-                        if( mergeArgs )
+                        if( options.MergeArgs )
                             resultParams.NewDirectories.Add( p );
                         return p;
                     }
@@ -213,16 +244,17 @@ namespace nresx.Core.Tests
                     //var destPath = CopyTemporaryFile( copyType: type, destDir: dir );
                     resultParams.NewDirectories.Add( newDir );
                     return newDir;
-                } );
+                },
+                options );
 
             // create copy of the project in temporary output directory
             ReplaceTags(
                 resultCmdLine, CommandLineTags.TemporaryProjectDir,
-                ( type, dir, parameter ) =>
+                ( _, _, parameter ) =>
                 {
                     if ( predefinedParams != null && predefinedParams.TemporaryProjects.TryTake( out var p ) )
                     {
-                        if ( mergeArgs )
+                        if ( options.MergeArgs )
                             resultParams.TemporaryProjects.Add( p );
                         return p;
                     }
@@ -233,7 +265,8 @@ namespace nresx.Core.Tests
 
                     resultParams.TemporaryProjects.Add( targetDir );
                     return targetDir;
-                } );
+                },
+                options );
 
             var result = resultCmdLine.ToString();
 
@@ -241,23 +274,57 @@ namespace nresx.Core.Tests
             resultParams.DryRun = result.Contains( TestData.DryRunOption );
             resultParams.Recursive = result.Contains( TestData.RecursiveOption ) || result.Contains( TestData.RecursiveShortOption );
 
+            if ( options.MergeArgs )
+            {
+                if( predefinedParams?.SourceFiles.Any() ?? false )
+                    resultParams.SourceFiles.AddRange( predefinedParams.SourceFiles );
+                if ( predefinedParams?.NewFiles.Any() ?? false )
+                    resultParams.NewFiles.AddRange( predefinedParams.NewFiles );
+                if ( predefinedParams?.TemporaryFiles.Any() ?? false )
+                    resultParams.TemporaryFiles.AddRange( predefinedParams.TemporaryFiles );
+                if ( predefinedParams?.UniqueKeys.Any() ?? false )
+                    resultParams.UniqueKeys.AddRange( predefinedParams.UniqueKeys );
+                if ( predefinedParams?.RandomExtensions.Any() ?? false )
+                    resultParams.RandomExtensions.AddRange( predefinedParams.RandomExtensions );
+                if ( predefinedParams?.NewDirectories.Any() ?? false )
+                    resultParams.NewDirectories.AddRange( predefinedParams.NewDirectories );
+                if ( predefinedParams?.TemporaryProjects.Any() ?? false )
+                    resultParams.TemporaryProjects.AddRange( predefinedParams.TemporaryProjects );
+            }
+
             parameters = resultParams;
             return result;
         }
 
         public static CommandLineParameters RunCommandLine( 
             string cmdLine, 
-            CommandLineParameters parameters = null, 
-            bool mergeArgs = false )
+            CommandLineParameters parameters = null,
+            CommandRunOptions options = null )
         {
-            var args = PrepareCommandLine( cmdLine, out var p, parameters, mergeArgs );
+#if DEBUG
+            bool.TryParse( Environment.GetEnvironmentVariable( "DEBUG_COMMAND_LINE" ), out var debugCommandLine );
+#else
+            var debugCommandLine = false;
+#endif
 
-            var cmd = $"/C nresx {args}";
+            var args = PrepareCommandLine( cmdLine, out var p, parameters, options );
+            if( debugCommandLine )
+                args += " --debug";
+
             var process = new Process();
-            process.StartInfo = new ProcessStartInfo( "CMD.exe", cmd );
+            
+            process.StartInfo = new ProcessStartInfo( "nresx", args );
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
+            if ( !string.IsNullOrWhiteSpace( options?.WorkingDirectory ) ) 
+                process.StartInfo.WorkingDirectory = options.WorkingDirectory;
+
             process.Start();
-            process.WaitForExit( 5000 );
+            if ( debugCommandLine )
+                process.WaitForExit();
+            else
+                process.WaitForExit( 5000 );
 
             p.ExitCode = process.ExitCode;
 
@@ -266,6 +333,14 @@ namespace nresx.Core.Tests
                 var line = process.StandardOutput.ReadLine();
                 p.ConsoleOutput.Add( line );
             }
+
+            Console.WriteLine( $@"============ command line run: =============" );
+            Console.WriteLine( $@"nresx {args}" );
+            Console.WriteLine( new string( '=', 50 ) );
+            foreach ( var line in p.ConsoleOutput )
+                Console.WriteLine( line );
+            Console.WriteLine( new string( '=', 50 ) );
+            Console.WriteLine();
             
             return p;
         }
