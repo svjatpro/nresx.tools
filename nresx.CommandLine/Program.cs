@@ -130,8 +130,10 @@ namespace nresx.CommandLine
                 }
             }
 
-            return Parser.Default
+            //return Parser.Default
+            return new Parser( settings => settings.AutoVersion = false)
                 .ParseArguments<
+                    VersionCommand,
                     InfoCommand, ListCommand,
                     ConvertCommand, FormatCommand, CopyCommand,
                     AddCommand, RemoveCommand, UpdateCommand, RenameCommand,

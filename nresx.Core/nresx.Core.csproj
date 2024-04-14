@@ -4,6 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>9</LangVersion>
     <RootNamespace>nresx.Tools</RootNamespace>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "generate .test_output\\appUwp_Uglxic9q\\* -d .test_output\\3pAAkcQN.po -r --new-file",
+      "commandLineArgs": "version",
       "workingDirectory": "D:\\Tmp"
     }
   }
