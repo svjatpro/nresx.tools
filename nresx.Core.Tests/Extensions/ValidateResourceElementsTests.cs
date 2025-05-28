@@ -26,9 +26,9 @@ namespace nresx.Core.Tests.Extensions
             res.Elements.Add( res.Elements[2].Key, UniqueKey() );
 
             res.Elements.ValidateElements( out var errors ).Should().BeFalse();
-            errors.Should().BeEquivalentTo(
+            errors.Should().BeEquivalentTo( [
                 new ResourceElementError( ResourceElementErrorType.Duplicate, res.Elements[1].Key ),
-                new ResourceElementError( ResourceElementErrorType.Duplicate, res.Elements[2].Key ) );
+                new ResourceElementError( ResourceElementErrorType.Duplicate, res.Elements[2].Key )] );
         }
 
         [Test]
@@ -39,7 +39,8 @@ namespace nresx.Core.Tests.Extensions
             res.Elements.Add( keyDuplicated, UniqueKey() );
 
             res.Elements.ValidateElements( out var errors ).Should().BeFalse();
-            errors.Should().BeEquivalentTo( new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, keyDuplicated ) );
+            errors.Should().BeEquivalentTo( 
+                [new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, keyDuplicated )] );
         }
 
         [Test]
@@ -64,9 +65,9 @@ namespace nresx.Core.Tests.Extensions
             res.Elements[1].Value = string.Empty;
 
             res.Elements.ValidateElements( out var errors ).Should().BeFalse();
-            errors.Should().BeEquivalentTo( 
+            errors.Should().BeEquivalentTo([
                 new ResourceElementError( ResourceElementErrorType.EmptyValue, res.Elements[0].Key ),
-                new ResourceElementError( ResourceElementErrorType.EmptyValue, res.Elements[1].Key ) );
+                new ResourceElementError( ResourceElementErrorType.EmptyValue, res.Elements[1].Key ) ]);
         }
     }
 }

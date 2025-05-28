@@ -38,10 +38,10 @@ namespace nresx.Core.Tests.ResourceFiles.Json
             res.Elements
                 .Select( el => el as ResourceElementJson )
                 .Select( el => (key: el.KeyProperyName, val: el.ValueProperyName, comment: el.CommentProperyName) )
-                .Should().BeEquivalentTo(
+                .Should().BeEquivalentTo( [
                     (key: "id", val: "text", comment: "comment"),
                     (key: "key", val: "value", comment: "description"),
-                    (key: "name", val: "content", comment: "comment") );
+                    (key: "name", val: "content", comment: "comment")] );
         }
 
         [TestCase( @"json\plain.json", JsonElementType.KeyValue, "" )]
