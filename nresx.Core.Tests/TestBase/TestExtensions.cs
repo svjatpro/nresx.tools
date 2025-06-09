@@ -1,8 +1,13 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace nresx.Core.Tests
 {
+    public class CommandsStatistics
+    {
+        public static ConcurrentBag<string> Commands = [];
+    }
     public class CommandRunContext
     {
         public string CommandLine { get; set; }
@@ -190,6 +195,8 @@ namespace nresx.Core.Tests
 
             context.BeforeRunAction?.Invoke( args );
             var result = TestHelper.RunCommandLine( commandLine, args, options );
+
+            CommandsStatistics.Commands.Add( result.CommandLine );
 
             Console.WriteLine( "run command:" );
             Console.WriteLine( $"\"{result.CommandLine}\"" );

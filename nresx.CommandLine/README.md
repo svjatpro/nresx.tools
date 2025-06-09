@@ -284,6 +284,7 @@ Copy resource elements(s) from one resource file to another
 nresx copy [-s] <pathspec> [-d] <pathspec>
   [--skip | --overwrite]
   [--dry-run]
+**--new-file**  Will create destination file(s) if they do not exist
 ```
 
 #### Options
@@ -346,7 +347,7 @@ nresx generate [-s] <pathspec> [-d] <pathspec> [--recursive] [--dry-run]
 **--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 **--link** We will replace the existing texts in the project's source code with links to localized resources.
-**--exclude** Exclude directories when generating resources. By default it equals to ".git,.vs,bin,obj"
+**--exclude** Exclude directories when generating resources. Accepts a comma-separated list or quoted names. Default: ".git,.vs,bin,obj"
 
 #### Examples
 
