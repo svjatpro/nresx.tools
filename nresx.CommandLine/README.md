@@ -1,4 +1,4 @@
-Command line tool
+Commands
 ================
 
 - [Convert](#convert)
@@ -17,7 +17,12 @@ Command line tool
 Convert resource file(s) to another format
 
 ```sh
-nresx convert [-s] <pathspec> [-d <pathspec>] [-f <format>] [--dry-run] [--recursive]
+nresx convert
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-d | --destination <pathspec>]
+  [-f | --format <format>]
+  [--dry-run]
 ```
 
 #### Options
@@ -59,15 +64,20 @@ nresx convert *.resx dir1/dir2/*.yaml -r
 Format text entries in a resource file(s).
 
 ```sh
-nresx format [-s] <pathspec> 
-  [--start-with | --end-with] [--culture-code | --language-code] [-p <pattern>]
-  [--dry-run] [--recursive]
+nresx format
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-p | --pattern <pattern>] [-c | --culture-code] [-l | --language-code]
+  [--start-with | --end-with]
+  [--delete]
+  [--dry-run]
 ```
 
 #### Options
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
+**-p | --pattern**  Custom pattern to apply to element value\
 **-l | --language-code**  Use language code (two letter ISO name) as a format pattern\
 **-c | --culture-code**  Use culture code as a format pattern\
 **--start-with**  Add or remove new part at the beginning of elements value\
@@ -92,16 +102,16 @@ nresx format Resources\*.resx --start-with --culture-code --recursive
 ## Info
 Get basic information about resource file(s).
 
-
 ```sh
-nresx [info] [-s] <pathspec> [-r]
+nresx [info]
+  [-s | --source] <pathspec> 
+  [-r | --recursive]
 ```
 
 #### Options
 
 **-s | --source** Resource file(s) to process, can be a pathspec\
-**-r | --recursive** Process resource files in subdirectories\
-
+**-r | --recursive** Process resource files in subdirectories
 #### Examples
 
 ```sh
@@ -117,18 +127,15 @@ nresx info *.resx -r
 List text elements from resource file.
 
 ```sh
-nresx list [-s] <pathspec> [-t <output template>]
+nresx list
+  [-s | --source] <pathspec> 
+  [-t | --template <output template>]
 ```
 
 #### Options
 
 **-s | --source** Resource file(s) to process, can be a pathspec\
-**-r | --recursive** Process resource files in subdirectories\
-**-t | --template** Output row template for each text element in a resource file,\
-possible tags are:\
-- \k - element key
-- \v - element value
-- \c - element comment
+**-t | --template** Output row template for each text element in a resource file,possible tags are:- \k - element key- \v - element value- \c - element comment
 
 the default template is "\k: \v"
 
@@ -147,18 +154,24 @@ nresx list <file1> -t "some prefix \k: \v, (\c)"
 Add resource item to resource file(s)
 
 ```sh
-nresx add [-s] <pathspec> -k <element key> -v <element value> [-c <element comment>] 
-  [--dry-run] [--recursive]
+nresx add 
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-k | --key <element key>]
+  [-v | --value <element value>]
+  [-c | --comment <element comment>] 
+  [--new-file]
+  [--dry-run]
 ```
 
 #### Options
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **-k | --key**  Element key\
 **-v | --value**  Element value\
 **-c | --comment**  Element comment\
+**--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
@@ -178,12 +191,19 @@ nresx add file1 file2 -k key1 -v value1
 nresx add *.resw -r -k key1 -v value1
 ```
 
+
 ## Update
 Update resource item in resource file(s)
 
 ```sh
-nresx update [-s] <pathspec> -k <element key> [-v <element value>] [-c <element comment>] 
-  [--dry-run] [--recursive] [--new-element]
+nresx update
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-k | --key <element key>]
+  [-v | --value <element value>]
+  [-c | --comment <element comment>] 
+  [--new-element]
+  [--dry-run]
 ```
 
 #### Options
@@ -218,8 +238,13 @@ nresx update *.resw -r -k key1 -v value1
 Rename resource item in resource file(s)
 
 ```sh
-nresx rename [-s] <pathspec> -k <element key> -n <new key>
-  [--dry-run] [--recursive]
+nresx rename
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-k | --key <element key>]
+  [-n | --new-key <new key>]
+  [--new-file]
+  [--dry-run]
 ```
 
 #### Options
@@ -228,6 +253,7 @@ nresx rename [-s] <pathspec> -k <element key> -n <new key>
 **-r | --recursive**  Process resource files in subdirectories\
 **-k | --key**  Element key\
 **-n | --new-key**  New key\
+**--new-file** Will create destination file(s) if they do not exist\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
@@ -245,9 +271,12 @@ nresx rename *.resx -k key1 -n key2 --recursive
 Remove resource elements(s) from resource file(s)
 
 ```sh
-nresx remove [-s] <pathspec> [<pathspec> ..] [-k <element key> [<element key> ..]] 
-  [--empty | --empty-key | --empty-value] 
-  [--dry-run] [--recursive]
+nresx remove
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-k | --key <element key> [<element key> ..]]
+  [--empty | --empty-key | --empty-value]
+  [--dry-run]
 ```
 
 #### Options
@@ -281,10 +310,13 @@ nresx remove *.yaml -r --empty
 Copy resource elements(s) from one resource file to another
 
 ```sh
-nresx copy [-s] <pathspec> [-d] <pathspec>
+nresx copy
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-d | --destination <pathspec>]
   [--skip | --overwrite]
+  [--new-file]
   [--dry-run]
-**--new-file**  Will create destination file(s) if they do not exist
 ```
 
 #### Options
@@ -292,8 +324,9 @@ nresx copy [-s] <pathspec> [-d] <pathspec>
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
 **-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
-**--skip**  Will skip duplicated elements (default option)
-**--overwrite**  Will overwrite duplicated elements
+**--skip**  Will skip duplicated elements (default option)\
+**--overwrite**  Will overwrite duplicated elements\
+**--new-file** Will create destination file(s) if they do not exist\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
@@ -311,14 +344,15 @@ nresx copy <file1> <file2> --overwrite
 Validate resource(s) in order to find any errors, such as duplicated elements, missed elements or not translated elements.
 
 ```sh
-nresx validate [-s] <pathspec> [--recursive]
+nresx validate
+  [-s | --source] <pathspec>
+  [-r | --recursive]
 ```
 
 #### Options
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
-**-r | --recursive**  Process resource files in subdirectories\
-
+**-r | --recursive**  Process resource files in subdirectories
 #### Examples
 
 ```sh
@@ -335,7 +369,15 @@ nresx validate dir1\*.resw -r
 Extract potential texts from source code, replace with placeholder code and generate new resource file
 
 ```sh
-nresx generate [-s] <pathspec> [-d] <pathspec> [--recursive] [--dry-run]
+nresx generate
+  [-s | --source] <pathspec>
+  [-r | --recursive]
+  [-d | --destination <pathspec>]
+  [-f | --format <format>]
+  [--new-file]
+  [--link]
+  [--exclude <dirs>]
+  [--dry-run]
 ```
 
 #### Options
@@ -345,9 +387,9 @@ nresx generate [-s] <pathspec> [-d] <pathspec> [--recursive] [--dry-run]
 **-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-f | --format**  Format of destination file(s)\
 **--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
-**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
-**--link** We will replace the existing texts in the project's source code with links to localized resources.
+**--link** Replace existing texts in project source code with links to localized resources.\
 **--exclude** Exclude directories when generating resources. Accepts a comma-separated list or quoted names. Default: ".git,.vs,bin,obj"
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.\
 
 #### Examples
 
@@ -355,5 +397,3 @@ nresx generate [-s] <pathspec> [-d] <pathspec> [--recursive] [--dry-run]
 # will search all source files in current dir and all subdirs, extract all appropriate tests, replace with placeholder code and generate new resource file with extracted elements
 nresx generate * <file1> -r
 ```
-
-

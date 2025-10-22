@@ -296,6 +296,7 @@ namespace nresx.Core.Tests
             return result;
         }
 
+        public static object SyncLock = new object();
         public static CommandLineParameters RunCommandLine( 
             string cmdLine, 
             CommandLineParameters parameters = null,
@@ -336,6 +337,20 @@ namespace nresx.Core.Tests
 
             Console.WriteLine( $@"============ command line run: =============" );
             Console.WriteLine( $@"nresx {args}" );
+
+            // write it to .\.test_report\tests.txt file, improve locking
+            //lock (SyncLock)
+            //{
+            //    // open existing text file to add a new line
+            //    using var writer = new StreamWriter( new FileStream(
+            //        "C:\\Tmp\\tests.txt",
+            //        FileMode.Append,
+            //        FileAccess.Write,
+            //        FileShare.Read ) );
+            //    // write new line
+            //    writer.WriteLine( $@"nresx {args}" );
+            //}
+
             Console.WriteLine( new string( '=', 50 ) );
             foreach ( var line in p.ConsoleOutput )
                 Console.WriteLine( line );

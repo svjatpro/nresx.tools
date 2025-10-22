@@ -30,7 +30,6 @@ namespace nresx.CommandLine.Commands
             if ( !optionsParsed )
                 return;
 
-
             var optionFormat = ResourceFormatType.NA;
             string optionExtension = null;
             if ( !string.IsNullOrWhiteSpace( Format ) &&
@@ -52,7 +51,6 @@ namespace nresx.CommandLine.Commands
                     return;
                 }
             }
-
 
             ForEachSourceFile(
                 sourceFiles,

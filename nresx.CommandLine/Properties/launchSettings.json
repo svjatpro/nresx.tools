@@ -2,8 +2,8 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "version",
-      "workingDirectory": "D:\\Tmp"
+      "commandLineArgs": "nresx.exe C:\\Tmp\\nresx\\Resources.resw -f yaml -d C:\\Tmp\\nresx\\rr.yaml",
+      "workingDirectory": "C:\\Tmp"
     }
   }
 }
