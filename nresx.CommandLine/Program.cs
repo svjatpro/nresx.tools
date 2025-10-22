@@ -139,10 +139,14 @@ namespace nresx.CommandLine
                     AddCommand, RemoveCommand, UpdateCommand, RenameCommand,
                     ValidateCommand, GenerateCommand>( arguments )
                 .WithParsed<ICommand>( t => t.Execute() )
+                .WithNotParsed( errors =>
+                {
+                    Console.Error.WriteLine("Invalid command line arguments.");
+                    foreach ( var err in errors ) Console.Error.WriteLine( $"\t{err}" );
+                })
                 .MapResult( 
                     cmd => ((ICommand)cmd).Successful ? 0 : -1,
                     err => -1 );
-
 
 
             // ---------------------------------------------------------------------------
