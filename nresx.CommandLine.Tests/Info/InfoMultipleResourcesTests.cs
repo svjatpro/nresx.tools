@@ -45,7 +45,7 @@ namespace nresx.CommandLine.Tests.Info
 
         #endregion
 
-        [TestCase( @"[TmpFile] [TmpFile] [TmpFile]" )]
+        [TestCase( @"info [TmpFile] [TmpFile] [TmpFile]" )]
         [TestCase( @"info [TmpFile] [TmpFile] [TmpFile]" )]
         [TestCase( @"info -s [TmpFile.yaml] [TmpFile.resx]" )]
         [TestCase( @"info --source [TmpFile] [TmpFile]" )]
@@ -80,7 +80,7 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"[Output]\\[UniqueKey]*.resx -r" )]
+        [TestCase( @"info [Output]\\[UniqueKey]*.resx -r" )]
         [TestCase( @"info -s [Output]\\[UniqueKey]*.resx -r" )]
         [TestCase( @"info -s [Output]\\[UniqueKey]*.resx --recursive" )]
         [TestCase( @"info --source [Output]\\[UniqueKey]*.resx -r" )]
@@ -100,8 +100,8 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"[UniqueKey]\*.resx" )]
-        [TestCase( @"[UniqueKey]\*.resx -r" )]
+        [TestCase( @"info [UniqueKey]\*.resx" )]
+        [TestCase( @"info [UniqueKey]\*.resx -r" )]
         [TestCase( @"info -s [UniqueKey]\*.resx" )]
         [TestCase( @"info -s [UniqueKey]\*.resx -r" )]
         [TestCase( @"info --source [UniqueKey]\*.resx -r" )]
@@ -116,20 +116,20 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"nonexisting.resx" )]
-        [TestCase( @"nonexisting*.resx" )]
-        [TestCase( @"*nonexisting" )]
+        [TestCase( @"info nonexistent.resx" )]
+        [TestCase( @"info nonexistent*.resx" )]
+        [TestCase( @"info *nonexistent" )]
         public void GetWrongFileSpec( string commandLine )
         {
             commandLine
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path mask '{commandLine}' did not match any files" );
+                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path mask '{commandLine[5..]}' did not match any files" );
                 } );
         }
 
-        [TestCase( @"[TmpFile] [UniqueKey] [TmpFile]" )]
+        [TestCase( @"info [TmpFile] [UniqueKey] [TmpFile]" )]
         public void GetWrongFileSpecMultiple( string commandLine )
         {
             commandLine
@@ -157,7 +157,7 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"[Output]\\[UniqueKey]*.resx -r" )]
+        [TestCase( @"info [Output]\\[UniqueKey]*.resx -r" )]
         [TestCase( @"info -s [Output]\\[UniqueKey]*.resx -r" )]
         [TestCase( @"info -s [Output]\\[UniqueKey]*.resx --recursive" )]
         [TestCase( @"info --source [Output]\\[UniqueKey]*.resx -r" )]

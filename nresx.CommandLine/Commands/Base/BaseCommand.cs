@@ -33,6 +33,7 @@ namespace nresx.CommandLine.Commands
     }
     public abstract class BaseCommand : ICommand
     {
+
         #region private fields
 
         protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";
@@ -68,7 +69,6 @@ namespace nresx.CommandLine.Commands
         public string Format { get; set; }
         protected virtual bool IsFormatAllowed => false;
         
-
         [Option( "dry-run", HelpText = "Test command without actual performing", Hidden = true)]
         public bool DryRun { get; set; }
         protected virtual bool IsDryRunAllowed => true;
@@ -77,6 +77,12 @@ namespace nresx.CommandLine.Commands
         public bool Debugger { get; set; }
 
         #endregion
+
+        protected CommandLineContext Context { get; private set; }
+        public void SetContext( CommandLineContext context )
+        {
+            Context = context;
+        }
 
         public virtual void Execute()
         {

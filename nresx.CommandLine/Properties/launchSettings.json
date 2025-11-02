@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "convert C:\\Tmp\\nresx\\Resources.resw -f yaml",
+      "commandLineArgs": "just random bullshit",
       "workingDirectory": "C:\\Tmp\\nresx"
     }
   }

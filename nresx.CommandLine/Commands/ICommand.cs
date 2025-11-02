@@ -6,6 +6,8 @@ namespace nresx.CommandLine.Commands
     {
         void Execute();
 
+        public void SetContext(CommandLineContext context) { }
+
         bool Successful { get; }
         Exception Exception { get; }
     }
