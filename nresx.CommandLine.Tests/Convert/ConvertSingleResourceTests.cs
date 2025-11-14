@@ -2,6 +2,7 @@ using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
+using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Convert

@@ -154,9 +154,12 @@ namespace nresx.Tools.Formatters
 
         #endregion
 
-        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadResourceFile(
+            Stream stream,
+            out IEnumerable<ResourceElement> elements,
+            out Dictionary<string, string> headers )
         {
-            if ( LoadRawElements( stream, out var raw ) )
+            if ( LoadRawElements( stream, out var raw, out headers ) )
             {
                 var dictionary = new Dictionary<string, ResourceElement>();
                 foreach ( var el in raw )
@@ -168,11 +171,14 @@ namespace nresx.Tools.Formatters
                 return true;
             }
 
-            elements = null;
+            elements = [];
             return false;
         }
 
-        public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadRawElements(
+            Stream stream,
+            out IEnumerable<ResourceElement> elements,
+            out Dictionary<string, string> headers )
         {
             var doc = XDocument.Load( stream );
             var entries = doc.Root?.Elements( "data" );
@@ -186,11 +192,16 @@ namespace nresx.Tools.Formatters
                     Comment = e.Element( "comment" )?.Value?.ReplaceNewLine() ?? string.Empty
                 } )
                 .ToList();
+            headers = [];
 
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
+        public void SaveResourceFile(
+            Stream stream,
+            IEnumerable<ResourceElement> elements,
+            Dictionary<string, string>? headers,
+            ResourceFileOption? options = null)
         {
             XNamespace xml = "http://www.w3.org/XML/1998/namespace";
             var doc = new XDocument(

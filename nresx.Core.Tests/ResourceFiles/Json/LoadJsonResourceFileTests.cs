@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using nresx.Tools;
 using nresx.Tools.Formatters;
+using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles.Json
@@ -37,7 +38,7 @@ namespace nresx.Core.Tests.ResourceFiles.Json
             var res = new ResourceFile( GetTestPath( @"json\struct_plain_object.json" ) );
             res.Elements
                 .Select( el => el as ResourceElementJson )
-                .Select( el => (key: el.KeyProperyName, val: el.ValueProperyName, comment: el.CommentProperyName) )
+                .Select( el => (key: el.KeyPropertyName, val: el.ValuePropertyName, comment: el.CommentPropertyName) )
                 .Should().BeEquivalentTo( [
                     (key: "id", val: "text", comment: "comment"),
                     (key: "key", val: "value", comment: "description"),

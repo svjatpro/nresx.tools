@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using nresx.Tools;
 using nresx.Tools.Helpers;
+using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles
@@ -12,7 +14,7 @@ namespace nresx.Core.Tests.ResourceFiles
     public class LoadResourceFileTests : TestBase
     {
         [Test]
-        public async Task ParsePlainTxt()
+        public void ParsePlainTxt()
         {
             var res = new ResourceFile( GetTestPath( "Resources.txt" ) );
             var targetPath = GetOutputPath( UniqueKey(), res.FileFormat );
@@ -29,7 +31,7 @@ namespace nresx.Core.Tests.ResourceFiles
         }
 
         [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFiles ) )]
-        public async Task ParsedResourceFileShouldContainsFileNameAndPath( string path )
+        public void ParsedResourceFileShouldContainsFileNameAndPath( string path )
         {
             var res = new ResourceFile( GetTestPath( path ) );
             var targetPath = GetOutputPath( UniqueKey(), res.FileFormat );
@@ -56,7 +58,7 @@ namespace nresx.Core.Tests.ResourceFiles
         }
 
         [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFiles ) )]
-        public async Task LoadFromPath( string path )
+        public void LoadFromPath( string path )
         {
             ResourceFormatHelper.DetectFormatByExtension( path, out var targetType );
             var res = new ResourceFile( GetTestPath( path ) );
@@ -77,7 +79,7 @@ namespace nresx.Core.Tests.ResourceFiles
         }
 
         [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
-        public async Task LoadRawElements( ResourceFormatType format )
+        public void LoadRawElements( ResourceFormatType format )
         {
             var source = new ResourceFile( GetTestPath( TestData.ExampleResourceFile, format ) );
             var duplicated = GetOutputPath( TestData.UniqueKey(), format );
@@ -100,6 +102,37 @@ namespace nresx.Core.Tests.ResourceFiles
 
             var elements = ResourceFile.LoadRawElements( stream );
             elements.Should().HaveCount( source.Elements.Count() );
+        }
+
+        [TestCase( "", false )]
+        [TestCase( "wrong", false )]
+        [TestCase( "wrong-wrong", false )]
+        [TestCase( "en", true )]
+        [TestCase( "en-US", true )]
+        [TestCase( "en-CA", true )]
+        [TestCase( "uk", true )]
+        [TestCase( "uk-UA", true )]
+        public void LoadCultureFromFileName( string cultureName, bool parsed )
+        {
+            // prepare file with culture in name
+            var format = TestData.GetRandomType();
+            var source = new ResourceFile( GetTestPath( TestData.ExampleResourceFile, format ) );
+            var duplicated = GetOutputPath( $"{TestData.UniqueKey()}_{cultureName}", format );
+            TestHelper.CopyTemporaryFile( source.AbsolutePath, duplicated, copyType: format );
+
+            var targetCulture = parsed ? new CultureInfo( cultureName ) : CultureInfo.InvariantCulture;
+            var res = new ResourceFile( duplicated );
+            res.Culture.Should().Be( targetCulture );
+        }
+
+        // detect by path
+        //[TestCase( "Resources.po" )]
+        public void LoadCultureFromMetadata( string path )
+        {
+            ResourceFormatHelper.DetectFormatByExtension( path, out var format );
+            var res = new ResourceFile( GetTestPath(path) );
+
+            res.Culture.Should().Be( new CultureInfo("uk-UA") );
         }
     }
 }

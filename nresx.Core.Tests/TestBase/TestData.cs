@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using nresx.Tools;
 using NUnit.Framework;
@@ -61,13 +62,21 @@ namespace nresx.Core.Tests
             }
         }
 
+        //public static IEnumerable Cultures
+        //{
+        //    get
+        //    {
+        //        yield return new TestCaseData( "en", new CultureInfo( "en" ) );
+        //    }
+        //}
+
         public static string UniqueKey( int length = 8 )
         {
             var key = Convert.ToBase64String( Guid.NewGuid().ToByteArray() )
                 .Replace( "+", "" )
                 .Replace( "/", "" )
                 .Replace( "=", "" );
-            return key.Substring( 0, Math.Min( length, key.Length ) );
+            return key[..Math.Min( length, key.Length )];
         }
         
         public static ResourceFormatType GetRandomType( CommandRunOptions options = null )

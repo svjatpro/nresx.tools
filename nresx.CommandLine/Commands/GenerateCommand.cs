@@ -7,6 +7,7 @@ using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
 using nresx.Tools.CodeParsers;
 using nresx.Tools.Extensions;
+using nresx.Tools.ResourceFile;
 
 namespace nresx.CommandLine.Commands
 {

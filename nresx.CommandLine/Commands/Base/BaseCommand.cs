@@ -8,6 +8,7 @@ using nresx.Tools;
 using nresx.Tools.Exceptions;
 using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
+using nresx.Tools.ResourceFile;
 
 namespace nresx.CommandLine.Commands
 {

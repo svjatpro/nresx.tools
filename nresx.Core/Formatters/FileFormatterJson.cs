@@ -17,9 +17,9 @@ namespace nresx.Tools.Formatters
     public class ResourceElementJson : ResourceElement
     {
         public string Path { get; set; }
-        public string KeyProperyName { get; set; }
-        public string ValueProperyName { get; set; }
-        public string CommentProperyName { get; set; }
+        public string KeyPropertyName { get; set; }
+        public string ValuePropertyName { get; set; }
+        public string CommentPropertyName { get; set; }
         public JsonElementType ElementType { get; set; }
 
         
@@ -74,26 +74,26 @@ namespace nresx.Tools.Formatters
             var keyToken = KeyNames
                 .Select( k => new{ name = k, value = props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() } )
                 .FirstOrDefault( k => k.value != null );
-            el.KeyProperyName = keyToken?.name ?? KeyNames.First();
+            el.KeyPropertyName = keyToken?.name ?? KeyNames.First();
             el.Key = keyToken?.value?.ReplaceNewLine() ?? string.Empty;
 
             var valueToken = ValueNames
                 .Select( k => new{ name = k, value = props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() } )
                 .FirstOrDefault( k => k.value != null );
-            el.ValueProperyName = valueToken?.name ?? ValueNames.First();
+            el.ValuePropertyName = valueToken?.name ?? ValueNames.First();
             el.Value = valueToken?.value?.ReplaceNewLine() ?? string.Empty;
 
             var commentToken = CommentNames
                 .Select( k => new { name = k, value = props.SingleOrDefault( p => p.Name.Trim().ToLower() == k )?.Value.Value<string>() } )
                 .FirstOrDefault( k => k.value != null );
-            el.CommentProperyName = commentToken?.name ?? CommentNames.First();
+            el.CommentPropertyName = commentToken?.name ?? CommentNames.First();
             el.Comment = commentToken?.value?.ReplaceNewLine() ?? string.Empty;
 
             element = el;
             return !string.IsNullOrWhiteSpace( element.Key ) && 
                    ( string.IsNullOrWhiteSpace( keyToken?.name ) || 
                      string.IsNullOrWhiteSpace( Options?.KeyName ) || 
-                     Options?.KeyName == el.KeyProperyName );
+                     Options?.KeyName == el.KeyPropertyName );
         }
 
         private JToken ParseJson( JsonTextReader reader, List<ResourceElementJson> elements, out NodeType type )
@@ -133,9 +133,9 @@ namespace nresx.Tools.Formatters
                                 Key = propName,
                                 Value = item.Value<string>()?.ReplaceNewLine(),
 
-                                KeyProperyName = KeyNames.First(),
-                                ValueProperyName = ValueNames.First(),
-                                CommentProperyName = CommentNames.First(),
+                                KeyPropertyName = KeyNames.First(),
+                                ValuePropertyName = ValueNames.First(),
+                                CommentPropertyName = CommentNames.First(),
 
                                 Path = path,
                                 Type = ResourceElementType.String,
@@ -239,20 +239,26 @@ namespace nresx.Tools.Formatters
                 .Select( k => k.Trim().ToLower() ) );
         }
 
-        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadResourceFile(
+            Stream stream,
+            out IEnumerable<ResourceElement> elements,
+            out Dictionary<string, string> headers )
         {
-            if ( LoadRawElements( stream, out var raw ) )
+            if ( LoadRawElements( stream, out var raw, out headers ) )
             {
                 elements = raw;
                 ElementHasComment = elements?.All( el => ( (ResourceElementJson) el ).ElementType != JsonElementType.KeyValue ) ?? true;
                 return true;
             }
 
-            elements = null;
+            elements = [];
             return false;
         }
         
-        public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadRawElements(
+            Stream stream,
+            out IEnumerable<ResourceElement> elements,
+            out Dictionary<string, string> headers )
         {
             using var sr = new StreamReader( stream );
             using var reader = new JsonTextReader( sr );
@@ -261,10 +267,17 @@ namespace nresx.Tools.Formatters
             var result = ParseJson( reader );
             elements = result.ToList();
 
+            // 
+            headers = [];
+
             return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
+        public void SaveResourceFile(
+            Stream stream,
+            IEnumerable<ResourceElement> elements,
+            Dictionary<string, string>? headers, 
+            ResourceFileOption? options = null )
         {
             var root = new JObject();
             var elementsRoot = root;
@@ -291,9 +304,9 @@ namespace nresx.Tools.Formatters
             foreach ( var el in elements )
             {
                 var elJson = el as ResourceElementJson;
-                var key = jsonOption?.KeyName ?? elJson?.KeyProperyName ?? KeyNames.First();
-                var value = jsonOption?.ValueName ?? elJson?.ValueProperyName ?? ValueNames.First();
-                var comment = jsonOption?.CommentName ?? elJson?.CommentProperyName ?? CommentNames.First();
+                var key = jsonOption?.KeyName ?? elJson?.KeyPropertyName ?? KeyNames.First();
+                var value = jsonOption?.ValueName ?? elJson?.ValuePropertyName ?? ValueNames.First();
+                var comment = jsonOption?.CommentName ?? elJson?.CommentPropertyName ?? CommentNames.First();
                 JObject node;
 
                 switch ( jsonOption?.ElementType ?? JsonElementType.KeyObject )

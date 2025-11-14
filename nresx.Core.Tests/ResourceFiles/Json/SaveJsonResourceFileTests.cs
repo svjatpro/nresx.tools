@@ -2,6 +2,7 @@
 using FluentAssertions;
 using nresx.Tools;
 using nresx.Tools.Formatters;
+using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles.Json
@@ -57,13 +58,13 @@ namespace nresx.Core.Tests.ResourceFiles.Json
                 new ResourceElementJson
                 {
                     //KeyProperyName = options.KeyName,
-                    ValueProperyName = options.ValueName,
-                    CommentProperyName = options.CommentName
+                    ValuePropertyName = options.ValueName,
+                    CommentPropertyName = options.CommentName
                 },
                 opt => opt
                     //.Including( el => el.KeyProperyName )
-                    .Including( el => el.ValueProperyName )
-                    .Including( el => el.CommentProperyName ) );
+                    .Including( el => el.ValuePropertyName )
+                    .Including( el => el.CommentPropertyName ) );
         }
 
 

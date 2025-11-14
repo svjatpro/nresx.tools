@@ -5,183 +5,194 @@ using System.Linq;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NodeDeserializers;
 using YamlDotNet.Serialization.Utilities;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Tools.Formatters;
+
+public class ResDoc
 {
-    public class ResDoc
-    {
-        public List<ResItem> Items { get; set; }
-    }
-    public class ResItem
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
+    public List<ResItem> Items { get; set; }
+}
+public class ResItem
+{
+    public string Key { get; set; }
+    public string Value { get; set; }
+}
 
-    public class ResConverter : IYamlTypeConverter
+public class ResConverter : IYamlTypeConverter
+{
+    public IValueDeserializer ValueDeserializer { get; set; }
+
+    public bool Accepts( Type type ) => type == typeof(ResDoc);
+
+    public object? ReadYaml( IParser parser, Type type )
     {
-        public IValueDeserializer ValueDeserializer { get; set; }
+        parser.Consume<MappingStart>();
 
-        public bool Accepts( Type type ) => type == typeof(ResDoc);
-
-        public object? ReadYaml( IParser parser, Type type )
+        var doc = new ResDoc
         {
-            parser.Consume<MappingStart>();
+            Items = (List<ResItem>)ValueDeserializer.DeserializeValue( parser, typeof( List<ResItem> ), new SerializerState(), ValueDeserializer )
+        };
 
-            var doc = new ResDoc
-            {
-                Items = (List<ResItem>)ValueDeserializer.DeserializeValue( parser, typeof( List<ResItem> ), new SerializerState(), ValueDeserializer )
-            };
-
-            parser.Consume<MappingEnd>();
-            return doc;
-        }
-
-        public void WriteYaml( IEmitter emitter, object? value, Type type )
-        {
-            throw new NotImplementedException();
-        }
+        parser.Consume<MappingEnd>();
+        return doc;
     }
 
-    public class ResourceItemDeserializer : INodeDeserializer
+    public void WriteYaml( IEmitter emitter, object? value, Type type )
     {
-        private readonly INodeDeserializer nodeDeserializer;
+        throw new NotImplementedException();
+    }
+}
 
-        public ResourceItemDeserializer()
+public class ResourceItemDeserializer : INodeDeserializer
+{
+    private readonly INodeDeserializer nodeDeserializer;
+
+    public ResourceItemDeserializer()
+    {
+
+    }
+
+    public ResourceItemDeserializer( INodeDeserializer nodeDeserializer )
+    {
+        this.nodeDeserializer = nodeDeserializer;
+    }
+
+    public bool Deserialize( IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value )
+    {
+        if ( expectedType == typeof( List<ResItem> ) )
         {
-
-        }
-
-        public ResourceItemDeserializer( INodeDeserializer nodeDeserializer )
-        {
-            this.nodeDeserializer = nodeDeserializer;
-        }
-
-        public bool Deserialize( IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value )
-        {
-            if ( expectedType == typeof( List<ResItem> ) )
-            {
-                value = nestedObjectDeserializer( parser, expectedType );
-                //value = new List<ResItem>();
-                return false;
-            }
-
-            if ( expectedType != typeof( ResItem ) )
-            {
-                value = null;
-                return false;
-            }
-
-            if ( nodeDeserializer.Deserialize( parser, expectedType, nestedObjectDeserializer, out value ) )
-            {
-
-                return true;
-            }
+            value = nestedObjectDeserializer( parser, expectedType );
+            //value = new List<ResItem>();
             return false;
         }
-    }
 
-    internal class FileFormatterYaml : IFileFormatter
-    {
-        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
+        if ( expectedType != typeof( ResItem ) )
         {
-            using var reader = new StreamReader( stream );
-            var deserializer = new DeserializerBuilder()
-                .Build();
+            value = null;
+            return false;
+        }
 
-            elements = deserializer
-                .Deserialize<Dictionary<string, string>>( reader )
-                .Select( el =>
-                {
-                    var value = el.Value;
-                    if ( value.Contains( "\r\n" ) )
-                        value = value.Replace( "\r\n", "\n" );
-                    return new ResourceElement
-                    {
-                        Type = ResourceElementType.String,
-                        Key = el.Key,
-                        Value = value.Replace( "\n", "\r\n" )
-                    };
-                } )
-                .ToList();
+        if ( nodeDeserializer.Deserialize( parser, expectedType, nestedObjectDeserializer, out value ) )
+        {
 
             return true;
         }
+        return false;
+    }
+}
 
-        public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
-        {
-            //var converter = new ResConverter();
+internal class FileFormatterYaml : IFileFormatter
+{
+    public bool LoadResourceFile(
+        Stream stream,
+        out IEnumerable<ResourceElement> elements,
+        out Dictionary<string, string> headers )
+    {
+        using var reader = new StreamReader( stream );
+        var deserializer = new DeserializerBuilder()
+            .Build();
 
-            using var reader = new StreamReader( stream );
-            //var deserializerBuilder = new DeserializerBuilder();
-                //.WithNodeDeserializer( inner => new ResourceItemDeserializer(inner), s => s.InsteadOf<ObjectNodeDeserializer>() )
-                //.WithNodeDeserializer( new ResourceItemDeserializer() ) 
-                //.WithTypeConverter( converter );
-            
-            //converter.ValueDeserializer = deserializerBuilder.BuildValueDeserializer();
-            //var deserializer = deserializerBuilder.Build();
-
-            //var el = deserializer.Deserialize<Dictionary<string, string>>( reader );
-            //var el = deserializer.Deserialize<ResDoc>( reader );
-
-
-            var parser = new Parser( reader );
-            var result = new List<ResourceElement>();
-            Scalar key = null;
-            while ( parser.MoveNext() )
+        elements = deserializer
+            .Deserialize<Dictionary<string, string>>( reader )
+            .Select( el =>
             {
-                if ( parser.Current is Scalar node )
+                var value = el.Value;
+                if ( value.Contains( "\r\n" ) )
+                    value = value.Replace( "\r\n", "\n" );
+                return new ResourceElement
                 {
-                    if ( node.Start.Column == 1 )
+                    Type = ResourceElementType.String,
+                    Key = el.Key,
+                    Value = value.Replace( "\n", "\r\n" )
+                };
+            } )
+            .ToList();
+        headers = [];
+
+        return true;
+    }
+
+    public bool LoadRawElements(
+        Stream stream,
+        out IEnumerable<ResourceElement> elements,
+        out Dictionary<string, string> headers )
+    {
+        //var converter = new ResConverter();
+
+        using var reader = new StreamReader( stream );
+        //var deserializerBuilder = new DeserializerBuilder();
+        //.WithNodeDeserializer( inner => new ResourceItemDeserializer(inner), s => s.InsteadOf<ObjectNodeDeserializer>() )
+        //.WithNodeDeserializer( new ResourceItemDeserializer() ) 
+        //.WithTypeConverter( converter );
+            
+        //converter.ValueDeserializer = deserializerBuilder.BuildValueDeserializer();
+        //var deserializer = deserializerBuilder.Build();
+
+        //var el = deserializer.Deserialize<Dictionary<string, string>>( reader );
+        //var el = deserializer.Deserialize<ResDoc>( reader );
+
+
+        var parser = new Parser( reader );
+        var result = new List<ResourceElement>();
+        Scalar key = null;
+        while ( parser.MoveNext() )
+        {
+            if ( parser.Current is Scalar node )
+            {
+                if ( node.Start.Column == 1 )
+                {
+                    key = node;
+                }
+                else if ( key?.Start.Line == node.Start.Line || string.IsNullOrEmpty( key?.Value ) )
+                {
+                    result.Add( new ResourceElement
                     {
-                        key = node;
-                    }
-                    else if ( key?.Start.Line == node.Start.Line || string.IsNullOrEmpty( key?.Value ) )
-                    {
-                        result.Add( new ResourceElement
-                        {
-                            Key = key?.Value ?? string.Empty,
-                            Value = node.Value,
-                            Type = ResourceElementType.String
-                        } );
-                        key = null;
-                    }
+                        Key = key?.Value ?? string.Empty,
+                        Value = node.Value,
+                        Type = ResourceElementType.String
+                    } );
+                    key = null;
                 }
             }
-
-            //elements = deserializer
-            //    .Deserialize<Dictionary<string, string>>( reader )
-            //    .Select( el =>
-            //    {
-            //        var value = el.Value;
-            //        if ( value.Contains( "\r\n" ) )
-            //            value = value.Replace( "\r\n", "\n" );
-            //        return new ResourceElement
-            //        {
-            //            Type = ResourceElementType.String,
-            //            Key = el.Key,
-            //            Value = value.Replace( "\n", "\r\n" )
-            //        };
-            //    } )
-            //    .ToList();
-
-            elements = result;
-            return true;
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
-        {
-            using var writer = new StreamWriter( stream );
-            var serializer = new SerializerBuilder()
-                .Build();
+        //elements = deserializer
+        //    .Deserialize<Dictionary<string, string>>( reader )
+        //    .Select( el =>
+        //    {
+        //        var value = el.Value;
+        //        if ( value.Contains( "\r\n" ) )
+        //            value = value.Replace( "\r\n", "\n" );
+        //        return new ResourceElement
+        //        {
+        //            Type = ResourceElementType.String,
+        //            Key = el.Key,
+        //            Value = value.Replace( "\n", "\r\n" )
+        //        };
+        //    } )
+        //    .ToList();
 
-            var body = elements.ToDictionary( el => el.Key, el => el.Value );
-            serializer.Serialize( writer, body );
-        }
+        elements = result;
+        headers = [];
 
-        public bool ElementHasKey => true;
-        public bool ElementHasComment => false;
+        return true;
     }
+
+    public void SaveResourceFile(
+        Stream stream,
+        IEnumerable<ResourceElement> elements,
+        Dictionary<string, string>? headers,
+        ResourceFileOption? options = null)
+    {
+        using var writer = new StreamWriter( stream );
+        var serializer = new SerializerBuilder()
+            .Build();
+
+        var body = elements.ToDictionary( el => el.Key, el => el.Value );
+        serializer.Serialize( writer, body );
+    }
+
+    public bool ElementHasKey => true;
+    public bool ElementHasComment => false;
 }

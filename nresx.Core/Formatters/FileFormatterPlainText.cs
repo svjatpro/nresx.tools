@@ -10,9 +10,12 @@ namespace nresx.Tools.Formatters
     /// </summary>
     internal class FileFormatterPlainText : IFileFormatter
     {
-        public bool LoadResourceFile( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadResourceFile(
+            Stream stream,
+            out IEnumerable<ResourceElement> elements,
+            out Dictionary<string, string> headers )
         {
-            if ( LoadRawElements( stream, out var raw ) )
+            if ( LoadRawElements( stream, out var raw, out headers ) )
             {
                 elements = raw;
                 return true;
@@ -22,7 +25,10 @@ namespace nresx.Tools.Formatters
             return false;
         }
 
-        public bool LoadRawElements( Stream stream, out IEnumerable<ResourceElement> elements )
+        public bool LoadRawElements(
+            Stream stream,
+            out IEnumerable<ResourceElement> elements,
+            out Dictionary<string, string> headers )
         {
             using var reader = new StreamReader( stream );
 
@@ -47,6 +53,8 @@ namespace nresx.Tools.Formatters
                 result.Add( ParseElement( elementLines ) );
 
             elements = result;
+            headers = [];
+
             return true;
         }
         private ResourceElement ParseElement( List<string> elementLines )
@@ -59,7 +67,11 @@ namespace nresx.Tools.Formatters
             };
         }
 
-        public void SaveResourceFile( Stream stream, IEnumerable<ResourceElement> elements, ResourceFileOption options = null )
+        public void SaveResourceFile(
+            Stream stream,
+            IEnumerable<ResourceElement> elements,
+            Dictionary<string, string>? headers,
+            ResourceFileOption? options = null)
         {
             using var writer = new StreamWriter( stream );
 
