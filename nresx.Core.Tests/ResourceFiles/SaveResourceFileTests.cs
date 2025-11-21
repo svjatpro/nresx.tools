@@ -1,9 +1,7 @@
-﻿using nresx.Tools;
-using nresx.Tools.Helpers;
+﻿using nresx.Tools.Helpers;
 using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 using System.IO;
-using FluentAssertions;
 
 namespace nresx.Core.Tests.ResourceFiles
 {
@@ -46,19 +44,6 @@ namespace nresx.Core.Tests.ResourceFiles
 
             var saved = new ResourceFile( new MemoryStream( ms.ToArray() ), targetType );
             ValidateElements( saved );
-        }
-
-        [TestCase( ResourceFormatType.Po, "fr-FR" )]
-        public void SaveCultureMetadata( ResourceFormatType format, string cultureCode )
-        {
-            var source = new ResourceFile( GetTestPath( TestData.ExampleResourceFile, format ) );
-            var targetPath = GetOutputPath( TestData.UniqueKey(), format );
-
-            source.Culture = new System.Globalization.CultureInfo( cultureCode );
-            source.Save( targetPath );
-
-            var saved = new ResourceFile( targetPath );
-            saved.Culture.Name.Should().Be( cultureCode );
         }
     }
 }

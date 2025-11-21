@@ -8,11 +8,11 @@ namespace nresx.Tools.Formatters
         bool LoadResourceFile(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers);
+            out Dictionary<string, string> headers );
         bool LoadRawElements(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers);
+            out Dictionary<string, string> headers );
 
         void SaveResourceFile(
             Stream stream,

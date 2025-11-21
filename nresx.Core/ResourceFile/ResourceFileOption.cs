@@ -4,7 +4,7 @@ namespace nresx.Tools
 {
     public class ResourceFileOption
     {
-
+        public bool IgnoreEmptyHeaders { get; set; } = true;
     }
 
     public class ResourceFileOptionJson : ResourceFileOption

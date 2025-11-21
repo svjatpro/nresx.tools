@@ -32,7 +32,7 @@ namespace nresx.Tools.Formatters
     {
         #region Private fields
 
-        private ResourceFileOptionJson Options;
+        private readonly ResourceFileOptionJson? Options;
 
         private readonly string[] KeyNames = { "key", "id", "name" };
         private readonly string[] ValueNames = { "value", "message", "string", "text", "content", "translation" };
@@ -222,21 +222,23 @@ namespace nresx.Tools.Formatters
 
         #endregion
 
-        public FileFormatterJson( ResourceFileOption options = null )
+        public FileFormatterJson( ResourceFileOption? options = null )
         {
             Options = options as ResourceFileOptionJson;
             if ( !string.IsNullOrWhiteSpace( Options?.KeyName ) )
-                KeyNames = new[] { Options.KeyName }.Concat( KeyNames ).ToArray();
+                KeyNames = new[] { Options!.KeyName }.Concat( KeyNames ).ToArray();
                 //KeyNames = new[] { Options.KeyName };
             if ( !string.IsNullOrWhiteSpace( Options?.ValueName ) )
-                ValueNames = new[] { Options.ValueName };
+                ValueNames = [Options!.ValueName];
                 //ValueNames = new[] { Options.ValueName }.Concat( ValueNames ).ToArray();
             if ( !string.IsNullOrWhiteSpace( Options?.CommentName ) )
-                CommentNames = new[] { Options.CommentName };
+                CommentNames = [Options!.CommentName];
                 //CommentNames = new[] { Options.CommentName }.Concat( CommentNames ).ToArray();
 
-            PropertiesMap = new HashSet<string>( KeyNames.Concat( ValueNames ).Concat( CommentNames )
-                .Select( k => k.Trim().ToLower() ) );
+            PropertiesMap = [..KeyNames
+                .Concat( ValueNames )
+                .Concat( CommentNames )
+                .Select( k => k.Trim().ToLower() )];
         }
 
         public bool LoadResourceFile(

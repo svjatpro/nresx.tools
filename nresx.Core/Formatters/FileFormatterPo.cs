@@ -14,8 +14,14 @@ namespace nresx.Tools.Formatters
         private const string MsgIdTag = "msgid";
         private const string MsgStrTag = "msgstr";
 
+        private readonly ResourceFileOption Options;
 
         #endregion
+
+        public FileFormatterPo( ResourceFileOption? options = null )
+        {
+            Options = options ?? new ResourceFileOption();
+        }
 
         public bool LoadResourceFile( 
             Stream stream, 
@@ -81,8 +87,10 @@ namespace nresx.Tools.Formatters
         {
             return lines
                 .Split( [Environment.NewLine], StringSplitOptions.RemoveEmptyEntries )
-                .Select( h => h.Split( [": "], StringSplitOptions.RemoveEmptyEntries ) )
-                .Where( parts => parts.Length == 2 )
+                .Select( h => h.Split( [": "], StringSplitOptions.None ) )
+                .Where( parts =>
+                    parts.Length == 2 &&
+                    (!string.IsNullOrWhiteSpace(parts[1]) || Options.IgnoreEmptyHeaders == false) )
                 .Select( parts => new { key = parts[0], value = parts[1] } )
                 .ToDictionary( h => h.key, h => h.value );
         }

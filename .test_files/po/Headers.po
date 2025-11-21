@@ -1,0 +1,26 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Content-Transfer-Encoding: 8bit\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Language: en_US\n"
+"Language-Team: \n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"PO-Revision-Date: \n"
+"POT-Creation-Date: 2021-09-25 08:30+0200\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Header1: the header\n"
+
+#
+msgid "Entry1.Text"
+msgstr "Value1"
+
+# Comment2
+msgid "Entry2"
+msgstr "Value2"
+
+msgid "Entry3"
+msgstr "Value3\n"
+"multiline"
