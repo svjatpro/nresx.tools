@@ -2,7 +2,6 @@
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
-using nresx.Tools.ResourceFile;
 
 namespace nresx.CommandLine.Commands
 {

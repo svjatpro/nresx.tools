@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using nresx.Tools;
 using nresx.Tools.Extensions;
 using nresx.Tools.Helpers;
-using nresx.Tools.ResourceFile;
 
 namespace nresx.Core.Tests
 {

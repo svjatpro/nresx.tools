@@ -6,7 +6,29 @@ using System.Linq;
 using nresx.Tools.Exceptions;
 using nresx.Tools.Formatters;
 
-namespace nresx.Tools.ResourceFile;
+namespace nresx.Tools;
+
+public enum CommentType
+{
+    None = 0,
+    Translator = 0x01,
+    Extracted = 0x02,
+    Reference = 0x03,
+    Flags = 0x04,
+    PreviousValue = 0x05,
+}
+
+public class Comment
+{
+    public CommentType Type { get; set; }
+    public string? Value { get; set; }
+
+    public Comment( CommentType type, string? value )
+    {
+        Type = type;
+        Value = value;
+    }
+}
 
 public class ResourceFile
 {
@@ -122,6 +144,7 @@ public class ResourceFile
     public string AbsolutePath { get; }
 
     public readonly ResourceElements Elements;
+    public readonly List<Comment> Comments = [];
 
     #region Static members
 

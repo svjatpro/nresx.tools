@@ -60,7 +60,7 @@ namespace nresx.Tools.Helpers
     public class FilesHelper
     {
         public static void SearchResourceFiles( string filePattern,
-            Action<FilesSearchContext, ResourceFile.ResourceFile> action,
+            Action<FilesSearchContext, ResourceFile> action,
             Action<FilesSearchContext, Exception> errorHandler = null,
             bool recursive = false,
             bool createNew = false,
@@ -96,7 +96,7 @@ namespace nresx.Tools.Helpers
                                 throw exc;
                             }
 
-                            action( context, new ResourceFile.ResourceFile( format ) );
+                            action( context, new ResourceFile( format ) );
                         }
                         else
                         {
@@ -112,7 +112,7 @@ namespace nresx.Tools.Helpers
                         return;
                     }
                     
-                    var resource = new ResourceFile.ResourceFile( context.FullName );
+                    var resource = new ResourceFile( context.FullName );
                     action( context, resource );
                 }, 
                 (context, exception) =>

@@ -17,7 +17,7 @@ msgstr ""
 msgid "Entry1.Text"
 msgstr "Value1"
 
-# Comment2
+#  Comment2
 msgid "Entry2"
 msgstr "Value2"
 

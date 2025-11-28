@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using nresx.Tools;
-using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles

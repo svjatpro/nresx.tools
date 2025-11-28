@@ -5,7 +5,6 @@ using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
 using nresx.Tools.Helpers;
-using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Info

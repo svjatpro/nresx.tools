@@ -108,11 +108,11 @@ namespace nresx.Tools.Formatters
                 {
                     case "#":
                         break;
-                    case var _ when line.StartsWith( "# " ):
+                    case var _ when line.StartsWith( "#  " ):
                         ParseProperty( ElementParseState.Comment );
 
-                        var comment = line.Length > 2 ? line.Substring( 2 ) : string.Empty;
-                        element.Comment = comment;
+                        var comment = line.Length > 3 ? line.Substring( 3 ) : string.Empty;
+                        element.Comments.Add( new Comment( CommentType.Translator, comment ) );
                         break;
                     case var _ when line.StartsWith( $"{MsgIdTag} " ):
                         ParseProperty( ElementParseState.MsgId );
@@ -148,6 +148,7 @@ namespace nresx.Tools.Formatters
             }
             ParseProperty( ElementParseState.None );
 
+            //element.Comment = element.Comments.FirstOrDefault( c => c.Type == CommentType.Translator )?.Value;
             return element;
 
             void ParseProperty( ElementParseState nextProp )
@@ -197,7 +198,10 @@ namespace nresx.Tools.Formatters
             foreach ( var element in elements )
             {
                 // write comment
-                writer.WriteLine( $"# {element.Comment ?? string.Empty}" );
+                foreach ( var comment in element.Comments )
+                {
+                    writer.WriteLine($"#  {comment.Value}");
+                }
 
                 // write key
                 WriteMultilineProperty( element.Key, MsgIdTag );

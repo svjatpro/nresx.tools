@@ -6,12 +6,12 @@ namespace nresx.Tools.Extensions
 {
     public static class ResourceFileExtensions
     {
-        public static void ConvertElements( this ResourceFile.ResourceFile resourceFile, Action<ResourceElement> convertAction )
+        public static void ConvertElements( this ResourceFile resourceFile, Action<ResourceElement> convertAction )
         {
             resourceFile.ConvertElements( null, convertAction );
         }
         public static void ConvertElements( 
-            this ResourceFile.ResourceFile resourceFile, 
+            this ResourceFile resourceFile, 
             Func<ResourceElement, bool> predicate,
             Action<ResourceElement> convertAction )
         {
@@ -23,28 +23,28 @@ namespace nresx.Tools.Extensions
             }
         }
         
-        public static void AddPrefix( this ResourceFile.ResourceFile resourceFile, string prefix )
+        public static void AddPrefix( this ResourceFile resourceFile, string prefix )
         {
             resourceFile.ConvertElements( 
                 el => el.Type == ResourceElementType.String && !el.Value.StartsWith( prefix ),
                 el => el.Value = $"{prefix}{el.Value}" );
         }
 
-        public static void RemovePrefix( this ResourceFile.ResourceFile resourceFile, string prefix )
+        public static void RemovePrefix( this ResourceFile resourceFile, string prefix )
         {
             resourceFile.ConvertElements(
                 el => el.Type == ResourceElementType.String && el.Value.StartsWith( prefix ),
                 el => el.Value = el.Value.Substring( prefix.Length ) );
         }
 
-        public static void AddPostfix( this ResourceFile.ResourceFile resourceFile, string postfix )
+        public static void AddPostfix( this ResourceFile resourceFile, string postfix )
         {
             resourceFile.ConvertElements(
                 el => el.Type == ResourceElementType.String && !el.Value.EndsWith( postfix ),
                 el => el.Value = $"{el.Value}{postfix}" );
         }
         
-        public static void RemovePostfix( this ResourceFile.ResourceFile resourceFile, string postfix )
+        public static void RemovePostfix( this ResourceFile resourceFile, string postfix )
         {
             resourceFile.ConvertElements(
                 el => el.Type == ResourceElementType.String && el.Value.EndsWith( postfix ),
@@ -107,7 +107,7 @@ namespace nresx.Tools.Extensions
             return !errors.Any();
         }
 
-        public static bool ValidateElements( this ResourceFile.ResourceFile resourceFile, out IEnumerable<ResourceElementError> errors )
+        public static bool ValidateElements( this ResourceFile resourceFile, out IEnumerable<ResourceElementError> errors )
         {
             var result = new List<ResourceElementError>(); 
             var keys = new HashSet<string>();

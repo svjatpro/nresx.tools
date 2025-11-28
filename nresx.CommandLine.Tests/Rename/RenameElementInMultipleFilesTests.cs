@@ -3,7 +3,6 @@ using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
 using nresx.Tools.Extensions;
-using nresx.Tools.ResourceFile;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Rename
@@ -38,7 +37,10 @@ namespace nresx.CommandLine.Tests.Rename
                         {
                             var res = new ResourceFile( file );
                             var element = res.Elements.First( el => el.Key == param.newKey );
-                            element.Should().BeEquivalentTo( elementToUpdate, config => config.Excluding( el => el.Key ).Excluding( el => el.Comment ) );
+                            element.Should().BeEquivalentTo( elementToUpdate, config => config
+                                .Excluding( el => el.Key )
+                                .Excluding( el => el.Comment )
+                                .Excluding( el => el.Comments ));
                         } );
                 } )
                 .ValidateStdout( ( args, param ) =>

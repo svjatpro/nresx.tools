@@ -2,7 +2,7 @@
   "profiles": {
     "nresx.tools": {
       "commandName": "Project",
-      "commandLineArgs": "just random bullshit",
+      "commandLineArgs": "copy C:\\Tmp\\nresx\\qqq.resw C:\\Tmp\\nresx\\www.resw",
       "workingDirectory": "C:\\Tmp\\nresx"
     }
   }

@@ -4,22 +4,17 @@ using System.Linq;
 
 namespace nresx.Tools
 {
-    public sealed class ResourceElements : IEnumerable<ResourceElement>
+    public sealed class ResourceElements( IEnumerable<ResourceElement>? elements = null )
+        : IEnumerable<ResourceElement>
     {
-        private readonly List<ResourceElement> ElementsList;
+        private readonly List<ResourceElement> ElementsList = elements?.ToList() ?? [];
 
-        public ResourceElement this[ int index ]
-        {
-            get => ElementsList[index];
-            //set => ElementsList[index] = value;
-        }
+        public ResourceElement? this[ int index ] => ElementsList[index];
 
-        public ResourceElement this[string key]
-        {
-            get => ElementsList.SingleOrDefault( el => el.Key == key );
-            //set => ElementsList[key] = value;
-        }
+        //set => ElementsList[index] = value;
+        public ResourceElement? this[string key] => ElementsList.SingleOrDefault( el => el.Key == key );
 
+        //set => ElementsList[key] = value;
         public IEnumerator<ResourceElement> GetEnumerator()
         {
             return ElementsList.GetEnumerator();
@@ -30,20 +25,17 @@ namespace nresx.Tools
             return GetEnumerator();
         }
 
-        public ResourceElements( IEnumerable<ResourceElement> elements = null )
+        public void Add( string key, string value, string? comment = null )
         {
-            ElementsList = elements?.ToList() ?? new List<ResourceElement>();
-        }
-
-        public void Add( string key, string value, string comment = null )
-        {
-            ElementsList.Add( new ResourceElement
+            var el = new ResourceElement
             {
                 Type = ResourceElementType.String,
                 Key = key,
                 Value = value,
                 Comment = comment
-            } );
+            };
+
+            ElementsList.Add( el );
         }
 
         public void Remove( string key )
@@ -53,16 +45,13 @@ namespace nresx.Tools
                 throw new KeyNotFoundException( $"Element with \"{key}\" key not found" );
             ElementsList.RemoveAt( index );
         }
-        public bool TryRemove( string key, out ResourceElement element )
+        public bool TryRemove( string key, out ResourceElement? element )
         {
             element = ElementsList.FirstOrDefault( el => el.Key == key );
-            if ( element != null )
-            {
-                ElementsList.Remove( element );
-                return true;
-            }
+            if ( element == null ) return false;
 
-            return false;
+            ElementsList.Remove( element );
+            return true;
         }
     }
 }

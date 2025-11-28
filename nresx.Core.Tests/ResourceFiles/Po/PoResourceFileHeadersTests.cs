@@ -1,13 +1,11 @@
 ﻿using FluentAssertions;
 using nresx.Tools;
-using nresx.Tools.ResourceFile;
 using NUnit.Framework;
-using System.IO;
 
 namespace nresx.Core.Tests.ResourceFiles.Po;
 
 [TestFixture]
-public class PoResourceFileTests : TestBase
+public class PoResourceFileHeadersTests : TestBase
 {
     [TestCase("fr-FR")]
     public void SaveCultureMetadata(string cultureCode)

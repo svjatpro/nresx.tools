@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using nresx.Tools;
-using nresx.Tools.ResourceFile;
 
 namespace nresx.Core.Tests
 {
