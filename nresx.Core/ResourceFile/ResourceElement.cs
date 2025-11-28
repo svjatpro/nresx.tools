@@ -17,6 +17,7 @@ namespace nresx.Tools
             }
             set
             {
+                if ( value == null ) return;
                 if ( Comments.All( c => c.Type != CommentType.Translator ) )
                 {
                     // implement set null scenario

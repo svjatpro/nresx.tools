@@ -16,6 +16,15 @@ namespace nresx.Tools.Formatters
 
         private readonly ResourceFileOption Options;
 
+        private static Dictionary<CommentType, string> CommentPrefix = new()
+        {
+            { CommentType.Translator, "#  " },
+            { CommentType.Extracted, "#. " },
+            { CommentType.Reference, "#: " },
+            { CommentType.Flags, "#, " },
+            { CommentType.PreviousValue, "#| " },
+        };
+
         #endregion
 
         public FileFormatterPo( ResourceFileOption? options = null )
@@ -101,6 +110,7 @@ namespace nresx.Tools.Formatters
             var element = new ResourceElement{ Type = ResourceElementType.String };
             var state = ElementParseState.None;
             var propLines = new List<string>();
+            var commentTypes = CommentPrefix.ToDictionary( c => c.Value, c => c.Key );
 
             foreach ( var line in lines )
             {
@@ -108,11 +118,14 @@ namespace nresx.Tools.Formatters
                 {
                     case "#":
                         break;
-                    case var _ when line.StartsWith( "#  " ):
+                    case var _ when line.StartsWith( "#" ):
                         ParseProperty( ElementParseState.Comment );
-
-                        var comment = line.Length > 3 ? line.Substring( 3 ) : string.Empty;
-                        element.Comments.Add( new Comment( CommentType.Translator, comment ) );
+                        if ( line.Length <= 3 ||
+                             !commentTypes.TryGetValue( line.Substring( 0, 3 ), out var commentType ) )
+                        {
+                            break;
+                        }
+                        element.Comments.Add( new Comment( commentType, line.Substring(3)) );
                         break;
                     case var _ when line.StartsWith( $"{MsgIdTag} " ):
                         ParseProperty( ElementParseState.MsgId );
@@ -200,7 +213,8 @@ namespace nresx.Tools.Formatters
                 // write comment
                 foreach ( var comment in element.Comments )
                 {
-                    writer.WriteLine($"#  {comment.Value}");
+                    if( !CommentPrefix.TryGetValue( comment.Type, out var prefix ) ) continue; //
+                    writer.WriteLine($"{prefix}{comment.Value}");
                 }
 
                 // write key

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using nresx.Tools;
+using nresx.Tools.Extensions;
+using nresx.Tools.Helpers;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using nresx.Tools;
-using nresx.Tools.Extensions;
-using nresx.Tools.Helpers;
 
 namespace nresx.Core.Tests
 {
@@ -87,9 +88,9 @@ namespace nresx.Core.Tests
         }
 
         public static string CopyTemporaryFile(
-            string sourcePath = null,
-            string destPath = null,
-            string destDir = null,
+            string? sourcePath = null,
+            string? destPath = null,
+            string? destDir = null,
             ResourceFormatType copyType = ResourceFormatType.Resx )
         {
             var key = TestData.UniqueKey();
@@ -105,6 +106,19 @@ namespace nresx.Core.Tests
             return destPath;
         }
 
+        public static string[] ReadFile( string path )
+        {
+            var lines = new List<string>();
+            using var reader = new StreamReader( 
+                new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite ) );
+
+            while ( !reader.EndOfStream )
+            {
+                lines.Add( reader.ReadLine()! );
+            }
+            
+            return lines.ToArray();
+        }
 
         public static void ReplaceKey( string path, string key, string newValue )
         {

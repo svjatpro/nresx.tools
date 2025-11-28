@@ -32,7 +32,7 @@ namespace nresx.CommandLine.Tests.Add
                             res.Elements.Should().Contain( el =>
                                 el.Key == key &&
                                 el.Value == value &&
-                                ( !res.ElementHasComment || el.Comment == comment ) );
+                                ( !res.ElementHasComment || comment == string.Empty || el.Comment == comment ) );
                         } );
                 } );
         }
