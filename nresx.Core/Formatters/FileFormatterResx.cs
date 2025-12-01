@@ -157,9 +157,10 @@ namespace nresx.Tools.Formatters
         public bool LoadResourceFile(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers )
+            out Dictionary<string, string> headers,
+            out List<Comment> comments )
         {
-            if ( LoadRawElements( stream, out var raw, out headers ) )
+            if ( LoadRawElements( stream, out var raw, out headers, out comments ) )
             {
                 var dictionary = new Dictionary<string, ResourceElement>();
                 foreach ( var el in raw )
@@ -178,7 +179,8 @@ namespace nresx.Tools.Formatters
         public bool LoadRawElements(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers )
+            out Dictionary<string, string> headers,
+            out List<Comment> comments )
         {
             var doc = XDocument.Load( stream );
             var entries = doc.Root?.Elements( "data" );
@@ -193,6 +195,7 @@ namespace nresx.Tools.Formatters
                 } )
                 .ToList();
             headers = [];
+            comments = [];
 
             return true;
         }
@@ -200,7 +203,8 @@ namespace nresx.Tools.Formatters
         public void SaveResourceFile(
             Stream stream,
             IEnumerable<ResourceElement> elements,
-            Dictionary<string, string>? headers,
+            Dictionary<string, string> headers,
+            List<Comment> comments,
             ResourceFileOption? options = null)
         {
             XNamespace xml = "http://www.w3.org/XML/1998/namespace";
@@ -238,7 +242,7 @@ namespace nresx.Tools.Formatters
                         };
                         if( !string.IsNullOrWhiteSpace( el.Comment ) )
                             //elElements.Add( new XElement( "comment", el.Comment.ToArray() ) );
-                            elElements.Add( new XElement( "comment", el.Comment.ReplaceNewLine() ) );
+                            elElements.Add( new XElement( "comment", el.Comment?.ReplaceNewLine() ) );
 
                         var xel = new XElement( "data", elElements );
                         return xel;

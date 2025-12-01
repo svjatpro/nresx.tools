@@ -162,7 +162,7 @@ public class ResourceFile
 
         using var stream = new FileStream( fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
         var parser = type.formatter( null );
-        return parser.LoadRawElements( stream, out var elements, out _ ) ? elements : [];
+        return parser.LoadRawElements( stream, out var elements, out _, out _ ) ? elements : [];
     }
     public static IEnumerable<ResourceElement> LoadRawElements(
         Stream stream, 
@@ -183,7 +183,7 @@ public class ResourceFile
             throw new UnknownResourceFormatException();
         }
 
-        return parser.LoadRawElements( stream, out var elements, out _ ) ? elements : [];
+        return parser.LoadRawElements( stream, out var elements, out _, out _ ) ? elements : [];
     }
 
     #endregion
@@ -216,7 +216,7 @@ public class ResourceFile
         }
 
         using var stream = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
-        if ( SourceFormatter.LoadResourceFile( stream, out var elements, out var headers ) )
+        if ( SourceFormatter.LoadResourceFile( stream, out var elements, out var headers, out var comments ) )
         {
             Elements = new ResourceElements(elements);
 
@@ -228,6 +228,8 @@ public class ResourceFile
                 if(!Equals( c, CultureInfo.InvariantCulture ) )
                     Culture = c;
             }
+
+            Comments = comments;
         }
     }
 
@@ -262,7 +264,7 @@ public class ResourceFile
             AbsolutePath = fileInfo.FullName;
         }
 
-        if ( SourceFormatter.LoadResourceFile( stream, out var elements, out _ ) )
+        if ( SourceFormatter.LoadResourceFile( stream, out var elements, out _, out _ ) )
         {
             Elements = new ResourceElements( elements );
         }
@@ -322,7 +324,7 @@ public class ResourceFile
         }
 
         using var stream = new FileStream( targetPath, FileMode.CreateNew );
-        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), options );
+        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), Comments, options );
     }
 
     public void Save( Stream stream, ResourceFileOption options = null )
@@ -337,7 +339,7 @@ public class ResourceFile
             throw new InvalidOperationException( "Unknown format" );
         }
         var formatter = tInfo.formatter( null );
-        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), options );
+        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), Comments, options );
     }
 
     public Stream SaveToStream()

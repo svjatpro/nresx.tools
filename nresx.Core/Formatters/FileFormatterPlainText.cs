@@ -13,9 +13,10 @@ namespace nresx.Tools.Formatters
         public bool LoadResourceFile(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers )
+            out Dictionary<string, string> headers,
+            out List<Comment> comments )
         {
-            if ( LoadRawElements( stream, out var raw, out headers ) )
+            if ( LoadRawElements( stream, out var raw, out headers, out comments ) )
             {
                 elements = raw;
                 return true;
@@ -28,7 +29,8 @@ namespace nresx.Tools.Formatters
         public bool LoadRawElements(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers )
+            out Dictionary<string, string> headers,
+            out List<Comment> comments )
         {
             using var reader = new StreamReader( stream );
 
@@ -54,13 +56,14 @@ namespace nresx.Tools.Formatters
 
             elements = result;
             headers = [];
+            comments = [];
 
             return true;
         }
         private ResourceElement ParseElement( List<string> elementLines )
         {
             var text = string.Join( Environment.NewLine, elementLines );
-            return new()
+            return new ResourceElement
             {
                 Key = text, // ?generated key?
                 Value = text
@@ -70,7 +73,8 @@ namespace nresx.Tools.Formatters
         public void SaveResourceFile(
             Stream stream,
             IEnumerable<ResourceElement> elements,
-            Dictionary<string, string>? headers,
+            Dictionary<string, string> headers,
+            List<Comment> comments,
             ResourceFileOption? options = null)
         {
             using var writer = new StreamWriter( stream );

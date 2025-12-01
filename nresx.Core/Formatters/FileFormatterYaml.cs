@@ -87,7 +87,8 @@ internal class FileFormatterYaml : IFileFormatter
     public bool LoadResourceFile(
         Stream stream,
         out IEnumerable<ResourceElement> elements,
-        out Dictionary<string, string> headers )
+        out Dictionary<string, string> headers,
+        out List<Comment> comments )
     {
         using var reader = new StreamReader( stream );
         var deserializer = new DeserializerBuilder()
@@ -109,6 +110,7 @@ internal class FileFormatterYaml : IFileFormatter
             } )
             .ToList();
         headers = [];
+        comments = [];
 
         return true;
     }
@@ -116,7 +118,8 @@ internal class FileFormatterYaml : IFileFormatter
     public bool LoadRawElements(
         Stream stream,
         out IEnumerable<ResourceElement> elements,
-        out Dictionary<string, string> headers )
+        out Dictionary<string, string> headers,
+        out List<Comment> comments )
     {
         //var converter = new ResConverter();
 
@@ -175,6 +178,7 @@ internal class FileFormatterYaml : IFileFormatter
 
         elements = result;
         headers = [];
+        comments = [];
 
         return true;
     }
@@ -182,7 +186,8 @@ internal class FileFormatterYaml : IFileFormatter
     public void SaveResourceFile(
         Stream stream,
         IEnumerable<ResourceElement> elements,
-        Dictionary<string, string>? headers,
+        Dictionary<string, string> headers,
+        List<Comment> comments,
         ResourceFileOption? options = null)
     {
         using var writer = new StreamWriter( stream );

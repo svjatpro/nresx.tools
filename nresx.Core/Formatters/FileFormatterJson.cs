@@ -21,8 +21,6 @@ namespace nresx.Tools.Formatters
         public string ValuePropertyName { get; set; }
         public string CommentPropertyName { get; set; }
         public JsonElementType ElementType { get; set; }
-
-        
     }
 
     /// <summary>
@@ -244,9 +242,10 @@ namespace nresx.Tools.Formatters
         public bool LoadResourceFile(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers )
+            out Dictionary<string, string> headers,
+            out List<Comment> comments )
         {
-            if ( LoadRawElements( stream, out var raw, out headers ) )
+            if ( LoadRawElements( stream, out var raw, out headers, out comments ) )
             {
                 elements = raw;
                 ElementHasComment = elements?.All( el => ( (ResourceElementJson) el ).ElementType != JsonElementType.KeyValue ) ?? true;
@@ -260,7 +259,8 @@ namespace nresx.Tools.Formatters
         public bool LoadRawElements(
             Stream stream,
             out IEnumerable<ResourceElement> elements,
-            out Dictionary<string, string> headers )
+            out Dictionary<string, string> headers,
+            out List<Comment> comments )
         {
             using var sr = new StreamReader( stream );
             using var reader = new JsonTextReader( sr );
@@ -271,6 +271,7 @@ namespace nresx.Tools.Formatters
 
             // 
             headers = [];
+            comments = [];
 
             return true;
         }
@@ -278,7 +279,8 @@ namespace nresx.Tools.Formatters
         public void SaveResourceFile(
             Stream stream,
             IEnumerable<ResourceElement> elements,
-            Dictionary<string, string>? headers, 
+            Dictionary<string, string> headers,
+            List<Comment> comments,
             ResourceFileOption? options = null )
         {
             var root = new JObject();

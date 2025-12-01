@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using nresx.Tools;
-using nresx.Tools.Helpers;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles.Po;
@@ -78,15 +77,49 @@ public class PoResourceFileCommentsTests : TestBase
 
         // validate raw file
         var savedFile = TestHelper.ReadFile( targetPath );
-        savedFile[4].Should().Be( $"#  {comments[0].value}" );
-        savedFile[5].Should().Be( $"#. {comments[1].value}" );
-        savedFile[6].Should().Be( $"#: {comments[2].value}" );
-        savedFile[7].Should().Be( $"#, {comments[3].value}" );
-        savedFile[8].Should().Be( $"#| {comments[4].value}" );
+        savedFile[3].Should().Be( $"#  {comments[0].value}" );
+        savedFile[4].Should().Be( $"#. {comments[1].value}" );
+        savedFile[5].Should().Be( $"#: {comments[2].value}" );
+        savedFile[6].Should().Be( $"#, {comments[3].value}" );
+        savedFile[7].Should().Be( $"#| {comments[4].value}" );
 
         // validate loading
         var saved = new ResourceFile( targetPath );
         var el = saved.Elements[key1];
         el!.Comments.Select( c => ( c.Type, c.Value ) ).Should().BeEquivalentTo( comments );
+    }
+
+    [Test]
+    public void GlobalCommentsTest()
+    {
+        const ResourceFormatType format = ResourceFormatType.Po;
+        var comments = new[]
+        {
+            ( type: CommentType.Translator, value: "comment1" ),
+            ( type: CommentType.Extracted, value: "comment2" ),
+            ( type: CommentType.Reference, value: "comment3" ),
+            ( type: CommentType.Flags, value: "comment4" ),
+            ( type: CommentType.PreviousValue, value: "comment5" ),
+        };
+
+        var source = new ResourceFile(format);
+        foreach (var (type, value) in comments)
+        {
+            source.Comments.Add(new Comment(type, value));
+        }
+        var targetPath = GetOutputPath(TestData.UniqueKey(), format);
+        source.Save(targetPath);
+
+        // validate raw file
+        var savedFile = TestHelper.ReadFile(targetPath);
+        savedFile[0].Should().Be($"#  {comments[0].value}");
+        savedFile[1].Should().Be($"#. {comments[1].value}");
+        savedFile[2].Should().Be($"#: {comments[2].value}");
+        savedFile[3].Should().Be($"#, {comments[3].value}");
+        savedFile[4].Should().Be($"#| {comments[4].value}");
+
+        // validate loading
+        var saved = new ResourceFile(targetPath);
+        saved.Comments.Select(c => (c.Type, c.Value)).Should().BeEquivalentTo(comments);
     }
 }
