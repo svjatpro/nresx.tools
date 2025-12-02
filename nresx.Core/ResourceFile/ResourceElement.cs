@@ -9,6 +9,7 @@ namespace nresx.Tools
         public string Key { get; set; } = null!;
         public string? KeyPlural { get; set; }
         public string Value { get; set; } = string.Empty;
+        public Dictionary<int, string> ValuePlurals { get; set; } = new();
 
         public string? Comment
         {
@@ -33,5 +34,15 @@ namespace nresx.Tools
         }
 
         public readonly List<Comment> Comments = [];
+
+        public string GetValue( int plural = -1 )
+        {
+            if ( plural == -1 ) 
+                return Value;
+            if ( ValuePlurals.TryGetValue( plural, out var pluralValue ) )
+                return pluralValue;
+
+            return Value ?? string.Empty;
+        }
     }
 }

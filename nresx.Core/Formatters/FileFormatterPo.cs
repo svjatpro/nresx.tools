@@ -12,8 +12,8 @@ namespace nresx.Tools.Formatters
         #region Private fields
 
         private const string MsgIdTag = "msgid";
-        private const string MsgStrTag = "msgstr";
         private const string MsgIdPluralTag = "msgid_plural";
+        private const string MsgStrTag = "msgstr";
 
         private readonly ResourceFileOption Options = options ?? new ResourceFileOption();
 
@@ -43,11 +43,12 @@ namespace nresx.Tools.Formatters
                 .ToDictionary(h => h.key, h => h.value);
         }
 
-        private enum ElementParseState { None, Comment, MsgId, MsgIdPlural, MsgStr }
+        private enum ElementParseState { None, Comment, MsgId, MsgIdPlural, MsgStr, MsgStrPlural }
         private static ResourceElement ParseElement(List<string> lines)
         {
             var element = new ResourceElement { Type = ResourceElementType.String };
             var state = ElementParseState.None;
+            var pluralIndex = 0;
             var propLines = new List<string>();
             var commentTypes = CommentPrefix.ToDictionary(c => c.Value, c => c.Key);
 
@@ -86,6 +87,13 @@ namespace nresx.Tools.Formatters
                             propLines.Add( str );
                         }
                         break;
+                    case var _ when line.StartsWith($"{MsgStrTag}[") && ParsePluralIndex( line, out var idx ):
+                        ParseProperty( ElementParseState.MsgStrPlural, idx );
+                        if (ParseLine(line, $@"{MsgStrTag}\[{idx}\]\s+", out var plural))
+                        {
+                            propLines.Add( plural );
+                        }
+                        break;
                     case var _ when line.Trim( ' ' ).StartsWith( "\"" ):
                         if ( state != ElementParseState.None && ParseLine( line, "", out var next ) )
                         {
@@ -98,9 +106,20 @@ namespace nresx.Tools.Formatters
 
             return element;
 
+            bool ParsePluralIndex(string line, out int index)
+            {
+                var r1 = new Regex(@$"^{MsgStrTag}\[(\d+)\]").Match(line);
+                if (r1 is { Success: true, Groups.Count: > 1 } && int.TryParse(r1.Groups[1].Value, out var idx))
+                {
+                    index = idx;
+                    return true;
+                }
+                index = -1;
+                return false;
+            }
             bool ParseLine( string line, string prefix, out string value )
             {
-                var r1 = new Regex( @$"{prefix}""(.*)""" ).Match( line );
+                var r1 = new Regex( @$"^{prefix}""(.*)""" ).Match( line );
                 if (r1 is { Success: true, Groups.Count: > 1 })
                 {
                     value = r1.Groups[1].Value;
@@ -109,7 +128,7 @@ namespace nresx.Tools.Formatters
                 value = string.Empty;
                 return false;
             }
-            void ParseProperty(ElementParseState nextProp)
+            void ParseProperty(ElementParseState nextProp, int index = -1)
             {
                 if (propLines.Any())
                 {
@@ -125,11 +144,15 @@ namespace nresx.Tools.Formatters
                         case ElementParseState.MsgStr:
                             element.Value = value;
                             break;
+                        case ElementParseState.MsgStrPlural:
+                            element.ValuePlurals[pluralIndex] = value;
+                            break;
                     }
                     propLines.Clear();
                 }
 
                 state = nextProp;
+                pluralIndex = index;
             }
         }
 
@@ -250,12 +273,24 @@ namespace nresx.Tools.Formatters
 
                 // write key
                 WriteMultilineProperty( element.Key, MsgIdTag );
+                
                 // write key plural
-                if ( !string.IsNullOrWhiteSpace( element.KeyPlural ))
+                if ( !string.IsNullOrWhiteSpace( element.KeyPlural ) )
+                {
                     WriteMultilineProperty(element.KeyPlural!, MsgIdPluralTag);
+                }
 
                 // write value
-                WriteMultilineProperty( element.Value, MsgStrTag );
+                if ( element.Value != null )
+                {
+                    WriteMultilineProperty( element.Value, MsgStrTag );
+                }
+
+                // write value plural
+                foreach ( var plural in element.ValuePlurals )
+                {
+                    WriteMultilineProperty( plural.Value, $"{MsgStrTag}[{plural.Key}]" );
+                }
 
                 // write empty line between elements
                 writer.WriteLine();

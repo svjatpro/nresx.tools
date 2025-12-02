@@ -25,7 +25,12 @@ namespace nresx.Tools
             return GetEnumerator();
         }
 
-        public void Add( string key, string value, string? comment = null, string? keyPlural = null )
+        public void Add(
+            string key,
+            string value,
+            string? comment = null,
+            string? keyPlural = null,
+            (int, string)[]? plurals = null )
         {
             var el = new ResourceElement
             {
@@ -33,7 +38,8 @@ namespace nresx.Tools
                 Key = key,
                 KeyPlural = keyPlural,
                 Value = value,
-                Comment = comment
+                Comment = comment,
+                ValuePlurals = plurals?.ToDictionary( p => p.Item1, p => p.Item2 ) ?? []
             };
 
             ElementsList.Add( el );
