@@ -25,12 +25,13 @@ namespace nresx.Tools
             return GetEnumerator();
         }
 
-        public void Add( string key, string value, string? comment = null )
+        public void Add( string key, string value, string? comment = null, string? keyPlural = null )
         {
             var el = new ResourceElement
             {
                 Type = ResourceElementType.String,
                 Key = key,
+                KeyPlural = keyPlural,
                 Value = value,
                 Comment = comment
             };

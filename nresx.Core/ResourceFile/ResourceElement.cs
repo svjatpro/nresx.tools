@@ -7,6 +7,7 @@ namespace nresx.Tools
     {
         public ResourceElementType Type { get; set; }
         public string Key { get; set; } = null!;
+        public string? KeyPlural { get; set; }
         public string Value { get; set; } = string.Empty;
 
         public string? Comment

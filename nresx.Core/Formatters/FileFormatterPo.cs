@@ -13,8 +13,10 @@ namespace nresx.Tools.Formatters
 
         private const string MsgIdTag = "msgid";
         private const string MsgStrTag = "msgstr";
+        private const string MsgIdPluralTag = "msgid_plural";
 
         private readonly ResourceFileOption Options = options ?? new ResourceFileOption();
+
 
         private static readonly Dictionary<CommentType, string> CommentPrefix = new()
         {
@@ -41,7 +43,7 @@ namespace nresx.Tools.Formatters
                 .ToDictionary(h => h.key, h => h.value);
         }
 
-        private enum ElementParseState { None, Comment, MsgId, MsgStr }
+        private enum ElementParseState { None, Comment, MsgId, MsgIdPlural, MsgStr }
         private static ResourceElement ParseElement(List<string> lines)
         {
             var element = new ResourceElement { Type = ResourceElementType.String };
@@ -56,51 +58,57 @@ namespace nresx.Tools.Formatters
                     case "#":
                         break;
                     case var _ when line.StartsWith("#"):
-                        ParseProperty(ElementParseState.Comment);
-                        if (line.Length <= 3 ||
-                             !commentTypes.TryGetValue(line.Substring(0, 3), out var commentType))
+                        ParseProperty( ElementParseState.Comment );
+                        if ( line.Length <= 3 || !commentTypes.TryGetValue( line.Substring( 0, 3 ), out var commentType ) )
                         {
                             break;
                         }
                         element.Comments.Add(new Comment(commentType, line.Substring(3)));
                         break;
-                    case var _ when line.StartsWith($"{MsgIdTag} "):
-                        ParseProperty(ElementParseState.MsgId);
-
-                        var r1 = new Regex(@"msgid\s+""(.*)""").Match(line);
-                        if (r1.Success && r1.Groups.Count > 1)
+                    case var _ when line.StartsWith( $"{MsgIdTag} " ):
+                        ParseProperty( ElementParseState.MsgId );
+                        if ( ParseLine( line, $@"{MsgIdTag}\s+", out var id ) )
                         {
-                            var value = r1.Groups[1].Value;
-                            propLines.Add(value);
+                            propLines.Add( id );
                         }
                         break;
-                    case var _ when line.StartsWith($"{MsgStrTag} "):
-                        ParseProperty(ElementParseState.MsgStr);
-
-                        var r2 = new Regex(@"msgstr\s+""(.*)""").Match(line);
-                        if (r2.Success && r2.Groups.Count > 1)
+                    case var _ when line.StartsWith( $"{MsgIdPluralTag} " ):
+                        ParseProperty( ElementParseState.MsgIdPlural );
+                        if ( ParseLine( line, $@"{MsgIdPluralTag}\s+", out var idPlural ) )
                         {
-                            var value = r2.Groups[1].Value;
-                            propLines.Add(value);
+                            propLines.Add( idPlural );
                         }
                         break;
-                    case var _ when line.Trim(' ').StartsWith("\""):
-                        if (state != ElementParseState.None)
+                    case var _ when line.StartsWith( $"{MsgStrTag} " ):
+                        ParseProperty( ElementParseState.MsgStr );
+                        if ( ParseLine( line, $@"{MsgStrTag}\s+", out var str ) )
                         {
-                            var r3 = new Regex(@"""(.*)""").Match(line);
-                            if (r3.Success && r3.Groups.Count > 1)
-                            {
-                                propLines.Add(r3.Groups[1].Value);
-                            }
+                            propLines.Add( str );
+                        }
+                        break;
+                    case var _ when line.Trim( ' ' ).StartsWith( "\"" ):
+                        if ( state != ElementParseState.None && ParseLine( line, "", out var next ) )
+                        {
+                            propLines.Add( next );
                         }
                         break;
                 }
             }
             ParseProperty(ElementParseState.None);
 
-            //element.Comment = element.Comments.FirstOrDefault( c => c.Type == CommentType.Translator )?.Value;
             return element;
 
+            bool ParseLine( string line, string prefix, out string value )
+            {
+                var r1 = new Regex( @$"{prefix}""(.*)""" ).Match( line );
+                if (r1 is { Success: true, Groups.Count: > 1 })
+                {
+                    value = r1.Groups[1].Value;
+                    return true;
+                }
+                value = string.Empty;
+                return false;
+            }
             void ParseProperty(ElementParseState nextProp)
             {
                 if (propLines.Any())
@@ -110,6 +118,9 @@ namespace nresx.Tools.Formatters
                     {
                         case ElementParseState.MsgId:
                             element.Key = value;
+                            break;
+                        case ElementParseState.MsgIdPlural:
+                            element.KeyPlural = value;
                             break;
                         case ElementParseState.MsgStr:
                             element.Value = value;
@@ -239,6 +250,9 @@ namespace nresx.Tools.Formatters
 
                 // write key
                 WriteMultilineProperty( element.Key, MsgIdTag );
+                // write key plural
+                if ( !string.IsNullOrWhiteSpace( element.KeyPlural ))
+                    WriteMultilineProperty(element.KeyPlural!, MsgIdPluralTag);
 
                 // write value
                 WriteMultilineProperty( element.Value, MsgStrTag );
