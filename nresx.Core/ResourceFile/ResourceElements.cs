@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,12 +10,36 @@ namespace nresx.Tools
     {
         private readonly List<ResourceElement> ElementsList = elements?.ToList() ?? [];
 
-        public ResourceElement? this[ int index ] => ElementsList[index];
+        public ResourceElement? this[int index]
+        {
+            get => ElementsList[index];
+            set => ElementsList[index] = value ?? throw new NullReferenceException("Cannot set null ResourceElement");
+        }
 
-        //set => ElementsList[index] = value;
-        public ResourceElement? this[string key] => ElementsList.SingleOrDefault( el => el.Key == key );
+        public ResourceElement? this[string key]
+        {
+            get => ElementsList.SingleOrDefault( el => el.Key == key );
+            set
+            {
+                var el = ElementsList
+                    .Select( ( element, index ) => ( element, index ) )
+                    .SingleOrDefault( el => el.element.Key == key );
+                ElementsList[el.index] = value ?? throw new NullReferenceException( "Cannot set null ResourceElement" );
+            }
+        }
 
-        //set => ElementsList[key] = value;
+        public ResourceElement? this[string key, string? context]
+        {
+            get => ElementsList.SingleOrDefault( el => el.Key == key && el.Context == context );
+            set 
+            {
+                var el = ElementsList
+                    .Select( ( element, index ) => ( element, index ) )
+                    .SingleOrDefault( el => el.element.Key == key && el.element.Context == context );
+                ElementsList[el.index] = value ?? throw new NullReferenceException( "Cannot set null ResourceElement" );
+            }
+        }
+
         public IEnumerator<ResourceElement> GetEnumerator()
         {
             return ElementsList.GetEnumerator();
@@ -29,6 +54,7 @@ namespace nresx.Tools
             string key,
             string value,
             string? comment = null,
+            string? context = null,
             string? keyPlural = null,
             (int, string)[]? plurals = null )
         {
@@ -39,6 +65,7 @@ namespace nresx.Tools
                 KeyPlural = keyPlural,
                 Value = value,
                 Comment = comment,
+                Context = context,
                 ValuePlurals = plurals?.ToDictionary( p => p.Item1, p => p.Item2 ) ?? []
             };
 

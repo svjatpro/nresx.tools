@@ -14,6 +14,7 @@ namespace nresx.Tools.Formatters
         private const string MsgIdTag = "msgid";
         private const string MsgIdPluralTag = "msgid_plural";
         private const string MsgStrTag = "msgstr";
+        private const string MsgCtxtTag = "msgctxt";
 
         private readonly ResourceFileOption Options = options ?? new ResourceFileOption();
 
@@ -43,7 +44,7 @@ namespace nresx.Tools.Formatters
                 .ToDictionary(h => h.key, h => h.value);
         }
 
-        private enum ElementParseState { None, Comment, MsgId, MsgIdPlural, MsgStr, MsgStrPlural }
+        private enum ElementParseState { None, Comment, MsgId, MsgIdPlural, MsgStr, MsgStrPlural, MsgContext }
         private static ResourceElement ParseElement(List<string> lines)
         {
             var element = new ResourceElement { Type = ResourceElementType.String };
@@ -65,6 +66,13 @@ namespace nresx.Tools.Formatters
                             break;
                         }
                         element.Comments.Add(new Comment(commentType, line.Substring(3)));
+                        break;
+                    case var _ when line.StartsWith($"{MsgCtxtTag} "):
+                        ParseProperty( ElementParseState.MsgContext );
+                        if (ParseLine(line, $@"{MsgCtxtTag}\s+", out var ctxt))
+                        {
+                            propLines.Add( ctxt );
+                        }
                         break;
                     case var _ when line.StartsWith( $"{MsgIdTag} " ):
                         ParseProperty( ElementParseState.MsgId );
@@ -135,6 +143,9 @@ namespace nresx.Tools.Formatters
                     var value = string.Join("", propLines).Replace(@"\n", Environment.NewLine);
                     switch (state)
                     {
+                        case ElementParseState.MsgContext:
+                            element.Context = value;
+                            break;
                         case ElementParseState.MsgId:
                             element.Key = value;
                             break;
@@ -166,16 +177,18 @@ namespace nresx.Tools.Formatters
         {
             if ( LoadRawElements( stream, out var raw, out headers, out comments ) )
             {
-                var dictionary = new Dictionary<string, ResourceElement>();
+                //var dictionary = new Dictionary<string, ResourceElement>();
+                var result = new List<ResourceElement>();
                 var elementsList = raw.ToList();
                 foreach (var el in elementsList)
                 {
-                    if (string.IsNullOrWhiteSpace(el.Key) || dictionary.ContainsKey(el.Key)) 
+                    if (string.IsNullOrWhiteSpace(el.Key) /*|| dictionary.ContainsKey(el.Key)*/)
                         continue;
-                    dictionary.Add(el.Key, el);
+                    result.Add( el );
+                    //dictionary.Add(el.Key, el);
                 }
-
-                elements = dictionary.Values.ToList();
+                //elements = dictionary.Values.ToList();
+                elements = result.ToList();
                 return true;
             }
 
@@ -271,6 +284,12 @@ namespace nresx.Tools.Formatters
                     writer.WriteLine($"{prefix}{comment.Value}");
                 }
 
+                // write context
+                if ( element.Context != null )
+                {
+                    WriteMultilineProperty( element.Context, MsgCtxtTag );
+                }
+
                 // write key
                 WriteMultilineProperty( element.Key, MsgIdTag );
                 
@@ -281,10 +300,7 @@ namespace nresx.Tools.Formatters
                 }
 
                 // write value
-                if ( element.Value != null )
-                {
-                    WriteMultilineProperty( element.Value, MsgStrTag );
-                }
+                WriteMultilineProperty( element.Value ?? string.Empty, MsgStrTag );
 
                 // write value plural
                 foreach ( var plural in element.ValuePlurals )
