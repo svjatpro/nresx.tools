@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using nresx.Tools.Exceptions;
 using nresx.Tools.Formatters;
 
@@ -143,8 +145,8 @@ public class ResourceFile
     public string FileName { get; }
     public string AbsolutePath { get; }
 
-    public readonly ResourceElements Elements;
-    public readonly List<Comment> Comments = [];
+    public ResourceElements Elements { get; private set; } = new ResourceElements();
+    public List<Comment> Comments { get; private set; } = [];
 
     #region Static members
 
@@ -270,6 +272,38 @@ public class ResourceFile
         }
     }
 
+    // Private constructor used by LoadAsync(string path):
+    // path provides metadata (FileFormat, FileName, AbsolutePath, Culture),
+    // loadedStream provides content (already read into memory async).
+    private ResourceFile( string path, Stream loadedStream, ResourceFileOption? options )
+    {
+        if ( !GetTypeInfo( path, out var type ) )
+            throw new UnknownResourceFormatException();
+
+        FileFormat = type.type;
+        SourceFormatter = type.formatter( options );
+        ResourceOptions = options;
+
+        Culture = GetCultureByName( path );
+
+        var fileInfo = new FileInfo( path );
+        FileName = fileInfo.Name;
+        AbsolutePath = fileInfo.FullName;
+
+        if ( SourceFormatter.LoadResourceFile( loadedStream, out var elements, out var headers, out var comments ) )
+        {
+            Elements = new ResourceElements( elements );
+            Headers = headers;
+            if ( Headers.TryGetValue( "Language", out var languageHeader ) )
+            {
+                var c = new CultureInfo( languageHeader );
+                if ( !Equals( c, CultureInfo.InvariantCulture ) )
+                    Culture = c;
+            }
+            Comments = comments;
+        }
+    }
+
     public ResourceFile( ResourceFileOption? options = null )
     {
         IsNewFile = true;
@@ -357,6 +391,217 @@ public class ResourceFile
     public bool ElementHasKey => SourceFormatter?.ElementHasKey ?? true;
 
     public bool ElementHasComment => SourceFormatter?.ElementHasComment ?? true;
+
+    #endregion
+
+    #region Async load
+
+    public static async Task<ResourceFile> LoadAsync(
+        string path,
+        ResourceFileOption? options = null,
+        CancellationToken cancellationToken = default )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var fileInfo = new FileInfo( path );
+        if ( !fileInfo.Exists )
+            return new ResourceFile( path, options );
+
+        var buffer = await ReadAllBytesAsync( path, cancellationToken ).ConfigureAwait( false );
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var ms = new MemoryStream( buffer );
+        return new ResourceFile( path, ms, options );
+    }
+
+    public static async Task<ResourceFile> LoadAsync(
+        Stream stream,
+        ResourceFormatType resourceFormat = ResourceFormatType.NA,
+        ResourceFileOption? options = null,
+        CancellationToken cancellationToken = default )
+    {
+        if ( stream == null ) throw new ArgumentNullException( nameof( stream ) );
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var sourcePath = ( stream as FileStream )?.Name;
+
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync( ms, 81920, cancellationToken ).ConfigureAwait( false );
+        ms.Position = 0;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if ( !string.IsNullOrWhiteSpace( sourcePath ) )
+            return new ResourceFile( sourcePath!, ms, options );
+
+        return new ResourceFile( ms, resourceFormat, options );
+    }
+
+    public static async Task<IEnumerable<ResourceElement>> LoadRawElementsAsync(
+        string path,
+        CancellationToken cancellationToken = default )
+    {
+        if ( !GetTypeInfo( path, out var type ) )
+            throw new UnknownResourceFormatException();
+
+        var fileInfo = new FileInfo( path );
+        if ( !fileInfo.Exists ) return [];
+
+        var buffer = await ReadAllBytesAsync( path, cancellationToken ).ConfigureAwait( false );
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var ms = new MemoryStream( buffer );
+        var parser = type.formatter( null );
+        return parser.LoadRawElements( ms, out var elements, out _, out _ ) ? elements : [];
+    }
+
+    public static async Task<IEnumerable<ResourceElement>> LoadRawElementsAsync(
+        Stream stream,
+        ResourceFormatType resourceFormat = ResourceFormatType.NA,
+        CancellationToken cancellationToken = default )
+    {
+        if ( stream == null ) throw new ArgumentNullException( nameof( stream ) );
+
+        IFileFormatter parser;
+        if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
+            parser = t1.formatter( null );
+        else if ( GetTypeInfo( stream, out var type ) )
+            parser = type.formatter( null );
+        else
+            throw new UnknownResourceFormatException();
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync( ms, 81920, cancellationToken ).ConfigureAwait( false );
+        ms.Position = 0;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return parser.LoadRawElements( ms, out var elements, out _, out _ ) ? elements : [];
+    }
+
+    #endregion
+
+    #region Async save
+
+    public Task SaveAsync(
+        string path,
+        bool createDir = false,
+        ResourceFileOption? options = null,
+        CancellationToken cancellationToken = default )
+    {
+        return SaveAsync( path, FileFormat, createDir, options, cancellationToken );
+    }
+
+    public async Task SaveAsync(
+        string path,
+        ResourceFormatType type,
+        bool createDir = false,
+        ResourceFileOption? options = null,
+        CancellationToken cancellationToken = default )
+    {
+        if ( !GetTypeInfo( t => t.type == type, out var tInfo ) )
+            throw new InvalidOperationException( "Unknown format" );
+
+        var targetPath = Path.ChangeExtension( path, tInfo.extensions );
+        var formatter = tInfo.formatter( null );
+
+        var fileInfo = new FileInfo( targetPath );
+        if ( fileInfo.Exists )
+            fileInfo.Delete();
+
+        var dirName = Path.GetDirectoryName( targetPath );
+        if ( !string.IsNullOrWhiteSpace( dirName ) )
+        {
+            var dir = new DirectoryInfo( dirName! );
+            if ( !dir.Exists && createDir )
+                dir.Create();
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        byte[] bytes;
+        using ( var memory = new MemoryStream() )
+        {
+            formatter.SaveResourceFile( memory, Elements, PrepareHeaders(), Comments, options );
+            bytes = memory.ToArray();
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var fs = new FileStream(
+            targetPath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+            bufferSize: 4096, useAsync: true );
+        await fs.WriteAsync( bytes, 0, bytes.Length, cancellationToken ).ConfigureAwait( false );
+    }
+
+    public Task SaveAsync(
+        Stream stream,
+        ResourceFileOption? options = null,
+        CancellationToken cancellationToken = default )
+    {
+        return SaveAsync( stream, FileFormat, options, cancellationToken );
+    }
+
+    public async Task SaveAsync(
+        Stream stream,
+        ResourceFormatType type,
+        ResourceFileOption? options = null,
+        CancellationToken cancellationToken = default )
+    {
+        if ( !GetTypeInfo( t => t.type == type, out var tInfo ) )
+            throw new InvalidOperationException( "Unknown format" );
+
+        var formatter = tInfo.formatter( null );
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        byte[] bytes;
+        using ( var memory = new MemoryStream() )
+        {
+            formatter.SaveResourceFile( memory, Elements, PrepareHeaders(), Comments, options );
+            bytes = memory.ToArray();
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await stream.WriteAsync( bytes, 0, bytes.Length, cancellationToken ).ConfigureAwait( false );
+    }
+
+    public async Task<Stream> SaveToStreamAsync( CancellationToken cancellationToken = default )
+    {
+        var ms = new MemoryStream();
+        await SaveAsync( ms, cancellationToken: cancellationToken ).ConfigureAwait( false );
+        ms.Position = 0;
+        return ms;
+    }
+
+    #endregion
+
+    #region Private async helpers
+
+    // Reads the entire file into a byte buffer using async I/O. Honors cancellation.
+    private static async Task<byte[]> ReadAllBytesAsync( string path, CancellationToken cancellationToken )
+    {
+        using var fs = new FileStream(
+            path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite,
+            bufferSize: 4096, useAsync: true );
+
+        var buffer = new byte[fs.Length];
+        var totalRead = 0;
+        while ( totalRead < buffer.Length )
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var n = await fs.ReadAsync( buffer, totalRead, buffer.Length - totalRead, cancellationToken ).ConfigureAwait( false );
+            if ( n == 0 ) break;
+            totalRead += n;
+        }
+        return buffer;
+    }
 
     #endregion
 }
