@@ -19,5 +19,6 @@
         Xliff = 0x09,
 
         AndroidStrings = 0x0A,
+        IosStrings = 0x0B,
     }
 }
