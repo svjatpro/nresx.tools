@@ -207,47 +207,48 @@ namespace nresx.Tools.Formatters
             List<Comment> comments,
             ResourceFileOption? options = null)
         {
+            var resxOptions = ( options as ResourceFileOptionResx ) ?? new ResourceFileOptionResx();
             XNamespace xml = "http://www.w3.org/XML/1998/namespace";
-            var doc = new XDocument(
-                new XElement( "root",
 
-                    // write root description
-                    new XComment( RootDescription ),
+            var rootContent = new List<object>();
 
-                    // write schema
-                    GetSchema(),
+            if ( resxOptions.WriteRootComment )
+                rootContent.Add( new XComment( RootDescription ) );
 
-                    // write headers
-                    new XElement( "resheader",
-                        new XAttribute( "name", "resmimetype" ),
-                        new XElement( "value", "text/microsoft-resx" ) ),
-                    new XElement( "resheader",
-                        new XAttribute( "name", "version" ),
-                        new XElement( "value", "2.0" ) ),
-                    new XElement( "resheader", 
-                        new XAttribute( "name", "reader" ),
-                        new XElement( "value", "System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ),
-                    new XElement( "resheader",
-                        new XAttribute( "name", "writer" ),
-                        new XElement( "value", "System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ),
-                    
-                    // write elements
-                    elements.Select( el =>
-                    {
-                        var elElements = new List<object>
-                        {
-                            new XAttribute( "name", el.Key ),
-                            new XAttribute( xml + "space", "preserve" ),
-                            new XElement( "value", el.Value?.ReplaceNewLine() )
-                        };
-                        if( !string.IsNullOrWhiteSpace( el.Comment ) )
-                            //elElements.Add( new XElement( "comment", el.Comment.ToArray() ) );
-                            elElements.Add( new XElement( "comment", el.Comment?.ReplaceNewLine() ) );
+            if ( resxOptions.WriteEmbeddedSchema )
+                rootContent.Add( GetSchema() );
 
-                        var xel = new XElement( "data", elElements );
-                        return xel;
-                    } ) ) );
+            if ( resxOptions.WriteStandardResHeaders )
+            {
+                rootContent.Add( new XElement( "resheader",
+                    new XAttribute( "name", "resmimetype" ),
+                    new XElement( "value", "text/microsoft-resx" ) ) );
+                rootContent.Add( new XElement( "resheader",
+                    new XAttribute( "name", "version" ),
+                    new XElement( "value", "2.0" ) ) );
+                rootContent.Add( new XElement( "resheader",
+                    new XAttribute( "name", "reader" ),
+                    new XElement( "value", "System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ) );
+                rootContent.Add( new XElement( "resheader",
+                    new XAttribute( "name", "writer" ),
+                    new XElement( "value", "System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" ) ) );
+            }
 
+            rootContent.AddRange( elements.Select( el =>
+            {
+                var elElements = new List<object>
+                {
+                    new XAttribute( "name", el.Key ),
+                    new XAttribute( xml + "space", "preserve" ),
+                    new XElement( "value", el.Value?.ReplaceNewLine() )
+                };
+                if ( !string.IsNullOrWhiteSpace( el.Comment ) )
+                    elElements.Add( new XElement( "comment", el.Comment?.ReplaceNewLine() ) );
+
+                return (object) new XElement( "data", elElements );
+            } ) );
+
+            var doc = new XDocument( new XElement( "root", rootContent ) );
             doc.Save( stream );
         }
 

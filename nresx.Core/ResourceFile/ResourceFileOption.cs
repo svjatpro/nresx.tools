@@ -29,4 +29,20 @@ namespace nresx.Tools
         // If true, PO headers with empty values are dropped when loading.
         public bool IgnoreEmptyHeaders { get; set; } = true;
     }
+
+    public class ResourceFileOptionResx : ResourceFileOption
+    {
+        // If true (default), writes the multi-line Microsoft commentary at the top
+        // of the resx file. Turn off for diff-friendly / compact output.
+        public bool WriteRootComment { get; set; } = true;
+
+        // If true (default), writes the embedded XSD schema (~50 lines).
+        // Turn off for compact output; .NET ResXResourceReader still reads the file fine.
+        public bool WriteEmbeddedSchema { get; set; } = true;
+
+        // If true (default), writes the four standard <resheader> entries
+        // (resmimetype, version, reader, writer). Required for .NET ResXResourceReader
+        // compatibility — turn off only if writing a "bare" resx for a custom reader.
+        public bool WriteStandardResHeaders { get; set; } = true;
+    }
 }
