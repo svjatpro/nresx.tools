@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using nresx.Tools.Extensions;
@@ -262,7 +263,8 @@ namespace nresx.Tools.Formatters
             out Dictionary<string, string> headers,
             out List<Comment> comments )
         {
-            using var sr = new StreamReader( stream );
+            // leaveOpen: true — caller owns the stream
+            using var sr = new StreamReader( stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true );
             using var reader = new JsonTextReader( sr );
 
             // parse json
@@ -337,7 +339,8 @@ namespace nresx.Tools.Formatters
                 }
             }
 
-            using var writer = new StreamWriter( stream );
+            // leaveOpen: true — caller owns the stream
+            using var writer = new StreamWriter( stream, new UTF8Encoding( false ), bufferSize: 1024, leaveOpen: true );
             using var jsonTextWriter = new JsonTextWriter( writer ){ Formatting = Formatting.Indented };
             root.WriteTo( jsonTextWriter );
         }
