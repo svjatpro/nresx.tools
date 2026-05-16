@@ -21,22 +21,26 @@ namespace nresx.Tools
             get => ElementsList.SingleOrDefault( el => el.Key == key );
             set
             {
-                var el = ElementsList
-                    .Select( ( element, index ) => ( element, index ) )
-                    .SingleOrDefault( el => el.element.Key == key );
-                ElementsList[el.index] = value ?? throw new NullReferenceException( "Cannot set null ResourceElement" );
+                if ( value == null ) throw new ArgumentNullException( nameof( value ) );
+                var index = ElementsList.FindIndex( el => el.Key == key );
+                if ( index < 0 )
+                    ElementsList.Add( value );
+                else
+                    ElementsList[index] = value;
             }
         }
 
         public ResourceElement? this[string key, string? context]
         {
             get => ElementsList.SingleOrDefault( el => el.Key == key && el.Context == context );
-            set 
+            set
             {
-                var el = ElementsList
-                    .Select( ( element, index ) => ( element, index ) )
-                    .SingleOrDefault( el => el.element.Key == key && el.element.Context == context );
-                ElementsList[el.index] = value ?? throw new NullReferenceException( "Cannot set null ResourceElement" );
+                if ( value == null ) throw new ArgumentNullException( nameof( value ) );
+                var index = ElementsList.FindIndex( el => el.Key == key && el.Context == context );
+                if ( index < 0 )
+                    ElementsList.Add( value );
+                else
+                    ElementsList[index] = value;
             }
         }
 
