@@ -51,6 +51,7 @@ namespace nresx.Tools.Formatters
             Register( new FormatDescriptor( ResourceFormatType.Ini, ".ini", _ => new FileFormatterIni() ) );
             Register( new FormatDescriptor( ResourceFormatType.Csv, ".csv", _ => new FileFormatterCsv( ',' ) ) );
             Register( new FormatDescriptor( ResourceFormatType.Tsv, ".tsv", _ => new FileFormatterCsv( '\t' ) ) );
+            Register( new FormatDescriptor( ResourceFormatType.Arb, ".arb", _ => new FileFormatterArb() ) );
         }
 
         internal static void Register( FormatDescriptor descriptor )

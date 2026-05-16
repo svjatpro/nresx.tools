@@ -59,6 +59,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.Ini );
                 yield return new TestCaseData( ResourceFormatType.Csv );
                 yield return new TestCaseData( ResourceFormatType.Tsv );
+                yield return new TestCaseData( ResourceFormatType.Arb );
             }
         }
 
@@ -81,6 +82,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.ini" );
                 yield return new TestCaseData( "Resources.csv" );
                 yield return new TestCaseData( "Resources.tsv" );
+                yield return new TestCaseData( "Resources.arb" );
             }
         }
 

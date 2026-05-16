@@ -25,5 +25,7 @@
 
         Csv = 0x0E,
         Tsv = 0x0F,
+
+        Arb = 0x10,
     }
 }
