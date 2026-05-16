@@ -17,6 +17,9 @@ namespace nresx.CommandLine.Commands
         [Option( "basic-lan", HelpText = "Base language code (e.g. en, en-US). Overrides auto-detection of the source-language file in a translation group." )]
         public string BasicLanguage { get; set; }
 
+        [Option( "warnings-as-errors", HelpText = "Treat warnings as errors when setting the exit code." )]
+        public bool WarningsAsErrors { get; set; }
+
         protected override bool IsRecursiveAllowed => true;
 
         protected override void ExecuteCommand()
@@ -26,6 +29,8 @@ namespace nresx.CommandLine.Commands
                 .Validate();
             if ( !optionsParsed )
                 return;
+
+            var anyFailure = false;
 
             ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
@@ -96,10 +101,17 @@ namespace nresx.CommandLine.Commands
                             if ( !string.IsNullOrWhiteSpace( elementError.Message ) )
                                 msg.Append( $" {elementError.Message};" );
                             Console.WriteLine( msg.ToString() );
+
+                            var severity = elementError.ErrorType.GetSeverity();
+                            if ( severity == ResourceElementErrorSeverity.Error || WarningsAsErrors )
+                                anyFailure = true;
                         }
                     }
                 } );
             } );
+
+            if ( anyFailure )
+                Successful = false;
         }
 
         // Pick the base (source-language) file for a translation group:

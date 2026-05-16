@@ -176,6 +176,33 @@ namespace nresx.Tools.Extensions
         MissedElement = 0x05,
         NotTranslated = 0x06,
     }
+
+    public enum ResourceElementErrorSeverity
+    {
+        Warning = 0,
+        Error = 1,
+    }
+
+    public static class ResourceElementErrorTypeExtensions
+    {
+        // Severity policy:
+        //   Error  = file is broken / will fail at runtime (duplicate keys, empty keys)
+        //   Warning = quality issue / heuristic / common in-progress state (everything else)
+        public static ResourceElementErrorSeverity GetSeverity( this ResourceElementErrorType errorType )
+        {
+            return errorType switch
+            {
+                ResourceElementErrorType.Duplicate         => ResourceElementErrorSeverity.Error,
+                ResourceElementErrorType.EmptyKey          => ResourceElementErrorSeverity.Error,
+                ResourceElementErrorType.EmptyValue        => ResourceElementErrorSeverity.Warning,
+                ResourceElementErrorType.PossibleDuplicate => ResourceElementErrorSeverity.Warning,
+                ResourceElementErrorType.MissedElement     => ResourceElementErrorSeverity.Warning,
+                ResourceElementErrorType.NotTranslated     => ResourceElementErrorSeverity.Warning,
+                _                                          => ResourceElementErrorSeverity.Warning,
+            };
+        }
+    }
+
     public class ResourceElementError
     {
         public ResourceElementErrorType ErrorType { get; }

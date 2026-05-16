@@ -67,5 +67,57 @@ namespace nresx.CommandLine.Tests.Validate
 
             args.ConsoleOutput[0].Should().Be( $"PossibleDuplicate: {res.Elements[1].Key}.Text;" );
         }
+
+        [TestCase( @"validate [TmpFile.resx]" )]
+        public void ExitCode_CleanFile_IsZero( string commandLine )
+        {
+            var args = TestHelper.RunCommandLine( commandLine );
+
+            args.ExitCode.Should().Be( 0 );
+        }
+
+        [TestCase( @"validate [TmpFile]" )]
+        public void ExitCode_DuplicateKey_IsNonZero( string commandLine )
+        {
+            // Duplicate is classified as Error → non-zero exit
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            var file = preArgs.TemporaryFiles[0];
+            var res = new ResourceFile( file );
+            TestHelper.ReplaceKey( file, res.Elements[2].Key, res.Elements[1].Key );
+
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
+
+            args.ExitCode.Should().NotBe( 0 );
+        }
+
+        [TestCase( @"validate [TmpFile]" )]
+        public void ExitCode_OnlyWarnings_IsZeroByDefault( string commandLine )
+        {
+            // EmptyValue is classified as Warning → exit 0 by default
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            var file = preArgs.TemporaryFiles[0];
+            var res = new ResourceFile( file );
+            res.Elements[1].Value = string.Empty;
+            res.Save( file );
+
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
+
+            args.ExitCode.Should().Be( 0 );
+        }
+
+        [TestCase( @"validate [TmpFile] --warnings-as-errors" )]
+        public void ExitCode_WarningsAsErrors_PromotesWarningsToFailure( string commandLine )
+        {
+            // EmptyValue is a Warning; with --warnings-as-errors → non-zero exit
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            var file = preArgs.TemporaryFiles[0];
+            var res = new ResourceFile( file );
+            res.Elements[1].Value = string.Empty;
+            res.Save( file );
+
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
+
+            args.ExitCode.Should().NotBe( 0 );
+        }
     }
 }
