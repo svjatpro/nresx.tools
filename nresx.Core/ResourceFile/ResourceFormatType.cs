@@ -21,5 +21,6 @@
         AndroidStrings = 0x0A,
         IosStrings = 0x0B,
         JavaProperties = 0x0C,
+        Ini = 0x0D,
     }
 }
