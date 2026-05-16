@@ -45,6 +45,7 @@ namespace nresx.Tools.Formatters
             Register( new FormatDescriptor( ResourceFormatType.Json,      ".json", options => new FileFormatterJson( options ) ) );
             Register( new FormatDescriptor( ResourceFormatType.Xlf,       ".xlf",  _ => new FileFormatterXliff() ) );
             Register( new FormatDescriptor( ResourceFormatType.Xliff,     ".xliff",_ => new FileFormatterXliff() ) );
+            Register( new FormatDescriptor( ResourceFormatType.AndroidStrings, ".xml", _ => new FileFormatterAndroidStrings() ) );
         }
 
         internal static void Register( FormatDescriptor descriptor )

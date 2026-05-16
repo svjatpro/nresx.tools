@@ -17,5 +17,7 @@
 
         Xlf = 0x08,
         Xliff = 0x09,
+
+        AndroidStrings = 0x0A,
     }
 }
