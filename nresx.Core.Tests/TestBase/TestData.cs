@@ -55,6 +55,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.Xliff );
                 yield return new TestCaseData( ResourceFormatType.AndroidStrings );
                 yield return new TestCaseData( ResourceFormatType.IosStrings );
+                yield return new TestCaseData( ResourceFormatType.JavaProperties );
             }
         }
 
@@ -73,6 +74,7 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.xliff" );
                 yield return new TestCaseData( "Resources.xml" );
                 yield return new TestCaseData( "Resources.strings" );
+                yield return new TestCaseData( "Resources.properties" );
             }
         }
 

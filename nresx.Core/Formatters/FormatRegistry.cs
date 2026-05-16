@@ -47,6 +47,7 @@ namespace nresx.Tools.Formatters
             Register( new FormatDescriptor( ResourceFormatType.Xliff,     ".xliff",_ => new FileFormatterXliff() ) );
             Register( new FormatDescriptor( ResourceFormatType.AndroidStrings, ".xml", _ => new FileFormatterAndroidStrings() ) );
             Register( new FormatDescriptor( ResourceFormatType.IosStrings, ".strings", _ => new FileFormatterIosStrings() ) );
+            Register( new FormatDescriptor( ResourceFormatType.JavaProperties, ".properties", _ => new FileFormatterJavaProperties() ) );
         }
 
         internal static void Register( FormatDescriptor descriptor )
