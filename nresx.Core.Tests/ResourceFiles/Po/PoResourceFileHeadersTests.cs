@@ -25,7 +25,7 @@ public class PoResourceFileHeadersTests : TestBase
     public void LoadHeaders()
     {
         var resPath = GetTestPath( @"po\Headers.po" );
-        var res = new ResourceFile( resPath, new ResourceFileOption { IgnoreEmptyHeaders = false } );
+        var res = new ResourceFile( resPath, new ResourceFileOptionPo { IgnoreEmptyHeaders = false } );
 
         res.Headers["Content-Transfer-Encoding"].Should().Be( "8bit" );
         res.Headers["Content-Type"].Should().Be( "text/plain; charset=utf-8" );
@@ -44,7 +44,7 @@ public class PoResourceFileHeadersTests : TestBase
     public void SaveHeaders()
     {
         var resPath = GetTestPath( @"po\Headers.po" );
-        var options = new ResourceFileOption { IgnoreEmptyHeaders = false };
+        var options = new ResourceFileOptionPo { IgnoreEmptyHeaders = false };
         var res = new ResourceFile( resPath, options );
 
         const string header2 = "Header2";

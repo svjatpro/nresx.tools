@@ -4,7 +4,8 @@ namespace nresx.Tools
 {
     public class ResourceFileOption
     {
-        public bool IgnoreEmptyHeaders { get; set; } = true;
+        public bool ValidateDuplicatedKeys { get; set; } = true;
+        public bool StrongValidation { get; set; } = true;
     }
 
     public class ResourceFileOptionJson : ResourceFileOption
@@ -16,5 +17,10 @@ namespace nresx.Tools
         public string CommentName { get; set; }
 
         public JsonElementType ElementType { get; set; }
+    }
+
+    public class ResourceFileOptionPo : ResourceFileOption
+    {
+        public bool IgnoreEmptyHeaders { get; set; } = true;
     }
 }

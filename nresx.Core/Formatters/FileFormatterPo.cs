@@ -16,7 +16,7 @@ namespace nresx.Tools.Formatters
         private const string MsgStrTag = "msgstr";
         private const string MsgCtxtTag = "msgctxt";
 
-        private readonly ResourceFileOption Options = options ?? new ResourceFileOption();
+        private readonly ResourceFileOptionPo Options = (options as ResourceFileOptionPo) ?? new ResourceFileOptionPo();
 
 
         private static readonly Dictionary<CommentType, string> CommentPrefix = new()
@@ -32,16 +32,16 @@ namespace nresx.Tools.Formatters
 
         #region Private methods
 
-        private Dictionary<string, string> ParseHeaders(string lines)
+        private Dictionary<string, string> ParseHeaders( string lines )
         {
             return lines
-                .Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries)
-                .Select(h => h.Split([": "], StringSplitOptions.None))
-                .Where(parts =>
+                .Split( [Environment.NewLine], StringSplitOptions.RemoveEmptyEntries )
+                .Select( h => h.Split([": "], StringSplitOptions.None ) )
+                .Where( parts =>
                     parts.Length == 2 &&
-                    (!string.IsNullOrWhiteSpace(parts[1]) || Options.IgnoreEmptyHeaders == false))
-                .Select(parts => new { key = parts[0], value = parts[1] })
-                .ToDictionary(h => h.key, h => h.value);
+                    ( !string.IsNullOrWhiteSpace( parts[1] ) || Options.IgnoreEmptyHeaders == false ) )
+                .Select( parts => new { key = parts[0], value = parts[1] } )
+                .ToDictionary( h => h.key, h => h.value );
         }
 
         private enum ElementParseState { None, Comment, MsgId, MsgIdPlural, MsgStr, MsgStrPlural, MsgContext }
@@ -169,7 +169,7 @@ namespace nresx.Tools.Formatters
 
         #endregion
 
-        public bool LoadResourceFile( 
+        public bool LoadResourceFile(
             Stream stream, 
             out IEnumerable<ResourceElement> elements,
             out Dictionary<string, string> headers,
@@ -182,6 +182,9 @@ namespace nresx.Tools.Formatters
                 var elementsList = raw.ToList();
                 foreach (var el in elementsList)
                 {
+                    // todo: validate plural rules (header) with element's plural forms
+                    //  add errors
+
                     if (string.IsNullOrWhiteSpace(el.Key) /*|| dictionary.ContainsKey(el.Key)*/)
                         continue;
                     result.Add( el );
