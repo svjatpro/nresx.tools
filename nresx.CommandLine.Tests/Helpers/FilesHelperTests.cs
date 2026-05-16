@@ -3,11 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using nresx.CommandLine.Helpers;
+using nresx.Core.Tests;
 using nresx.Tools;
-using nresx.Tools.Helpers;
 using NUnit.Framework;
 
-namespace nresx.Core.Tests.Helpers
+namespace nresx.CommandLine.Tests.Helpers
 {
     [TestFixture]
     public class FilesHelperTests : TestBase

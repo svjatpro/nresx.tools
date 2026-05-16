@@ -1,18 +1,14 @@
-﻿using System;
+using System;
 using System.IO;
+using nresx.Tools;
 using nresx.Tools.Exceptions;
 using nresx.Tools.Extensions;
+using nresx.Tools.Helpers;
 
-namespace nresx.Tools.Helpers
+namespace nresx.CommandLine.Helpers
 {
     public class GroupSearchContext
     {
-        //public readonly string SourcePathSpec;
-        //public readonly string PathSpec;
-        /*public readonly FileInfo CurrentFile;
-        public readonly int FilesProcessed;
-        public readonly int FilesFailed;*/
-
         public readonly int TotalGroups;
         public readonly int TotalResourceFiles;
 
@@ -20,18 +16,7 @@ namespace nresx.Tools.Helpers
         {
             TotalGroups = totalGroups;
             TotalResourceFiles = totalResourceFiles;
-
-            //SourcePathSpec = sourcePathSpec;
-            //PathSpec = pathSpec;
-            //if ( PathSpec.IsRegularName() )
-            //    CurrentFile = new FileInfo( pathSpec );
-            //FilesProcessed = filesProcessed;
-            //FilesFailed = filesFailed;
         }
-
-        //public string FileName => CurrentFile?.Name ?? Path.GetFileName( PathSpec );
-        //public string FullName => CurrentFile?.FullName ?? PathSpec;
-        //public bool FileExists => CurrentFile?.Exists ?? false;
     }
 
     public class FilesSearchContext
@@ -46,7 +31,7 @@ namespace nresx.Tools.Helpers
         {
             SourcePathSpec = sourcePathSpec;
             PathSpec = pathSpec;
-            if ( PathSpec.IsRegularName() ) 
+            if ( PathSpec.IsRegularName() )
                 CurrentFile = new FileInfo( pathSpec );
             FilesProcessed = filesProcessed;
             FilesFailed = filesFailed;
@@ -57,6 +42,8 @@ namespace nresx.Tools.Helpers
         public bool FileExists => CurrentFile?.Exists ?? false;
     }
 
+    // RSX-128: lives in the CLI project. The Action<...> callback shape is CLI-specific
+    // (the library exposes IEnumerable<ResourceFile> directly via the parity helpers).
     public class FilesHelper
     {
         public static void SearchResourceFiles( string filePattern,
@@ -111,10 +98,10 @@ namespace nresx.Tools.Helpers
                         }
                         return;
                     }
-                    
+
                     var resource = new ResourceFile( context.FullName );
                     action( context, resource );
-                }, 
+                },
                 (context, exception) =>
                 {
                     // skip error message for non resource files, if search by spec
@@ -204,29 +191,6 @@ namespace nresx.Tools.Helpers
                     return;
                 }
                 throw exc;
-            }
-        }
-
-        public static void CopyDirectory( string sourceDir, string destDir )
-        {
-            var dir = new DirectoryInfo( sourceDir );
-
-            if ( !dir.Exists ) throw new DirectoryNotFoundException( sourceDir );
-
-            var dirs = dir.GetDirectories();
-            Directory.CreateDirectory( destDir );
-
-            var files = dir.GetFiles();
-            foreach ( var file in files )
-            {
-                var tempPath = Path.Combine( destDir, file.Name );
-                file.CopyTo( tempPath, false );
-            }
-
-            foreach ( var subdir in dirs )
-            {
-                var tempPath = Path.Combine( destDir, subdir.Name );
-                CopyDirectory( subdir.FullName, tempPath );
             }
         }
     }

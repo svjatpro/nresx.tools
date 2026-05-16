@@ -275,7 +275,7 @@ namespace nresx.Core.Tests
 
                     var projDir = Path.Combine( TestData.ProjectsFolder, parameter );
                     var targetDir = Path.Combine( TestData.OutputFolder, $"{parameter}_{TestData.UniqueKey()}" );
-                    FilesHelper.CopyDirectory( projDir, targetDir );
+                    CopyDirectory( projDir, targetDir );
 
                     resultParams.TemporaryProjects.Add( targetDir );
                     return targetDir;
@@ -372,6 +372,20 @@ namespace nresx.Core.Tests
             Console.WriteLine();
             
             return p;
+        }
+
+        private static void CopyDirectory( string sourceDir, string destDir )
+        {
+            var dir = new DirectoryInfo( sourceDir );
+            if ( !dir.Exists ) throw new DirectoryNotFoundException( sourceDir );
+
+            Directory.CreateDirectory( destDir );
+
+            foreach ( var file in dir.GetFiles() )
+                file.CopyTo( Path.Combine( destDir, file.Name ), false );
+
+            foreach ( var subdir in dir.GetDirectories() )
+                CopyDirectory( subdir.FullName, Path.Combine( destDir, subdir.Name ) );
         }
     }
 }

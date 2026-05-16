@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using CommandLine;
+using nresx.CommandLine.Helpers;
 using nresx.Tools;
 using nresx.Tools.Exceptions;
 using nresx.Tools.Extensions;
