@@ -1,87 +1,20 @@
-﻿using System;
+#nullable enable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.Utilities;
+using nresx.Tools.Extensions;
 
 namespace nresx.Tools.Formatters;
 
-public class ResDoc
-{
-    public List<ResItem> Items { get; set; }
-}
-public class ResItem
-{
-    public string Key { get; set; }
-    public string Value { get; set; }
-}
-
-public class ResConverter : IYamlTypeConverter
-{
-    public IValueDeserializer ValueDeserializer { get; set; }
-
-    public bool Accepts( Type type ) => type == typeof(ResDoc);
-
-    public object? ReadYaml( IParser parser, Type type )
-    {
-        parser.Consume<MappingStart>();
-
-        var doc = new ResDoc
-        {
-            Items = (List<ResItem>)ValueDeserializer.DeserializeValue( parser, typeof( List<ResItem> ), new SerializerState(), ValueDeserializer )
-        };
-
-        parser.Consume<MappingEnd>();
-        return doc;
-    }
-
-    public void WriteYaml( IEmitter emitter, object? value, Type type )
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public class ResourceItemDeserializer : INodeDeserializer
-{
-    private readonly INodeDeserializer nodeDeserializer;
-
-    public ResourceItemDeserializer()
-    {
-
-    }
-
-    public ResourceItemDeserializer( INodeDeserializer nodeDeserializer )
-    {
-        this.nodeDeserializer = nodeDeserializer;
-    }
-
-    public bool Deserialize( IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value )
-    {
-        if ( expectedType == typeof( List<ResItem> ) )
-        {
-            value = nestedObjectDeserializer( parser, expectedType );
-            //value = new List<ResItem>();
-            return false;
-        }
-
-        if ( expectedType != typeof( ResItem ) )
-        {
-            value = null;
-            return false;
-        }
-
-        if ( nodeDeserializer.Deserialize( parser, expectedType, nestedObjectDeserializer, out value ) )
-        {
-
-            return true;
-        }
-        return false;
-    }
-}
-
+// YAML formatter — supports `key: value` and block-scalar values (`|`, `>`).
+// Comments: `# ...` lines immediately preceding an entry (blank-line-bounded)
+// attach as that entry's comment. Inline (`key: value # foo`) and trailing
+// comments are not preserved.
 internal class FileFormatterYaml : IFileFormatter
 {
     public bool LoadResourceFile(
@@ -90,28 +23,9 @@ internal class FileFormatterYaml : IFileFormatter
         out Dictionary<string, string> headers,
         out List<Comment> comments )
     {
-        using var reader = new StreamReader( stream );
-        var deserializer = new DeserializerBuilder()
-            .Build();
-
-        elements = deserializer
-            .Deserialize<Dictionary<string, string>>( reader )
-            .Select( el =>
-            {
-                var value = el.Value;
-                if ( value.Contains( "\r\n" ) )
-                    value = value.Replace( "\r\n", "\n" );
-                return new ResourceElement
-                {
-                    Type = ResourceElementType.String,
-                    Key = el.Key,
-                    Value = value.Replace( "\n", "\r\n" )
-                };
-            } )
-            .ToList();
         headers = [];
         comments = [];
-
+        elements = ParseYaml( stream, unique: true );
         return true;
     }
 
@@ -121,65 +35,9 @@ internal class FileFormatterYaml : IFileFormatter
         out Dictionary<string, string> headers,
         out List<Comment> comments )
     {
-        //var converter = new ResConverter();
-
-        using var reader = new StreamReader( stream );
-        //var deserializerBuilder = new DeserializerBuilder();
-        //.WithNodeDeserializer( inner => new ResourceItemDeserializer(inner), s => s.InsteadOf<ObjectNodeDeserializer>() )
-        //.WithNodeDeserializer( new ResourceItemDeserializer() ) 
-        //.WithTypeConverter( converter );
-            
-        //converter.ValueDeserializer = deserializerBuilder.BuildValueDeserializer();
-        //var deserializer = deserializerBuilder.Build();
-
-        //var el = deserializer.Deserialize<Dictionary<string, string>>( reader );
-        //var el = deserializer.Deserialize<ResDoc>( reader );
-
-
-        var parser = new Parser( reader );
-        var result = new List<ResourceElement>();
-        Scalar key = null;
-        while ( parser.MoveNext() )
-        {
-            if ( parser.Current is Scalar node )
-            {
-                if ( node.Start.Column == 1 )
-                {
-                    key = node;
-                }
-                else if ( key?.Start.Line == node.Start.Line || string.IsNullOrEmpty( key?.Value ) )
-                {
-                    result.Add( new ResourceElement
-                    {
-                        Key = key?.Value ?? string.Empty,
-                        Value = node.Value,
-                        Type = ResourceElementType.String
-                    } );
-                    key = null;
-                }
-            }
-        }
-
-        //elements = deserializer
-        //    .Deserialize<Dictionary<string, string>>( reader )
-        //    .Select( el =>
-        //    {
-        //        var value = el.Value;
-        //        if ( value.Contains( "\r\n" ) )
-        //            value = value.Replace( "\r\n", "\n" );
-        //        return new ResourceElement
-        //        {
-        //            Type = ResourceElementType.String,
-        //            Key = el.Key,
-        //            Value = value.Replace( "\n", "\r\n" )
-        //        };
-        //    } )
-        //    .ToList();
-
-        elements = result;
         headers = [];
         comments = [];
-
+        elements = ParseYaml( stream, unique: false );
         return true;
     }
 
@@ -188,16 +46,134 @@ internal class FileFormatterYaml : IFileFormatter
         IEnumerable<ResourceElement> elements,
         Dictionary<string, string> headers,
         List<Comment> comments,
-        ResourceFileOption? options = null)
+        ResourceFileOption? options = null )
     {
-        using var writer = new StreamWriter( stream );
-        var serializer = new SerializerBuilder()
-            .Build();
+        // leaveOpen: true — caller owns the stream
+        using var writer = new StreamWriter( stream, new UTF8Encoding( false ), bufferSize: 1024, leaveOpen: true );
+        var serializer = new SerializerBuilder().Build();
 
-        var body = elements.ToDictionary( el => el.Key, el => el.Value );
-        serializer.Serialize( writer, body );
+        foreach ( var el in elements )
+        {
+            if ( !string.IsNullOrWhiteSpace( el.Comment ) )
+            {
+                foreach ( var line in el.Comment.Replace( "\r\n", "\n" ).Split( '\n' ) )
+                    writer.WriteLine( $"# {line.TrimEnd()}" );
+            }
+
+            // serialize one key:value at a time — Serializer handles quoting,
+            // escaping, block-scalar selection for multi-line values
+            var single = new Dictionary<string, string> { { el.Key ?? string.Empty, el.Value ?? string.Empty } };
+            var serialized = serializer.Serialize( single ).TrimEnd();
+            writer.WriteLine( serialized );
+        }
     }
 
     public bool ElementHasKey => true;
-    public bool ElementHasComment => false;
+    public bool ElementHasComment => true;
+
+    // Parses the YAML stream into ResourceElements with comment attachment.
+    // `unique` = drop duplicate keys (LoadResourceFile semantics); false = preserve all (LoadRawElements semantics).
+    private static List<ResourceElement> ParseYaml( Stream stream, bool unique )
+    {
+        using var reader = new StreamReader( stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true );
+        var text = reader.ReadToEnd();
+
+        var pairs = ExtractTopLevelPairs( text );
+        var commentsByLine = ScanComments( text );
+
+        var result = new List<ResourceElement>( pairs.Count );
+        var seen = new HashSet<string>();
+
+        foreach ( var (key, value, keyLine) in pairs )
+        {
+            if ( unique && !seen.Add( key ) ) continue;
+
+            commentsByLine.TryGetValue( keyLine, out var comment );
+            result.Add( new ResourceElement
+            {
+                Type = ResourceElementType.String,
+                Key = key,
+                Value = ( value ?? string.Empty ).ReplaceNewLine(),
+                Comment = ( comment ?? string.Empty ).ReplaceNewLine(),
+            } );
+        }
+
+        return result;
+    }
+
+    // Walks YAML events and extracts top-level (key, value, keyLineNumber) tuples.
+    // Skips nested mappings/sequences — they'd be a deeper structural change.
+    private static List<(string key, string value, int keyLine)> ExtractTopLevelPairs( string text )
+    {
+        var result = new List<(string, string, int)>();
+        var parser = new Parser( new StringReader( text ) );
+
+        int depth = 0;
+        string? currentKey = null;
+        int currentKeyLine = 0;
+
+        while ( parser.MoveNext() )
+        {
+            switch ( parser.Current )
+            {
+                case MappingStart:
+                case SequenceStart:
+                    depth++;
+                    break;
+                case MappingEnd:
+                case SequenceEnd:
+                    depth--;
+                    break;
+                case Scalar scalar when depth == 1:
+                    if ( currentKey == null )
+                    {
+                        currentKey = scalar.Value;
+                        currentKeyLine = (int) scalar.Start.Line;
+                    }
+                    else
+                    {
+                        result.Add( (currentKey, scalar.Value, currentKeyLine) );
+                        currentKey = null;
+                    }
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    // Returns: keyLineNumber → multi-line comment text (lines joined with \n).
+    // A run of `#` comment lines is associated with the first non-blank,
+    // non-comment line that follows them. A blank line resets the buffer.
+    private static Dictionary<int, string> ScanComments( string text )
+    {
+        var result = new Dictionary<int, string>();
+        var pending = new List<string>();
+        var lines = text.Replace( "\r\n", "\n" ).Split( '\n' );
+
+        for ( int i = 0; i < lines.Length; i++ )
+        {
+            var trimmed = lines[i].TrimStart();
+            var lineNumber = i + 1;
+
+            if ( trimmed.StartsWith( "#" ) )
+            {
+                pending.Add( trimmed.Substring( 1 ).TrimStart() );
+            }
+            else if ( string.IsNullOrWhiteSpace( trimmed ) )
+            {
+                pending.Clear();
+            }
+            else
+            {
+                if ( pending.Count > 0 )
+                {
+                    result[lineNumber] = string.Join( "\n", pending );
+                    pending.Clear();
+                }
+            }
+        }
+
+        return result;
+    }
 }
