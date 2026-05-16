@@ -34,21 +34,6 @@ public class Comment
 
 public class ResourceFile
 {
-    #region Static members
-
-    private static readonly List<(string extensions, ResourceFormatType type, Type formatter)> TypesMap =
-    [
-        (extensions: ".resx", type: ResourceFormatType.Resx, typeof(FileFormatterResx)),
-        (extensions: ".resw", type: ResourceFormatType.Resw, typeof(FileFormatterResx)),
-        (extensions: ".yml", type: ResourceFormatType.Yml, typeof(FileFormatterYaml)),
-        (extensions: ".yaml", type: ResourceFormatType.Yaml, typeof(FileFormatterYaml)),
-        (extensions: ".txt", type: ResourceFormatType.PlainText, typeof(FileFormatterPlainText)),
-        (extensions: ".po", type: ResourceFormatType.Po, typeof(FileFormatterPo)),
-        (extensions: ".json", type: ResourceFormatType.Json, typeof(FileFormatterJson)),
-    ];
-
-    #endregion
-
     #region Private fields
 
     private readonly IFileFormatter SourceFormatter;
@@ -57,50 +42,6 @@ public class ResourceFile
     #endregion
 
     #region Private methods
-
-    private static bool GetTypeInfo( 
-        Func<(string extensions, ResourceFormatType type, Type formatter),bool> comparer, 
-        out (string extensions, ResourceFormatType type, Func<ResourceFileOption?, IFileFormatter> formatter) type )
-    {
-        var tInfo = TypesMap.SingleOrDefault( comparer );
-        var result = tInfo.type != ResourceFormatType.NA;
-        
-        if(result)
-            type = (tInfo.extensions, tInfo.type, options => 
-                tInfo.formatter.GetConstructor( [typeof(ResourceFileOption)] ) != null ?
-                (IFileFormatter) Activator.CreateInstance( tInfo.formatter, options ) :
-                (IFileFormatter) Activator.CreateInstance( tInfo.formatter ));
-        else
-            type = default;
-
-        return result;
-    }
-
-    private static bool GetTypeInfo( 
-        string path, 
-        out (string extensions, ResourceFormatType type, Func<ResourceFileOption?, IFileFormatter> formatter) type )
-    {
-        var ext = Path.GetExtension( path );
-        if ( string.IsNullOrWhiteSpace( ext ) )
-        {
-            type = default;
-            return false;
-        }
-
-        var result = GetTypeInfo( t => t.extensions == ext, out type );
-
-        return result;
-    }
-
-    private static bool GetTypeInfo( 
-        Stream stream, 
-        out (string extensions, ResourceFormatType type, Func<ResourceFileOption?, IFileFormatter> formatter) type )
-    {
-        var name = ( stream as FileStream )?.Name;
-        var result = GetTypeInfo( name!, out type );
-
-        return result;
-    }
 
     private static CultureInfo GetCultureByName( string path )
     {
@@ -152,7 +93,7 @@ public class ResourceFile
 
     public static IEnumerable<ResourceElement> LoadRawElements( string path )
     {
-        if ( !GetTypeInfo( path, out var type ) )
+        if ( !FormatRegistry.TryGetByExtension( path, out var descriptor ) )
         {
             // todo: detect type by content
             throw new UnknownResourceFormatException();
@@ -163,21 +104,21 @@ public class ResourceFile
             return [];
 
         using var stream = new FileStream( fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite );
-        var parser = type.formatter( null );
+        var parser = descriptor!.CreateFormatter( null );
         return parser.LoadRawElements( stream, out var elements, out _, out _ ) ? elements : [];
     }
     public static IEnumerable<ResourceElement> LoadRawElements(
-        Stream stream, 
+        Stream stream,
         ResourceFormatType resourceFormat = ResourceFormatType.NA )
     {
         IFileFormatter parser;
-        if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
+        if ( resourceFormat != ResourceFormatType.NA && FormatRegistry.TryGetByType( resourceFormat, out var byType ) )
         {
-            parser = t1.formatter( null );
+            parser = byType!.CreateFormatter( null );
         }
-        else if ( GetTypeInfo( stream, out var type ) )
+        else if ( FormatRegistry.TryGetByStream( stream, out var byStream ) )
         {
-            parser = type.formatter( null );
+            parser = byStream!.CreateFormatter( null );
         }
         else
         {
@@ -192,10 +133,10 @@ public class ResourceFile
 
     public ResourceFile( string path, ResourceFileOption? options = null )
     {
-        if( GetTypeInfo( path, out var type ) )
+        if ( FormatRegistry.TryGetByExtension( path, out var descriptor ) )
         {
-            FileFormat = type.type;
-            SourceFormatter = type.formatter( options );
+            FileFormat = descriptor!.Type;
+            SourceFormatter = descriptor.CreateFormatter( options );
             ResourceOptions = options;
         }
         else
@@ -235,21 +176,21 @@ public class ResourceFile
         }
     }
 
-    public ResourceFile( 
-        Stream stream, 
-        ResourceFormatType resourceFormat = ResourceFormatType.NA, 
+    public ResourceFile(
+        Stream stream,
+        ResourceFormatType resourceFormat = ResourceFormatType.NA,
         ResourceFileOption? options = null )
     {
-        if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
+        if ( resourceFormat != ResourceFormatType.NA && FormatRegistry.TryGetByType( resourceFormat, out var byType ) )
         {
             FileFormat = resourceFormat;
-            SourceFormatter = t1.formatter( options );
+            SourceFormatter = byType!.CreateFormatter( options );
             ResourceOptions = options;
         }
-        else if ( GetTypeInfo( stream, out var type ) )
+        else if ( FormatRegistry.TryGetByStream( stream, out var byStream ) )
         {
-            FileFormat = type.type;
-            SourceFormatter = type.formatter( options );
+            FileFormat = byStream!.Type;
+            SourceFormatter = byStream.CreateFormatter( options );
             ResourceOptions = options;
         }
         else
@@ -277,11 +218,11 @@ public class ResourceFile
     // loadedStream provides content (already read into memory async).
     private ResourceFile( string path, Stream loadedStream, ResourceFileOption? options )
     {
-        if ( !GetTypeInfo( path, out var type ) )
+        if ( !FormatRegistry.TryGetByExtension( path, out var descriptor ) )
             throw new UnknownResourceFormatException();
 
-        FileFormat = type.type;
-        SourceFormatter = type.formatter( options );
+        FileFormat = descriptor!.Type;
+        SourceFormatter = descriptor.CreateFormatter( options );
         ResourceOptions = options;
 
         Culture = GetCultureByName( path );
@@ -317,8 +258,8 @@ public class ResourceFile
         ResourceOptions = options;
 
         FileFormat = fileFormat;
-        if ( GetTypeInfo( t => t.type == fileFormat, out var tInfo ) )
-            SourceFormatter = tInfo.formatter( options );
+        if ( FormatRegistry.TryGetByType( fileFormat, out var descriptor ) )
+            SourceFormatter = descriptor!.CreateFormatter( options );
 
         Elements = new ResourceElements();
     }
@@ -329,19 +270,19 @@ public class ResourceFile
     {
         Save( path, FileFormat, createDir, options );
     }
-    public void Save( 
+    public void Save(
         string path,
         ResourceFormatType type,
         bool createDir = false,
         ResourceFileOption? options = null )
     {
-        if ( !GetTypeInfo( t => t.type == type, out var tInfo ) )
+        if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
         {
             throw new InvalidOperationException( "Unknown format" );
         }
 
-        var targetPath = Path.ChangeExtension( path, tInfo.extensions );
-        var formatter = tInfo.formatter( null );
+        var targetPath = Path.ChangeExtension( path, descriptor!.Extension );
+        var formatter = descriptor.CreateFormatter( null );
 
         var fileInfo = new FileInfo( targetPath );
         if( fileInfo.Exists )
@@ -368,11 +309,11 @@ public class ResourceFile
 
     public void Save( Stream stream, ResourceFormatType type, ResourceFileOption options = null )
     {
-        if ( !GetTypeInfo( t => t.type == type, out var tInfo ) )
+        if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
         {
             throw new InvalidOperationException( "Unknown format" );
         }
-        var formatter = tInfo.formatter( null );
+        var formatter = descriptor!.CreateFormatter( null );
         formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), Comments, options );
     }
 
@@ -443,7 +384,7 @@ public class ResourceFile
         string path,
         CancellationToken cancellationToken = default )
     {
-        if ( !GetTypeInfo( path, out var type ) )
+        if ( !FormatRegistry.TryGetByExtension( path, out var descriptor ) )
             throw new UnknownResourceFormatException();
 
         var fileInfo = new FileInfo( path );
@@ -454,7 +395,7 @@ public class ResourceFile
         cancellationToken.ThrowIfCancellationRequested();
 
         using var ms = new MemoryStream( buffer );
-        var parser = type.formatter( null );
+        var parser = descriptor!.CreateFormatter( null );
         return parser.LoadRawElements( ms, out var elements, out _, out _ ) ? elements : [];
     }
 
@@ -466,10 +407,10 @@ public class ResourceFile
         if ( stream == null ) throw new ArgumentNullException( nameof( stream ) );
 
         IFileFormatter parser;
-        if ( resourceFormat != ResourceFormatType.NA && GetTypeInfo( t => t.type == resourceFormat, out var t1 ) )
-            parser = t1.formatter( null );
-        else if ( GetTypeInfo( stream, out var type ) )
-            parser = type.formatter( null );
+        if ( resourceFormat != ResourceFormatType.NA && FormatRegistry.TryGetByType( resourceFormat, out var byType ) )
+            parser = byType!.CreateFormatter( null );
+        else if ( FormatRegistry.TryGetByStream( stream, out var byStream ) )
+            parser = byStream!.CreateFormatter( null );
         else
             throw new UnknownResourceFormatException();
 
@@ -504,11 +445,11 @@ public class ResourceFile
         ResourceFileOption? options = null,
         CancellationToken cancellationToken = default )
     {
-        if ( !GetTypeInfo( t => t.type == type, out var tInfo ) )
+        if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
             throw new InvalidOperationException( "Unknown format" );
 
-        var targetPath = Path.ChangeExtension( path, tInfo.extensions );
-        var formatter = tInfo.formatter( null );
+        var targetPath = Path.ChangeExtension( path, descriptor!.Extension );
+        var formatter = descriptor.CreateFormatter( null );
 
         var fileInfo = new FileInfo( targetPath );
         if ( fileInfo.Exists )
@@ -553,10 +494,10 @@ public class ResourceFile
         ResourceFileOption? options = null,
         CancellationToken cancellationToken = default )
     {
-        if ( !GetTypeInfo( t => t.type == type, out var tInfo ) )
+        if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
             throw new InvalidOperationException( "Unknown format" );
 
-        var formatter = tInfo.formatter( null );
+        var formatter = descriptor!.CreateFormatter( null );
 
         cancellationToken.ThrowIfCancellationRequested();
 
