@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using nresx.Tools;
+using nresx.Tools.Exceptions;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles
@@ -32,7 +33,7 @@ namespace nresx.Core.Tests.ResourceFiles
 
             Action act = () => res.Save( path, ResourceFormatType.Json );
 
-            act.Should().Throw<InvalidOperationException>()
+            act.Should().Throw<ResourceFormatMismatchException>()
                 .WithMessage( "*Format mismatch*" );
         }
 
@@ -57,7 +58,7 @@ namespace nresx.Core.Tests.ResourceFiles
 
             Func<Task> act = async () => await res.SaveAsync( path, ResourceFormatType.Json );
 
-            await act.Should().ThrowAsync<InvalidOperationException>()
+            await act.Should().ThrowAsync<ResourceFormatMismatchException>()
                 .WithMessage( "*Format mismatch*" );
         }
     }

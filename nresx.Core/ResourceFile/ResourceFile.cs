@@ -278,7 +278,7 @@ public class ResourceFile
     {
         if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
         {
-            throw new InvalidOperationException( "Unknown format" );
+            throw new UnknownResourceFormatException();
         }
 
         EnsurePathFormatConsistent( path, type );
@@ -313,7 +313,7 @@ public class ResourceFile
     {
         if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
         {
-            throw new InvalidOperationException( "Unknown format" );
+            throw new UnknownResourceFormatException();
         }
         var formatter = descriptor!.CreateFormatter( null );
         formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), Comments, options );
@@ -448,7 +448,7 @@ public class ResourceFile
         CancellationToken cancellationToken = default )
     {
         if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
-            throw new InvalidOperationException( "Unknown format" );
+            throw new UnknownResourceFormatException();
 
         EnsurePathFormatConsistent( path, type );
 
@@ -499,7 +499,7 @@ public class ResourceFile
         CancellationToken cancellationToken = default )
     {
         if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
-            throw new InvalidOperationException( "Unknown format" );
+            throw new UnknownResourceFormatException();
 
         var formatter = descriptor!.CreateFormatter( null );
 
@@ -535,7 +535,7 @@ public class ResourceFile
         if ( !FormatRegistry.TryGetByExtension( path, out var pathDescriptor ) ) return;
         if ( pathDescriptor!.Type == type ) return;
 
-        throw new InvalidOperationException(
+        throw new ResourceFormatMismatchException(
             $"Format mismatch: path '{path}' has extension '{pathDescriptor.Extension}' (format: {pathDescriptor.Type}), but the requested format is {type}. " +
             $"Either change the path extension or omit the explicit format." );
     }

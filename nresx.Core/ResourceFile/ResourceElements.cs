@@ -13,7 +13,7 @@ namespace nresx.Tools
         public ResourceElement? this[int index]
         {
             get => ElementsList[index];
-            set => ElementsList[index] = value ?? throw new NullReferenceException("Cannot set null ResourceElement");
+            set => ElementsList[index] = value ?? throw new ArgumentNullException( nameof( value ) );
         }
 
         public ResourceElement? this[string key]
