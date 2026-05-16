@@ -281,6 +281,8 @@ public class ResourceFile
             throw new InvalidOperationException( "Unknown format" );
         }
 
+        EnsurePathFormatConsistent( path, type );
+
         var targetPath = Path.ChangeExtension( path, descriptor!.Extension );
         var formatter = descriptor.CreateFormatter( null );
 
@@ -448,6 +450,8 @@ public class ResourceFile
         if ( !FormatRegistry.TryGetByType( type, out var descriptor ) )
             throw new InvalidOperationException( "Unknown format" );
 
+        EnsurePathFormatConsistent( path, type );
+
         var targetPath = Path.ChangeExtension( path, descriptor!.Extension );
         var formatter = descriptor.CreateFormatter( null );
 
@@ -522,6 +526,19 @@ public class ResourceFile
     }
 
     #endregion
+
+    // If `path` has an extension we recognize and it conflicts with `type`,
+    // refuse to silently overwrite — the caller has a typo somewhere.
+    // RSX-116 policy: extension + explicit format must agree when both are specified.
+    private static void EnsurePathFormatConsistent( string path, ResourceFormatType type )
+    {
+        if ( !FormatRegistry.TryGetByExtension( path, out var pathDescriptor ) ) return;
+        if ( pathDescriptor!.Type == type ) return;
+
+        throw new InvalidOperationException(
+            $"Format mismatch: path '{path}' has extension '{pathDescriptor.Extension}' (format: {pathDescriptor.Type}), but the requested format is {type}. " +
+            $"Either change the path extension or omit the explicit format." );
+    }
 
     #region Private async helpers
 
