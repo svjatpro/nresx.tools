@@ -10,21 +10,38 @@ using nresx.Tools.Formatters;
 
 namespace nresx.Tools;
 
+/// <summary>
+/// Classification of a comment line associated with a resource element or
+/// a whole resource file. Modeled after PO/gettext comment conventions; other
+/// formats default to <see cref="Translator"/>.
+/// </summary>
 public enum CommentType
 {
+    /// <summary>Unspecified or unknown comment type.</summary>
     None = 0,
+    /// <summary>Translator-facing comment (default for formats that have a single comment kind).</summary>
     Translator = 0x01,
+    /// <summary>Comment extracted from source code (PO <c>#.</c>).</summary>
     Extracted = 0x02,
+    /// <summary>Source reference, e.g. file:line (PO <c>#:</c>).</summary>
     Reference = 0x03,
+    /// <summary>Format/processing flags (PO <c>#,</c>, e.g. <c>fuzzy</c>).</summary>
     Flags = 0x04,
+    /// <summary>Previous untranslated value before the most recent edit (PO <c>#|</c>).</summary>
     PreviousValue = 0x05,
 }
 
+/// <summary>
+/// A single comment line attached to a <see cref="ResourceFile"/> or <see cref="ResourceElement"/>.
+/// </summary>
 public class Comment
 {
+    /// <summary>The kind of comment (see <see cref="CommentType"/>).</summary>
     public CommentType Type { get; set; }
+    /// <summary>The comment text, without the leading marker.</summary>
     public string? Value { get; set; }
 
+    /// <summary>Creates a new comment of the given type and text.</summary>
     public Comment( CommentType type, string? value )
     {
         Type = type;
@@ -32,6 +49,11 @@ public class Comment
     }
 }
 
+/// <summary>
+/// In-memory representation of a localized resource file (resx, po, json, yaml, xliff, …).
+/// Load via constructors, manipulate <see cref="Elements"/>, then call <see cref="Save(string,bool,ResourceFileOption?)"/>
+/// (or <see cref="SaveAsync(string,bool,ResourceFileOption?,System.Threading.CancellationToken)"/>) to persist.
+/// </summary>
 public class ResourceFile
 {
     #region Private fields
@@ -76,21 +98,44 @@ public class ResourceFile
 
     #endregion
 
+    /// <summary>Format of the underlying resource file (or <see cref="ResourceFormatType.NA"/> for unsaved blank instances).</summary>
     public ResourceFormatType FileFormat { get; }
+
+    /// <summary>
+    /// Culture this file represents. Derived from the file name (e.g. <c>strings.de.resx</c> → <c>de</c>)
+    /// or from the <c>Language</c> header when the file has one; defaults to <see cref="CultureInfo.InvariantCulture"/>.
+    /// </summary>
     public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
+
+    /// <summary>Free-form headers (key→value). Format-specific; e.g. PO files use this for <c>Content-Type</c>, <c>Plural-Forms</c>, etc.</summary>
     public Dictionary<string, string> Headers { get; set; } = [];
 
+    /// <summary>True when this instance was constructed in-memory (not loaded from disk).</summary>
     public bool IsNewFile { get; }
+
+    /// <summary>Currently always false. Reserved.</summary>
     public bool HasChanges { get; } = false;
-    
+
+    /// <summary>Bare file name of the source file (when loaded from disk); empty otherwise.</summary>
     public string FileName { get; }
+
+    /// <summary>Absolute path of the source file (when loaded from disk); empty otherwise.</summary>
     public string AbsolutePath { get; }
 
+    /// <summary>The resource entries themselves. Use indexers and <c>Add</c>/<c>Remove</c> methods to mutate.</summary>
     public ResourceElements Elements { get; private set; } = new ResourceElements();
+
+    /// <summary>File-level comments (those not attached to any specific element).</summary>
     public List<Comment> Comments { get; private set; } = [];
 
     #region Static members
 
+    /// <summary>
+    /// Loads raw element rows from a file without deduping by key — duplicates are preserved
+    /// in document order. Use this when you need to inspect the file as authored, including
+    /// duplicate or malformed entries.
+    /// </summary>
+    /// <exception cref="UnknownResourceFormatException">Thrown when the file extension is not recognized.</exception>
     public static IEnumerable<ResourceElement> LoadRawElements( string path )
     {
         if ( !FormatRegistry.TryGetByExtension( path, out var descriptor ) )
@@ -107,6 +152,12 @@ public class ResourceFile
         var parser = descriptor!.CreateFormatter( null );
         return parser.LoadRawElements( stream, out var elements, out _, out _ ) ? elements : [];
     }
+    /// <summary>
+    /// Stream variant of <see cref="LoadRawElements(string)"/>. Format is taken from
+    /// <paramref name="resourceFormat"/> when supplied; otherwise inferred from the
+    /// stream's filename if it has one.
+    /// </summary>
+    /// <exception cref="UnknownResourceFormatException">Thrown when the format cannot be determined.</exception>
     public static IEnumerable<ResourceElement> LoadRawElements(
         Stream stream,
         ResourceFormatType resourceFormat = ResourceFormatType.NA )
@@ -131,6 +182,12 @@ public class ResourceFile
 
     #endregion
 
+    /// <summary>
+    /// Loads a resource file from disk. The format is inferred from the file extension.
+    /// If the file does not exist, the instance is created in <see cref="IsNewFile"/> mode
+    /// (no error) so callers can populate elements and call <see cref="Save(string,bool,ResourceFileOption?)"/>.
+    /// </summary>
+    /// <exception cref="UnknownResourceFormatException">Thrown when the file extension is not recognized.</exception>
     public ResourceFile( string path, ResourceFileOption? options = null )
     {
         if ( FormatRegistry.TryGetByExtension( path, out var descriptor ) )
@@ -176,6 +233,11 @@ public class ResourceFile
         }
     }
 
+    /// <summary>
+    /// Loads a resource file from a stream. Specify <paramref name="resourceFormat"/> when
+    /// the stream's source format can't be inferred (e.g. <c>MemoryStream</c>).
+    /// </summary>
+    /// <exception cref="UnknownResourceFormatException">Thrown when the format cannot be determined.</exception>
     public ResourceFile(
         Stream stream,
         ResourceFormatType resourceFormat = ResourceFormatType.NA,
@@ -245,6 +307,7 @@ public class ResourceFile
         }
     }
 
+    /// <summary>Creates a new, empty resource file with no specific format set.</summary>
     public ResourceFile( ResourceFileOption? options = null )
     {
         IsNewFile = true;
@@ -252,6 +315,8 @@ public class ResourceFile
         Elements = new ResourceElements();
         ResourceOptions = options;
     }
+
+    /// <summary>Creates a new, empty resource file of the given format.</summary>
     public ResourceFile( ResourceFormatType fileFormat, ResourceFileOption? options = null )
     {
         IsNewFile = true;
@@ -266,10 +331,23 @@ public class ResourceFile
 
     #region Save
 
+    /// <summary>
+    /// Saves to a file path using the format the file was loaded as
+    /// (or constructed with). The extension is forced to match the format.
+    /// </summary>
     public void Save( string path, bool createDir = false, ResourceFileOption? options = null )
     {
         Save( path, FileFormat, createDir, options );
     }
+
+    /// <summary>
+    /// Saves to <paramref name="path"/> as <paramref name="type"/>.
+    /// </summary>
+    /// <param name="path">Destination path. The extension is rewritten to match <paramref name="type"/> unless it already does.</param>
+    /// <param name="type">Format to write.</param>
+    /// <param name="createDir">If true, missing parent directories are created.</param>
+    /// <exception cref="UnknownResourceFormatException">Thrown when <paramref name="type"/> is not registered.</exception>
+    /// <exception cref="ResourceFormatMismatchException">Thrown when <paramref name="path"/>'s extension belongs to a different known format than <paramref name="type"/>.</exception>
     public void Save(
         string path,
         ResourceFormatType type,

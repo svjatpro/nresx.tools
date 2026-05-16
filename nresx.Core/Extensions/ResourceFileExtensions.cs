@@ -165,29 +165,45 @@ namespace nresx.Tools.Extensions
     }
 
 
+    /// <summary>Categorizes a single validation finding raised against a <see cref="ResourceElement"/>.</summary>
     public enum ResourceElementErrorType
     {
+        /// <summary>Unspecified.</summary>
         None = 0x00,
+        /// <summary>Two or more elements share the same key (file is broken).</summary>
         Duplicate = 0x01,
+        /// <summary>Heuristic match: keys differ only in case or whitespace.</summary>
         PossibleDuplicate = 0x02,
+        /// <summary>Element has no key (file is broken).</summary>
         EmptyKey = 0x03,
+        /// <summary>Element has a key but no value.</summary>
         EmptyValue = 0x04,
 
+        /// <summary>Element is present in the base file but missing from a translation file.</summary>
         MissedElement = 0x05,
+        /// <summary>Translation file's value equals the base file's value — the element wasn't translated.</summary>
         NotTranslated = 0x06,
     }
 
+    /// <summary>Severity bucket for a <see cref="ResourceElementErrorType"/>. Drives <c>nresx validate</c>'s exit code (RSX-229).</summary>
     public enum ResourceElementErrorSeverity
     {
+        /// <summary>Non-fatal: quality/heuristic finding. Validate exits 0 unless <c>--warnings-as-errors</c> is set.</summary>
         Warning = 0,
+        /// <summary>Fatal: file would fail at runtime. Validate exits non-zero.</summary>
         Error = 1,
     }
 
+    /// <summary>Extension that maps each <see cref="ResourceElementErrorType"/> to its <see cref="ResourceElementErrorSeverity"/>.</summary>
     public static class ResourceElementErrorTypeExtensions
     {
-        // Severity policy:
-        //   Error  = file is broken / will fail at runtime (duplicate keys, empty keys)
-        //   Warning = quality issue / heuristic / common in-progress state (everything else)
+        /// <summary>
+        /// Maps an error type to its severity per the RSX-229 policy:
+        /// <list type="bullet">
+        /// <item><description><c>Error</c> = file is broken / will fail at runtime (duplicate keys, empty keys)</description></item>
+        /// <item><description><c>Warning</c> = quality issue / heuristic / common in-progress state (everything else)</description></item>
+        /// </list>
+        /// </summary>
         public static ResourceElementErrorSeverity GetSeverity( this ResourceElementErrorType errorType )
         {
             return errorType switch
@@ -203,12 +219,17 @@ namespace nresx.Tools.Extensions
         }
     }
 
+    /// <summary>A single validation finding produced by <c>Validate</c> extension methods.</summary>
     public class ResourceElementError
     {
+        /// <summary>The kind of validation issue.</summary>
         public ResourceElementErrorType ErrorType { get; }
+        /// <summary>Key of the element the error is attached to (may be empty for file-level findings).</summary>
         public string ElementKey { get; }
+        /// <summary>Human-readable detail. May be empty/null when <see cref="ErrorType"/> alone is enough.</summary>
         public string Message { get; }
 
+        /// <summary>Creates a new validation finding.</summary>
         public ResourceElementError( ResourceElementErrorType errorType, string elementKey, string message = null )
         {
             ErrorType = errorType;
