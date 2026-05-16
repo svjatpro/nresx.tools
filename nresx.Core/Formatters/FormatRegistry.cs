@@ -43,6 +43,8 @@ namespace nresx.Tools.Formatters
             Register( new FormatDescriptor( ResourceFormatType.PlainText, ".txt",  _ => new FileFormatterPlainText() ) );
             Register( new FormatDescriptor( ResourceFormatType.Po,        ".po",   options => new FileFormatterPo( options ) ) );
             Register( new FormatDescriptor( ResourceFormatType.Json,      ".json", options => new FileFormatterJson( options ) ) );
+            Register( new FormatDescriptor( ResourceFormatType.Xlf,       ".xlf",  _ => new FileFormatterXliff() ) );
+            Register( new FormatDescriptor( ResourceFormatType.Xliff,     ".xliff",_ => new FileFormatterXliff() ) );
         }
 
         internal static void Register( FormatDescriptor descriptor )

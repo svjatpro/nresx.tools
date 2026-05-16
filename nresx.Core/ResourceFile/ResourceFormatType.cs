@@ -14,5 +14,8 @@
 
         PlainText = 0x06,
         Po = 0x07,
+
+        Xlf = 0x08,
+        Xliff = 0x09,
     }
 }

@@ -31,7 +31,9 @@ namespace nresx.Core.Tests
             { ResourceFormatType.Yml, true },
             { ResourceFormatType.Po, true },
             { ResourceFormatType.PlainText, false },
-            { ResourceFormatType.Json, true }
+            { ResourceFormatType.Json, true },
+            { ResourceFormatType.Xlf, true },
+            { ResourceFormatType.Xliff, true }
         };
 
         public static IEnumerable ResourceFormats
@@ -45,6 +47,8 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.Po );
                 yield return new TestCaseData( ResourceFormatType.PlainText );
                 yield return new TestCaseData( ResourceFormatType.Json );
+                yield return new TestCaseData( ResourceFormatType.Xlf );
+                yield return new TestCaseData( ResourceFormatType.Xliff );
             }
         }
 
@@ -59,6 +63,8 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.po" );
                 yield return new TestCaseData( "Resources.txt" );
                 yield return new TestCaseData( "Resources.json" );
+                yield return new TestCaseData( "Resources.xlf" );
+                yield return new TestCaseData( "Resources.xliff" );
             }
         }
 

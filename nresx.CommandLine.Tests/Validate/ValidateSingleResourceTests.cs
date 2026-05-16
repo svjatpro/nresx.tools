@@ -27,6 +27,8 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate [TmpFile]" )]
         [TestCase( @"validate -s [TmpFile]" )]
         [TestCase( @"validate --source [TmpFile]" )]
+        [TestCase( @"validate [TmpFile.xlf]" )]
+        [TestCase( @"validate [TmpFile.xliff]" )]
         public void ValidateEmptyKeyElements( string commandLine )
         {
             TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="" datatype="plaintext" original="messages">
+    <body>
+      <trans-unit id="Entry1.Text">
+        <source>Value1</source>
+        <target>Value1</target>
+      </trans-unit>
+      <trans-unit id="Entry2">
+        <source>Value2</source>
+        <target>Value2</target>
+        <note>Comment2</note>
+      </trans-unit>
+      <trans-unit id="Entry3">
+        <source>Value3
+multiline</source>
+        <target>Value3
+multiline</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
