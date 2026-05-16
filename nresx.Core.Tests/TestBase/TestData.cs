@@ -57,6 +57,8 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.IosStrings );
                 yield return new TestCaseData( ResourceFormatType.JavaProperties );
                 yield return new TestCaseData( ResourceFormatType.Ini );
+                yield return new TestCaseData( ResourceFormatType.Csv );
+                yield return new TestCaseData( ResourceFormatType.Tsv );
             }
         }
 
@@ -77,6 +79,8 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.strings" );
                 yield return new TestCaseData( "Resources.properties" );
                 yield return new TestCaseData( "Resources.ini" );
+                yield return new TestCaseData( "Resources.csv" );
+                yield return new TestCaseData( "Resources.tsv" );
             }
         }
 

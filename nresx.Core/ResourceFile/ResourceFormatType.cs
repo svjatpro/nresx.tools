@@ -22,5 +22,8 @@
         IosStrings = 0x0B,
         JavaProperties = 0x0C,
         Ini = 0x0D,
+
+        Csv = 0x0E,
+        Tsv = 0x0F,
     }
 }

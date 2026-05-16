@@ -49,6 +49,8 @@ namespace nresx.Tools.Formatters
             Register( new FormatDescriptor( ResourceFormatType.IosStrings, ".strings", _ => new FileFormatterIosStrings() ) );
             Register( new FormatDescriptor( ResourceFormatType.JavaProperties, ".properties", _ => new FileFormatterJavaProperties() ) );
             Register( new FormatDescriptor( ResourceFormatType.Ini, ".ini", _ => new FileFormatterIni() ) );
+            Register( new FormatDescriptor( ResourceFormatType.Csv, ".csv", _ => new FileFormatterCsv( ',' ) ) );
+            Register( new FormatDescriptor( ResourceFormatType.Tsv, ".tsv", _ => new FileFormatterCsv( '\t' ) ) );
         }
 
         internal static void Register( FormatDescriptor descriptor )
