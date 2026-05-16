@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Tools;
@@ -31,6 +30,9 @@ namespace nresx.CommandLine.Commands
                 return;
 
             var anyFailure = false;
+            var totalIssues = 0;
+            var totalErrors = 0;
+            var totalWarnings = 0;
 
             ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
@@ -87,22 +89,22 @@ namespace nresx.CommandLine.Commands
 
                     if ( !result )
                     {
-                        if ( context.TotalResourceFiles > 1 && errors.Any() )
-                        {
-                            Console.WriteLine( $"Resource file: \"{r.FileInfo.FullName}\"" );
-                        }
-
                         foreach ( var elementError in errors )
                         {
-                            var msg = new StringBuilder();
-                            msg.Append( $"{elementError.ErrorType}:" );
-                            if ( !string.IsNullOrWhiteSpace( elementError.ElementKey ) )
-                                msg.Append( $" {elementError.ElementKey};" );
-                            if ( !string.IsNullOrWhiteSpace( elementError.Message ) )
-                                msg.Append( $" {elementError.Message};" );
-                            Console.WriteLine( msg.ToString() );
-
                             var severity = elementError.ErrorType.GetSeverity();
+                            var severityLabel = severity == ResourceElementErrorSeverity.Error ? "error" : "warning";
+                            var detail = !string.IsNullOrWhiteSpace( elementError.ElementKey )
+                                ? elementError.ElementKey
+                                : ( elementError.Message ?? string.Empty );
+
+                            Console.WriteLine( $"{r.FileInfo.FullName}: {severityLabel}: {elementError.ErrorType}: {detail}" );
+
+                            totalIssues++;
+                            if ( severity == ResourceElementErrorSeverity.Error )
+                                totalErrors++;
+                            else
+                                totalWarnings++;
+
                             if ( severity == ResourceElementErrorSeverity.Error || WarningsAsErrors )
                                 anyFailure = true;
                         }
@@ -110,8 +112,19 @@ namespace nresx.CommandLine.Commands
                 } );
             } );
 
+            if ( totalIssues > 0 )
+            {
+                Console.WriteLine( BuildSummary( totalIssues, totalErrors, totalWarnings ) );
+            }
+
             if ( anyFailure )
                 Successful = false;
+        }
+
+        private static string BuildSummary( int issues, int errors, int warnings )
+        {
+            string Plural( int n, string word ) => n == 1 ? word : word + "s";
+            return $"Found {issues} {Plural( issues, "issue" )} ({errors} {Plural( errors, "error" )}, {warnings} {Plural( warnings, "warning" )})";
         }
 
         // Pick the base (source-language) file for a translation group:

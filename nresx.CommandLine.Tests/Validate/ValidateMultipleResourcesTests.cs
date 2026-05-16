@@ -26,11 +26,10 @@ namespace nresx.CommandLine.Tests.Validate
                 .ValidateStdout( args =>
                 {
                     args.ConsoleOutput.Should().BeEquivalentTo(
-                        $"Resource file: \"{new FileInfo( args.TemporaryFiles[0] ).FullName}\"",
-                        $"EmptyValue: {res.Elements[1].Key};",
-                        $"Duplicate: {res.Elements[1].Key};",
-                        $"Resource file: \"{new FileInfo( args.TemporaryFiles[1] ).FullName}\"",
-                        $"EmptyKey: (value: {res.Elements[1].Value});" );
+                        $"{new FileInfo( args.TemporaryFiles[0] ).FullName}: warning: EmptyValue: {res.Elements[1].Key}",
+                        $"{new FileInfo( args.TemporaryFiles[0] ).FullName}: error: Duplicate: {res.Elements[1].Key}",
+                        $"{new FileInfo( args.TemporaryFiles[1] ).FullName}: error: EmptyKey: (value: {res.Elements[1].Value})",
+                        "Found 3 issues (2 errors, 1 warning)" );
                 } );
         }
 
@@ -57,11 +56,10 @@ namespace nresx.CommandLine.Tests.Validate
                 .ValidateStdout( args =>
                 {
                     args.ConsoleOutput.Should().BeEquivalentTo(
-                        $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                        $"EmptyValue: {res.Elements[1].Key};",
-                        $"Duplicate: {res.Elements[1].Key};",
-                        $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                        $"EmptyKey: (value: {res.Elements[1].Value});" );
+                        $"{new FileInfo( files[0] ).FullName}: warning: EmptyValue: {res.Elements[1].Key}",
+                        $"{new FileInfo( files[0] ).FullName}: error: Duplicate: {res.Elements[1].Key}",
+                        $"{new FileInfo( files[1] ).FullName}: error: EmptyKey: (value: {res.Elements[1].Value})",
+                        "Found 3 issues (2 errors, 1 warning)" );
                 } );
         }
 
@@ -88,13 +86,11 @@ namespace nresx.CommandLine.Tests.Validate
                 .ValidateStdout( args =>
                 {
                     args.ConsoleOutput.Should().BeEquivalentTo(
-                        $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                        $"EmptyValue: {res.Elements[1].Key};",
-                        $"Duplicate: {res.Elements[1].Key};",
-                        $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                        $"EmptyKey: (value: {res.Elements[1].Value});",
-                        $"Resource file: \"{new FileInfo( files[2] ).FullName}\"",
-                        $"EmptyValue: {res.Elements[1].Key};" );
+                        $"{new FileInfo( files[0] ).FullName}: warning: EmptyValue: {res.Elements[1].Key}",
+                        $"{new FileInfo( files[0] ).FullName}: error: Duplicate: {res.Elements[1].Key}",
+                        $"{new FileInfo( files[1] ).FullName}: error: EmptyKey: (value: {res.Elements[1].Value})",
+                        $"{new FileInfo( files[2] ).FullName}: warning: EmptyValue: {res.Elements[1].Key}",
+                        "Found 4 issues (2 errors, 2 warnings)" );
                 } );
         }
     }

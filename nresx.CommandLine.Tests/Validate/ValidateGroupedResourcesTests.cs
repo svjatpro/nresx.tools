@@ -16,7 +16,7 @@ namespace nresx.CommandLine.Tests.Validate
         public void ValidateMissedElementSingleFolder( string commandLine )
         {
             var files = PrepareGroupedFiles( new []{"en", "fr"}, out var key1 );
-            
+
             var resEn = new ResourceFile( files[0] );
             resEn.Elements.Add( TestData.UniqueKey(), TestData.UniqueKey() );
             resEn.Save( files[0] );
@@ -31,10 +31,9 @@ namespace nresx.CommandLine.Tests.Validate
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters{ UniqueKeys = { key1 } } );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                $"MissedElement: {resFr.Elements.Last().Key};",
-                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                $"MissedElement: {resEn.Elements.Last().Key};" );
+                $"{new FileInfo( files[0] ).FullName}: warning: MissedElement: {resFr.Elements.Last().Key}",
+                $"{new FileInfo( files[1] ).FullName}: warning: MissedElement: {resEn.Elements.Last().Key}",
+                "Found 2 issues (0 errors, 2 warnings)" );
         }
 
         [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
@@ -58,10 +57,9 @@ namespace nresx.CommandLine.Tests.Validate
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                $"MissedElement: {resFr.Elements.Last().Key};",
-                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                $"MissedElement: {resEn.Elements.Last().Key};" );
+                $"{new FileInfo( files[0] ).FullName}: warning: MissedElement: {resFr.Elements.Last().Key}",
+                $"{new FileInfo( files[1] ).FullName}: warning: MissedElement: {resEn.Elements.Last().Key}",
+                "Found 2 issues (0 errors, 2 warnings)" );
         }
 
         [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
@@ -85,10 +83,9 @@ namespace nresx.CommandLine.Tests.Validate
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                $"MissedElement: {resFr.Elements.Last().Key};",
-                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                $"MissedElement: {resEn.Elements.Last().Key};" );
+                $"{new FileInfo( files[0] ).FullName}: warning: MissedElement: {resFr.Elements.Last().Key}",
+                $"{new FileInfo( files[1] ).FullName}: warning: MissedElement: {resEn.Elements.Last().Key}",
+                "Found 2 issues (0 errors, 2 warnings)" );
         }
 
 
@@ -108,8 +105,8 @@ namespace nresx.CommandLine.Tests.Validate
 
             // en is auto-picked as base (English preference) — only fr is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                $"NotTranslated: {resFr.Elements[1].Key};" );
+                $"{new FileInfo( files[1] ).FullName}: warning: NotTranslated: {resFr.Elements[1].Key}",
+                "Found 1 issue (0 errors, 1 warning)" );
         }
 
         [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
@@ -128,8 +125,8 @@ namespace nresx.CommandLine.Tests.Validate
 
             // en is auto-picked as base — only fr is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                $"NotTranslated: {resFr.Elements[1].Key};" );
+                $"{new FileInfo( files[1] ).FullName}: warning: NotTranslated: {resFr.Elements[1].Key}",
+                "Found 1 issue (0 errors, 1 warning)" );
         }
 
         [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
@@ -147,8 +144,8 @@ namespace nresx.CommandLine.Tests.Validate
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
-                $"NotTranslated: {resFr.Elements[0].Key};" );
+                $"{new FileInfo( files[1] ).FullName}: warning: NotTranslated: {resFr.Elements[0].Key}",
+                "Found 1 issue (0 errors, 1 warning)" );
         }
 
         [TestCase( @"validate [Output]\[UniqueKey]* --basic-lan fr -r" )]
@@ -166,8 +163,8 @@ namespace nresx.CommandLine.Tests.Validate
 
             // fr is the explicit base — en is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                $"NotTranslated: {resEn.Elements[0].Key};" );
+                $"{new FileInfo( files[0] ).FullName}: warning: NotTranslated: {resEn.Elements[0].Key}",
+                "Found 1 issue (0 errors, 1 warning)" );
         }
     }
 }

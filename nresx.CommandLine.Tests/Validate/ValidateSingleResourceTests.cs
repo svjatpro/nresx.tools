@@ -1,3 +1,4 @@
+using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Tools;
@@ -20,8 +21,8 @@ namespace nresx.CommandLine.Tests.Validate
             res.Save( file );
             
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters{ TemporaryFiles = { file } } );
-            
-            args.ConsoleOutput[0].Should().Be( $"EmptyValue: {res.Elements[1].Key};" );
+
+            args.ConsoleOutput[0].Should().Be( $"{new FileInfo( file ).FullName}: warning: EmptyValue: {res.Elements[1].Key}" );
         }
 
         [TestCase( @"validate [TmpFile]" )]
@@ -36,7 +37,7 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
 
-            args.ConsoleOutput[0].Should().Be( $"EmptyKey: (value: {res.Elements[1].Value});" );
+            args.ConsoleOutput[0].Should().Be( $"{new FileInfo( file ).FullName}: error: EmptyKey: (value: {res.Elements[1].Value})" );
         }
 
         [TestCase( @"validate [TmpFile.json]" )]
@@ -50,7 +51,7 @@ namespace nresx.CommandLine.Tests.Validate
             TestHelper.ReplaceKey( file, res.Elements[2].Key, res.Elements[1].Key );
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
-            args.ConsoleOutput[0].Should().Be( $"Duplicate: {res.Elements[1].Key};" );
+            args.ConsoleOutput[0].Should().Be( $"{new FileInfo( file ).FullName}: error: Duplicate: {res.Elements[1].Key}" );
         }
 
         [TestCase( @"validate [TmpFile]" )]
@@ -65,7 +66,7 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { TemporaryFiles = { file } } );
 
-            args.ConsoleOutput[0].Should().Be( $"PossibleDuplicate: {res.Elements[1].Key}.Text;" );
+            args.ConsoleOutput[0].Should().Be( $"{new FileInfo( file ).FullName}: warning: PossibleDuplicate: {res.Elements[1].Key}.Text" );
         }
 
         [TestCase( @"validate [TmpFile.resx]" )]
