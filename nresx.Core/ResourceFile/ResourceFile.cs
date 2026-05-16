@@ -70,7 +70,7 @@ public class ResourceFile
     private Dictionary<string, string> PrepareHeaders()
     {
         if ( !Equals( Culture, CultureInfo.InvariantCulture ) )
-            Headers["Language"] = Culture.Name;
+            Headers[ResourceFileHeaders.Language] = Culture.Name;
         return Headers;
     }
 
@@ -165,10 +165,10 @@ public class ResourceFile
 
             // override culture by header
             Headers = headers;
-            if ( Headers.TryGetValue( "Language", out var languageHeader ) ) // make constants
+            if ( Headers.TryGetValue( ResourceFileHeaders.Language, out var languageHeader ) )
             {
                 var c = new CultureInfo( languageHeader );
-                if(!Equals( c, CultureInfo.InvariantCulture ) )
+                if ( !Equals( c, CultureInfo.InvariantCulture ) )
                     Culture = c;
             }
 
@@ -235,7 +235,7 @@ public class ResourceFile
         {
             Elements = new ResourceElements( elements );
             Headers = headers;
-            if ( Headers.TryGetValue( "Language", out var languageHeader ) )
+            if ( Headers.TryGetValue( ResourceFileHeaders.Language, out var languageHeader ) )
             {
                 var c = new CultureInfo( languageHeader );
                 if ( !Equals( c, CultureInfo.InvariantCulture ) )
