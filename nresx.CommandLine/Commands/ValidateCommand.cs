@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using CommandLine;
@@ -12,6 +14,9 @@ namespace nresx.CommandLine.Commands
     [Verb( "validate", HelpText = "Validate resource file(s)" )]
     public class ValidateCommand : BaseCommand
     {
+        [Option( "basic-lan", HelpText = "Base language code (e.g. en, en-US). Overrides auto-detection of the source-language file in a translation group." )]
+        public string BasicLanguage { get; set; }
+
         protected override bool IsRecursiveAllowed => true;
 
         protected override void ExecuteCommand()
@@ -22,56 +27,64 @@ namespace nresx.CommandLine.Commands
             if ( !optionsParsed )
                 return;
 
-            ForEachResourceGroup( sourceFiles, (context, group) =>
+            ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
-                var resourceMap = new Dictionary<string, Dictionary<int, string>>();
+                // load elements + capture detected culture per file
                 var resources = group
                     .Select( f =>
                     {
                         var elements = ResourceFile.LoadRawElements( f.FileInfo.FullName ).ToList();
-                        foreach ( var element in elements )
-                        {
-                            resourceMap.TryAdd( element.Key ?? string.Empty, new Dictionary<int, string>() );
-                            resourceMap[element.Key ?? string.Empty].TryAdd( f.FileInfo.GetHashCode(), element.Value );
-                        }
-
-                        return ( f.FileInfo, elements );
+                        f.FileInfo.FullName.TryToExtractCultureFromPath( out var culture );
+                        return new GroupMember( f.FileInfo, elements, culture );
                     } )
                     .ToList();
 
-                resources.ForEach( f =>
+                // union-of-keys map: key → (fileHash → value); used for MissedElement
+                var resourceMap = new Dictionary<string, Dictionary<int, string>>();
+                foreach ( var r in resources )
                 {
-                    //var elements = ResourceFile.LoadRawElements( f.FileInfo.FullName );
-                    var result = f.elements.ValidateElements( out var errors );
+                    foreach ( var element in r.Elements )
+                    {
+                        var key = element.Key ?? string.Empty;
+                        resourceMap.TryAdd( key, new Dictionary<int, string>() );
+                        resourceMap[key].TryAdd( r.FileInfo.GetHashCode(), element.Value );
+                    }
+                }
 
-                    // validate missed translations 
-                    var missed = resourceMap.Keys.Except( f.elements.Select( el => el.Key ) ).ToList();
+                // pick base file for the group (the source language file)
+                var baseFile = PickBaseFile( resources, BasicLanguage );
+
+                resources.ForEach( r =>
+                {
+                    var result = r.Elements.ValidateElements( out var errors );
+
+                    // missed elements: any key present somewhere else in the group but not here
+                    var missed = resourceMap.Keys.Except( r.Elements.Select( el => el.Key ) ).ToList();
                     if ( missed.Any() )
                     {
                         result = false;
                         errors.AddRange( missed.Select( el => new ResourceElementError( ResourceElementErrorType.MissedElement, el ) ) );
                     }
 
-                    // validate not translated elements
-                    foreach ( var el in f.elements )
+                    // not translated: only for non-base files, only against the base's value
+                    if ( baseFile != null && r.FileInfo.GetHashCode() != baseFile.GetHashCode() )
                     {
-                        var elMap = resourceMap[el.Key];
-                        if ( elMap.Any( r => r.Key != f.FileInfo.GetHashCode() && r.Value == el.Value ) )
+                        foreach ( var el in r.Elements )
                         {
-                            result = false;
-                            errors.Add( new ResourceElementError( ResourceElementErrorType.NotTranslated, el.Key ) );
+                            if ( !resourceMap.TryGetValue( el.Key, out var elMap ) ) continue;
+                            if ( elMap.TryGetValue( baseFile.GetHashCode(), out var baseValue ) && baseValue == el.Value )
+                            {
+                                result = false;
+                                errors.Add( new ResourceElementError( ResourceElementErrorType.NotTranslated, el.Key ) );
+                            }
                         }
                     }
 
-                    if ( result )
-                    {
-                        //
-                    }
-                    else
+                    if ( !result )
                     {
                         if ( context.TotalResourceFiles > 1 && errors.Any() )
                         {
-                            Console.WriteLine( $"Resource file: \"{f.FileInfo.FullName}\"" );
+                            Console.WriteLine( $"Resource file: \"{r.FileInfo.FullName}\"" );
                         }
 
                         foreach ( var elementError in errors )
@@ -87,6 +100,54 @@ namespace nresx.CommandLine.Commands
                     }
                 } );
             } );
+        }
+
+        // Pick the base (source-language) file for a translation group:
+        //   1. Explicit --basic-lan match (by full culture name or 2-letter ISO)
+        //   2. The neutral file (no culture in path) — typical .NET satellite layout
+        //   3. The English file
+        //   4. First alphabetical by culture name
+        //   5. None — single-file group or no cultures detected → no NotTranslated checks
+        private static FileInfo PickBaseFile( List<GroupMember> files, string explicitBasicLang )
+        {
+            if ( files.Count < 2 ) return null;
+
+            if ( !string.IsNullOrWhiteSpace( explicitBasicLang ) )
+            {
+                var explicitMatch = files.FirstOrDefault( f =>
+                    f.Culture != null &&
+                    ( string.Equals( f.Culture.Name, explicitBasicLang, StringComparison.OrdinalIgnoreCase ) ||
+                      string.Equals( f.Culture.TwoLetterISOLanguageName, explicitBasicLang, StringComparison.OrdinalIgnoreCase ) ) );
+                if ( explicitMatch != null ) return explicitMatch.FileInfo;
+            }
+
+            var neutral = files.FirstOrDefault( f => f.Culture == null );
+            if ( neutral != null ) return neutral.FileInfo;
+
+            var english = files.FirstOrDefault( f =>
+                f.Culture != null &&
+                string.Equals( f.Culture.TwoLetterISOLanguageName, "en", StringComparison.OrdinalIgnoreCase ) );
+            if ( english != null ) return english.FileInfo;
+
+            return files
+                .Where( f => f.Culture != null )
+                .OrderBy( f => f.Culture.Name, StringComparer.OrdinalIgnoreCase )
+                .FirstOrDefault()
+                ?.FileInfo;
+        }
+
+        private sealed class GroupMember
+        {
+            public FileInfo FileInfo { get; }
+            public List<ResourceElement> Elements { get; }
+            public CultureInfo Culture { get; }
+
+            public GroupMember( FileInfo fileInfo, List<ResourceElement> elements, CultureInfo culture )
+            {
+                FileInfo = fileInfo;
+                Elements = elements;
+                Culture = culture;
+            }
         }
     }
 }

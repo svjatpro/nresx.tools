@@ -106,9 +106,8 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
+            // en is auto-picked as base (English preference) — only fr is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                $"NotTranslated: {resFr.Elements[1].Key};",
                 $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
                 $"NotTranslated: {resFr.Elements[1].Key};" );
         }
@@ -127,11 +126,48 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
+            // en is auto-picked as base — only fr is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
-                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
-                $"NotTranslated: {resFr.Elements[1].Key};",
                 $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
                 $"NotTranslated: {resFr.Elements[1].Key};" );
+        }
+
+        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
+        public void ValidateNotTranslated_AutoPicksBaseAlphabetically_WhenNoEnglish( string commandLine )
+        {
+            var files = PrepareGroupedFiles( new[] { "de", "fr" }, out var key1, dir: TestData.UniqueKey() );
+
+            // de is the base (first alphabetical, no English present)
+            // Modify fr so element[0] keeps the de value (not translated) but others differ
+            var resFr = new ResourceFile( files[1] );
+            resFr.Elements[1].Value = TestData.UniqueKey();
+            resFr.Elements[2].Value = TestData.UniqueKey();
+            resFr.Save( files[1] );
+
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
+
+            args.ConsoleOutput.Should().BeEquivalentTo(
+                $"Resource file: \"{new FileInfo( files[1] ).FullName}\"",
+                $"NotTranslated: {resFr.Elements[0].Key};" );
+        }
+
+        [TestCase( @"validate [Output]\[UniqueKey]* --basic-lan fr -r" )]
+        public void ValidateNotTranslated_BasicLanOption_OverridesAutoPick( string commandLine )
+        {
+            var files = PrepareGroupedFiles( new[] { "en", "fr" }, out var key1, dir: TestData.UniqueKey() );
+
+            // make en differ from fr on elements[1] and [2]; keep [0] identical (en should be flagged because fr is now base)
+            var resEn = new ResourceFile( files[0] );
+            resEn.Elements[1].Value = TestData.UniqueKey();
+            resEn.Elements[2].Value = TestData.UniqueKey();
+            resEn.Save( files[0] );
+
+            var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
+
+            // fr is the explicit base — en is flagged
+            args.ConsoleOutput.Should().BeEquivalentTo(
+                $"Resource file: \"{new FileInfo( files[0] ).FullName}\"",
+                $"NotTranslated: {resEn.Elements[0].Key};" );
         }
     }
 }
