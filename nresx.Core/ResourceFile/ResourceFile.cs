@@ -59,6 +59,8 @@ public class ResourceFile
     #region Private fields
 
     private readonly IFileFormatter SourceFormatter;
+    private readonly Dictionary<string, string> _headers = new();
+    private readonly List<Comment> _comments = new();
 
     #endregion
 
@@ -88,11 +90,14 @@ public class ResourceFile
         return culture;
     }
 
+    // Builds the headers snapshot passed to formatters at save time. Injects the current
+    // Culture as the Language header without mutating the in-memory _headers state.
     private Dictionary<string, string> PrepareHeaders()
     {
+        var snapshot = new Dictionary<string, string>( _headers );
         if ( !Equals( Culture, CultureInfo.InvariantCulture ) )
-            Headers[ResourceFileHeaders.Language] = Culture.Name;
-        return Headers;
+            snapshot[ResourceFileHeaders.Language] = Culture.Name;
+        return snapshot;
     }
 
     #endregion
@@ -106,8 +111,12 @@ public class ResourceFile
     /// </summary>
     public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
 
-    /// <summary>Free-form headers (key→value). Format-specific; e.g. PO files use this for <c>Content-Type</c>, <c>Plural-Forms</c>, etc.</summary>
-    public Dictionary<string, string> Headers { get; set; } = [];
+    /// <summary>
+    /// Free-form headers (key→value). Format-specific; e.g. PO files use this for <c>Content-Type</c>, <c>Plural-Forms</c>, etc.
+    /// Read-only view; use <see cref="SetHeader"/> / <see cref="RemoveHeader"/> / <see cref="ClearHeaders"/> to mutate.
+    /// Setting the <c>Language</c> header also syncs <see cref="Culture"/>.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> Headers => _headers;
 
     /// <summary>True when this instance was constructed in-memory (not loaded from disk).</summary>
     public bool IsNewFile { get; }
@@ -121,8 +130,54 @@ public class ResourceFile
     /// <summary>The resource entries themselves. Use indexers and <c>Add</c>/<c>Remove</c> methods to mutate.</summary>
     public ResourceElements Elements { get; private set; } = new ResourceElements();
 
-    /// <summary>File-level comments (those not attached to any specific element).</summary>
-    public List<Comment> Comments { get; private set; } = [];
+    /// <summary>
+    /// File-level comments (those not attached to any specific element).
+    /// Read-only view; use <see cref="AddComment(Comment)"/> / <see cref="RemoveComment"/> / <see cref="ClearComments"/> to mutate.
+    /// </summary>
+    public IReadOnlyList<Comment> Comments => _comments;
+
+    /// <summary>Sets or replaces a header value. When <paramref name="name"/> is <c>Language</c>, also updates <see cref="Culture"/>.</summary>
+    public void SetHeader( string name, string value )
+    {
+        if ( name == null ) throw new ArgumentNullException( nameof( name ) );
+        _headers[name] = value ?? string.Empty;
+
+        if ( name == ResourceFileHeaders.Language && !string.IsNullOrWhiteSpace( value ) )
+        {
+            try
+            {
+                var c = new CultureInfo( value );
+                if ( !Equals( c, CultureInfo.InvariantCulture ) )
+                    Culture = c;
+            }
+            catch
+            {
+                // ignore malformed culture names — header is still stored as authored
+            }
+        }
+    }
+
+    /// <summary>Removes a header. Returns true if it was present.</summary>
+    public bool RemoveHeader( string name ) => _headers.Remove( name );
+
+    /// <summary>Removes all headers.</summary>
+    public void ClearHeaders() => _headers.Clear();
+
+    /// <summary>Appends a file-level comment.</summary>
+    public void AddComment( Comment comment )
+    {
+        if ( comment == null ) throw new ArgumentNullException( nameof( comment ) );
+        _comments.Add( comment );
+    }
+
+    /// <summary>Convenience overload: creates and appends a <see cref="Comment"/> of the given type and text.</summary>
+    public void AddComment( CommentType type, string? value ) => _comments.Add( new Comment( type, value ) );
+
+    /// <summary>Removes the given file-level comment instance. Returns true if it was present.</summary>
+    public bool RemoveComment( Comment comment ) => _comments.Remove( comment );
+
+    /// <summary>Removes all file-level comments.</summary>
+    public void ClearComments() => _comments.Clear();
 
     #region Static members
 
@@ -216,15 +271,15 @@ public class ResourceFile
             Elements = new ResourceElements(elements);
 
             // override culture by header
-            Headers = headers;
-            if ( Headers.TryGetValue( ResourceFileHeaders.Language, out var languageHeader ) )
+            foreach ( var kv in headers ) _headers[kv.Key] = kv.Value;
+            if ( _headers.TryGetValue( ResourceFileHeaders.Language, out var languageHeader ) )
             {
                 var c = new CultureInfo( languageHeader );
                 if ( !Equals( c, CultureInfo.InvariantCulture ) )
                     Culture = c;
             }
 
-            Comments = comments;
+            _comments.AddRange( comments );
         }
     }
 
@@ -288,14 +343,14 @@ public class ResourceFile
         if ( SourceFormatter.LoadResourceFile( loadedStream, out var elements, out var headers, out var comments ) )
         {
             Elements = new ResourceElements( elements );
-            Headers = headers;
-            if ( Headers.TryGetValue( ResourceFileHeaders.Language, out var languageHeader ) )
+            foreach ( var kv in headers ) _headers[kv.Key] = kv.Value;
+            if ( _headers.TryGetValue( ResourceFileHeaders.Language, out var languageHeader ) )
             {
                 var c = new CultureInfo( languageHeader );
                 if ( !Equals( c, CultureInfo.InvariantCulture ) )
                     Culture = c;
             }
-            Comments = comments;
+            _comments.AddRange( comments );
         }
     }
 
@@ -369,7 +424,7 @@ public class ResourceFile
         }
 
         using var stream = new FileStream( targetPath, FileMode.CreateNew );
-        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), Comments, options );
+        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), _comments, options );
     }
 
     public void Save( Stream stream, ResourceFileOption options = null )
@@ -384,7 +439,7 @@ public class ResourceFile
             throw new UnknownResourceFormatException();
         }
         var formatter = descriptor!.CreateFormatter( null );
-        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), Comments, options );
+        formatter.SaveResourceFile( stream, Elements, PrepareHeaders(), _comments, options );
     }
 
     public Stream SaveToStream()
@@ -540,7 +595,7 @@ public class ResourceFile
         byte[] bytes;
         using ( var memory = new MemoryStream() )
         {
-            formatter.SaveResourceFile( memory, Elements, PrepareHeaders(), Comments, options );
+            formatter.SaveResourceFile( memory, Elements, PrepareHeaders(), _comments, options );
             bytes = memory.ToArray();
         }
 
@@ -576,7 +631,7 @@ public class ResourceFile
         byte[] bytes;
         using ( var memory = new MemoryStream() )
         {
-            formatter.SaveResourceFile( memory, Elements, PrepareHeaders(), Comments, options );
+            formatter.SaveResourceFile( memory, Elements, PrepareHeaders(), _comments, options );
             bytes = memory.ToArray();
         }
 

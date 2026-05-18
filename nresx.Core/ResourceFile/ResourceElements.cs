@@ -85,8 +85,12 @@ namespace nresx.Core
                 Value = value,
                 Comment = comment,
                 Context = context,
-                ValuePlurals = plurals?.ToDictionary( p => p.Item1, p => p.Item2 ) ?? []
             };
+            if ( plurals != null )
+            {
+                foreach ( var (idx, pluralValue) in plurals )
+                    el.SetPlural( idx, pluralValue );
+            }
 
             ElementsList.Add( el );
         }

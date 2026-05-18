@@ -65,7 +65,7 @@ namespace nresx.Core.Formatters
                         {
                             break;
                         }
-                        element.Comments.Add(new Comment(commentType, line.Substring(3)));
+                        element.AddComment(new Comment(commentType, line.Substring(3)));
                         break;
                     case var _ when line.StartsWith($"{MsgCtxtTag} "):
                         ParseProperty( ElementParseState.MsgContext );
@@ -156,7 +156,7 @@ namespace nresx.Core.Formatters
                             element.Value = value;
                             break;
                         case ElementParseState.MsgStrPlural:
-                            element.ValuePlurals[pluralIndex] = value;
+                            element.SetPlural( pluralIndex, value );
                             break;
                     }
                     propLines.Clear();
@@ -224,7 +224,7 @@ namespace nresx.Core.Formatters
                     if ( string.IsNullOrWhiteSpace( el.Key ) && !result.Any() )
                     {
                         headers = ParseHeaders( el.Value );
-                        comments = el.Comments;
+                        comments = el.Comments.ToList();
                     }
                     else
                     {

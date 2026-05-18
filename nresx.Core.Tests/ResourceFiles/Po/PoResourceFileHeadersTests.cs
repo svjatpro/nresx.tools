@@ -49,7 +49,7 @@ public class PoResourceFileHeadersTests : TestBase
 
         const string header2 = "Header2";
         const string value2 = "the second header";
-        res.Headers.Add( header2, value2 );
+        res.SetHeader( header2, value2 );
 
         var targetPath = GetOutputPath( TestData.UniqueKey(), ResourceFormatType.Po );
         res.Save( targetPath );

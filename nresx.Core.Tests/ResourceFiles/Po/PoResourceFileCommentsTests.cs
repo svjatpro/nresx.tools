@@ -39,7 +39,7 @@ public class PoResourceFileCommentsTests : TestBase
 
         var source = new ResourceFile( format );
         source.Elements.Add( key1, value1, comment1 );
-        source.Elements[key1]!.Comments.Add( new Comment( CommentType.Translator, comment2 ) );
+        source.Elements[key1]!.AddComment( new Comment( CommentType.Translator, comment2 ) );
         var targetPath = GetOutputPath( TestData.UniqueKey(), format );
         source.Save( targetPath );
 
@@ -70,7 +70,7 @@ public class PoResourceFileCommentsTests : TestBase
         source.Elements.Add( key1, "value" );
         foreach ( var (type, value) in comments )
         {
-            source.Elements[key1]!.Comments.Add( new Comment( type, value ) );
+            source.Elements[key1]!.AddComment( new Comment( type, value ) );
         }
         var targetPath = GetOutputPath( TestData.UniqueKey(), format );
         source.Save( targetPath );
@@ -105,7 +105,7 @@ public class PoResourceFileCommentsTests : TestBase
         var source = new ResourceFile(format);
         foreach (var (type, value) in comments)
         {
-            source.Comments.Add(new Comment(type, value));
+            source.AddComment(new Comment(type, value));
         }
         var targetPath = GetOutputPath(TestData.UniqueKey(), format);
         source.Save(targetPath);
