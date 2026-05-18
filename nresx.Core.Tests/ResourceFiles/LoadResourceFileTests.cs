@@ -77,7 +77,7 @@ namespace nresx.Core.Tests.ResourceFiles
             ValidateElements( res );
         }
 
-        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormats ) )]
+        [TestCaseSource( typeof( TestData ), nameof( TestData.ResourceFormatsMangleable ) )]
         public void LoadRawElements( ResourceFormatType format )
         {
             var source = new ResourceFile( GetTestPath( TestData.ExampleResourceFile, format ) );

@@ -15,7 +15,7 @@ namespace nresx.CommandLine.Tests.Validate
         {
             var res = GetExampleResourceFile();
             commandLine
-                .WithOptions( opt => opt.SkipFilesWithoutKey = true )
+                .WithOptions( opt => { opt.SkipFilesWithoutKey = true; opt.RequireMangleable = true; } )
                 .BeforeRun( args =>
                 {
                     TestHelper.ReplaceKey( args.TemporaryFiles[0], res.Elements[1].Value, "" );

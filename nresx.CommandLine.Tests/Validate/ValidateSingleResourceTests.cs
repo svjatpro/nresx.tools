@@ -30,7 +30,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateEmptyKeyElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true, RequireMangleable = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[1].Key, "" );
@@ -45,7 +45,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateDuplicatedElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true, RequireMangleable = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[2].Key, res.Elements[1].Key );
@@ -59,7 +59,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidatePossibleDuplicatedElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true, RequireMangleable = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[2].Key, $"{res.Elements[1].Key}.Text" );
@@ -82,7 +82,7 @@ namespace nresx.CommandLine.Tests.Validate
         public void ExitCode_DuplicateKey_IsNonZero( string commandLine )
         {
             // Duplicate is classified as Error → non-zero exit
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true } );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true, RequireMangleable = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[2].Key, res.Elements[1].Key );
