@@ -60,6 +60,9 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( ResourceFormatType.Csv );
                 yield return new TestCaseData( ResourceFormatType.Tsv );
                 yield return new TestCaseData( ResourceFormatType.Arb );
+                // Xlsx intentionally NOT in this generic pool: text-level TestHelper.ReplaceKey
+                // corrupts binary XLSX (zip + XML), breaking parametric load/mangle tests.
+                // Same workaround pattern as Xlf/Xliff. Dedicated coverage in XlsxResourceFileTests.
             }
         }
 
@@ -83,6 +86,8 @@ namespace nresx.Core.Tests
                 yield return new TestCaseData( "Resources.csv" );
                 yield return new TestCaseData( "Resources.tsv" );
                 yield return new TestCaseData( "Resources.arb" );
+                // Resources.xlsx intentionally excluded: text-mangling breaks the binary zip.
+                // Dedicated coverage in XlsxResourceFileTests.
             }
         }
 

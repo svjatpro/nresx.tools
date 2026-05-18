@@ -70,6 +70,7 @@ namespace nresx.CommandLine.Tests.Validate
         }
 
         [TestCase( @"validate [TmpFile.resx]" )]
+        [TestCase( @"validate [TmpFile.xlsx]" )]
         public void ExitCode_CleanFile_IsZero( string commandLine )
         {
             var args = TestHelper.RunCommandLine( commandLine );

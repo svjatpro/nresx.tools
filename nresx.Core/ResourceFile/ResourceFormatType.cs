@@ -48,5 +48,8 @@
 
         /// <summary>Flutter Application Resource Bundle <c>.arb</c> (JSON with optional <c>@key</c> metadata).</summary>
         Arb = 0x10,
+
+        /// <summary>Microsoft Excel <c>.xlsx</c> (translator-friendly exchange, key/value/comment columns).</summary>
+        Xlsx = 0x11,
     }
 }

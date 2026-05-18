@@ -11,6 +11,7 @@ namespace nresx.CommandLine.Tests.Info
     {
         [TestCase( @"[TmpFile]" )]
         [TestCase( @"info -s [TmpFile.yaml]" )]
+        [TestCase( @"info -s [TmpFile.xlsx]" )]
         [TestCase( @"info --source [TmpFile]" )]
         public void GetSingleFileInfo( string commandLine )
         {

@@ -52,6 +52,7 @@ namespace nresx.CommandLine.Tests.Convert
         [TestCase( @"convert [TmpFile.resx] -d *.yaml" )]
         [TestCase( @"convert -s [TmpFile.resx] -d *.yaml" )]
         [TestCase( @"convert --source [TmpFile.resx] --destination *.yaml" )]
+        [TestCase( @"convert [TmpFile.xlsx] -f yaml" )]
         public void DetectDestinationNameBySource( string commandLine )
         {
             commandLine
