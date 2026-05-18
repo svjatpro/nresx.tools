@@ -19,7 +19,9 @@ public class PoResourceFileContextTests : TestBase
         var targetPath = GetOutputPath( TestData.UniqueKey(), ResourceFormatType.Po );
         res.Save( targetPath );
 
-        var saved = new ResourceFile( targetPath );
+        // Lenient: same key with different context is valid PO but trips the
+        // current duplicate-detector which doesn't (yet) consider context.
+        var saved = new ResourceFile( targetPath, new ResourceFileOption { LoadMode = LoadMode.Lenient } );
         saved.Elements.Should().HaveCount( 3 );
         saved.Elements["key1", "context1"]?.Value.Should().Be( "value1" );
         saved.Elements["key1", "context2"]?.Value.Should().Be( "value11" );

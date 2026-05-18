@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using nresx.Core.Exceptions;
+using nresx.Core.Extensions;
 using nresx.Core.Formatters;
 
 namespace nresx.Core;
@@ -61,6 +62,7 @@ public class ResourceFile
     private readonly IFileFormatter SourceFormatter;
     private readonly Dictionary<string, string> _headers = new();
     private readonly List<Comment> _comments = new();
+    private readonly List<ResourceElementError> _validationErrors = new();
 
     #endregion
 
@@ -179,6 +181,36 @@ public class ResourceFile
     /// <summary>Removes all file-level comments.</summary>
     public void ClearComments() => _comments.Clear();
 
+    /// <summary>
+    /// Validation findings produced during load (in <see cref="LoadMode.Strict"/> or <see cref="LoadMode.Lenient"/> mode)
+    /// or by the most recent call to <see cref="Validate"/>. Always empty in <see cref="LoadMode.Raw"/>.
+    /// </summary>
+    public IReadOnlyList<ResourceElementError> ValidationErrors => _validationErrors;
+
+    /// <summary>Re-runs validation against the current state and refreshes <see cref="ValidationErrors"/>. Does not throw.</summary>
+    public IReadOnlyList<ResourceElementError> Validate()
+    {
+        _validationErrors.Clear();
+        this.Elements.ValidateElements( out var errors );
+        _validationErrors.AddRange( errors );
+        return _validationErrors;
+    }
+
+    // Called from the load ctors after the formatter has populated Elements/Headers/Comments.
+    // Strict: throw on any Error-severity finding; Lenient: collect; Raw: skip.
+    private void RunPostLoadValidation( LoadMode mode )
+    {
+        if ( mode == LoadMode.Raw ) return;
+
+        this.Elements.ValidateElements( out var errors );
+        _validationErrors.AddRange( errors );
+
+        if ( mode == LoadMode.Strict && _validationErrors.Any( e => e.ErrorType.GetSeverity() == ResourceElementErrorSeverity.Error ) )
+        {
+            throw new ValidationException( _validationErrors.ToList() );
+        }
+    }
+
     #region Static members
 
     /// <summary>
@@ -281,6 +313,8 @@ public class ResourceFile
 
             _comments.AddRange( comments );
         }
+
+        RunPostLoadValidation( options?.LoadMode ?? LoadMode.Strict );
     }
 
     /// <summary>
@@ -321,6 +355,8 @@ public class ResourceFile
         {
             Elements = new ResourceElements( elements );
         }
+
+        RunPostLoadValidation( options?.LoadMode ?? LoadMode.Strict );
     }
 
     // Private constructor used by LoadAsync(string path):
@@ -352,6 +388,8 @@ public class ResourceFile
             }
             _comments.AddRange( comments );
         }
+
+        RunPostLoadValidation( options?.LoadMode ?? LoadMode.Strict );
     }
 
     /// <summary>Creates a new, empty resource file with no specific format set.</summary>

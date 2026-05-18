@@ -20,7 +20,8 @@ namespace nresx.Core.Tests.ResourceFiles.Xliff
 
             TestHelper.ReplaceKey( dstPath, "Entry2", "" );
 
-            var res = new ResourceFile( dstPath );
+            // Lenient: this test deliberately loads a corrupted file with an empty key
+            var res = new ResourceFile( dstPath, new ResourceFileOption { LoadMode = LoadMode.Lenient } );
             var emptyKeyElement = res.Elements.SingleOrDefault( e => string.IsNullOrEmpty( e.Key ) );
 
             emptyKeyElement.Should().NotBeNull( "ReplaceKey('Entry2', '') should produce a trans-unit with empty id" );
@@ -36,7 +37,8 @@ namespace nresx.Core.Tests.ResourceFiles.Xliff
 
             TestHelper.ReplaceKey( dstPath, "Entry3", "Entry2" );
 
-            var res = new ResourceFile( dstPath );
+            // Lenient: this test deliberately loads a corrupted file with duplicate keys
+            var res = new ResourceFile( dstPath, new ResourceFileOption { LoadMode = LoadMode.Lenient } );
             var entry2s = res.Elements.Where( e => e.Key == "Entry2" ).ToList();
 
             entry2s.Should().HaveCount( 2, "after replacement, two trans-units have id='Entry2'" );
@@ -75,8 +77,8 @@ namespace nresx.Core.Tests.ResourceFiles.Xliff
             // step 2: mangle: replace key "Entry2" with empty
             TestHelper.ReplaceKey( dstPath, "Entry2", "" );
 
-            // step 3: load and verify the empty-key element exists
-            var loaded = new ResourceFile( dstPath );
+            // step 3: load and verify the empty-key element exists (Lenient — file deliberately mangled)
+            var loaded = new ResourceFile( dstPath, new ResourceFileOption { LoadMode = LoadMode.Lenient } );
             var emptyKeyElement = loaded.Elements.SingleOrDefault( e => string.IsNullOrEmpty( e.Key ) );
 
             emptyKeyElement.Should().NotBeNull();

@@ -1,12 +1,29 @@
 ﻿namespace nresx.Core
 {
     /// <summary>
-    /// Base type for format-specific options. Empty by design — pass a derived type
-    /// (e.g. <see cref="ResourceFileOptionJson"/>) to a <see cref="ResourceFile"/> constructor or save method
-    /// when you need to tune that format's behavior.
+    /// Controls how a <see cref="ResourceFile"/> reacts to per-element parse anomalies and post-load validation findings.
+    /// Structural parse errors (malformed file) always throw regardless of mode.
+    /// </summary>
+    public enum LoadMode
+    {
+        /// <summary>Default. Validation runs after load; if any Error-severity findings are present, throws <see cref="Exceptions.ValidationException"/>.</summary>
+        Strict,
+
+        /// <summary>Validation runs after load; findings are collected on <see cref="ResourceFile.ValidationErrors"/> without throwing.</summary>
+        Lenient,
+
+        /// <summary>Skip validation entirely. <see cref="ResourceFile.ValidationErrors"/> stays empty. Closest to a bulk dump.</summary>
+        Raw,
+    }
+
+    /// <summary>
+    /// Base type for format-specific options. Carries the shared <see cref="LoadMode"/> knob;
+    /// derived types add format-specific settings (see <see cref="ResourceFileOptionJson"/>, <see cref="ResourceFileOptionPo"/>, …).
     /// </summary>
     public class ResourceFileOption
     {
+        /// <summary>How the file's loader should treat validation findings. Defaults to <see cref="LoadMode.Strict"/>.</summary>
+        public LoadMode LoadMode { get; set; } = LoadMode.Strict;
     }
 
     /// <summary>JSON-specific load/save options (RSX-120).</summary>
