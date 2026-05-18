@@ -1,7 +1,7 @@
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
-using nresx.Tools;
+using nresx.Core;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Remove

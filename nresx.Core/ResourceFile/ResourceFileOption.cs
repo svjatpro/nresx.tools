@@ -1,6 +1,4 @@
-#nullable enable
-
-namespace nresx.Tools
+﻿namespace nresx.Core
 {
     /// <summary>
     /// Base type for format-specific options. Empty by design — pass a derived type

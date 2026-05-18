@@ -1,13 +1,11 @@
-#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // Flutter ARB (Application Resource Bundle) — JSON-based localization format.
     //

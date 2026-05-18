@@ -1,13 +1,11 @@
-#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // iOS / macOS `.strings` format:
     //   /* Comment for next entry */

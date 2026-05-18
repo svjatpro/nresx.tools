@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace nresx.Tools.Exceptions
+namespace nresx.Core.Exceptions
 {
     /// <summary>
     /// Base type for exceptions raised by the nresx library.

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
-using nresx.Tools;
-using nresx.Tools.Helpers;
+using nresx.Core;
+using nresx.Core.Helpers;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Info

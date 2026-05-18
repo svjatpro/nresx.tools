@@ -1,6 +1,6 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using nresx.Core.Tests;
-using nresx.Tools;
+using nresx.Core;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Version

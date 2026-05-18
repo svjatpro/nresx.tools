@@ -1,13 +1,11 @@
-#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // Android resources XML — typically named strings.xml under res/values[-<locale>]/.
     //   <resources>

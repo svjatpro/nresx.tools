@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace nresx.Tools.Extensions
+namespace nresx.Core.Extensions
 {
     public static class PathExtensions
     {

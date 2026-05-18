@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace nresx.Tools
+namespace nresx.Core
 {
     public class ResourceManager
     {

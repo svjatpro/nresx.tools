@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using nresx.Tools;
-using nresx.Tools.Helpers;
+using nresx.Core;
+using nresx.Core.Helpers;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles

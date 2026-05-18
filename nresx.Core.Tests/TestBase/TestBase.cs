@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using FluentAssertions;
-using nresx.Tools;
+using nresx.Core;
 
 namespace nresx.Core.Tests
 {

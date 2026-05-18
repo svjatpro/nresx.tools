@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using nresx.Tools;
-using nresx.Tools.Helpers;
+using nresx.Core;
+using nresx.Core.Helpers;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.Helpers

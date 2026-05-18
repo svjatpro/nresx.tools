@@ -1,7 +1,7 @@
-using System.IO;
+﻿using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
-using nresx.Tools;
+using nresx.Core;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Validate

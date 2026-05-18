@@ -1,11 +1,9 @@
-#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // INI format — old, simple, somewhat ambiguous (no formal spec).
     //

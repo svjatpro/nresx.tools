@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     internal interface IFileFormatter
     {

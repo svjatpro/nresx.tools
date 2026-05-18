@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Helpers;
-using nresx.Tools;
-using nresx.Tools.Exceptions;
-using nresx.Tools.Extensions;
-using nresx.Tools.Helpers;
+using nresx.Core;
+using nresx.Core.Exceptions;
+using nresx.Core.Extensions;
+using nresx.Core.Helpers;
 
 namespace nresx.CommandLine.Commands
 {

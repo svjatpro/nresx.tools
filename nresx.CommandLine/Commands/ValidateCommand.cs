@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
-using nresx.Tools;
-using nresx.Tools.Extensions;
+using nresx.Core;
+using nresx.Core.Extensions;
 
 namespace nresx.CommandLine.Commands
 {

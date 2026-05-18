@@ -1,7 +1,7 @@
 ﻿using System;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
 namespace nresx.CommandLine.Commands
 {

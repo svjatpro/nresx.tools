@@ -1,7 +1,7 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using nresx.Core.Tests;
-using nresx.Tools;
-using nresx.Tools.Extensions;
+using nresx.Core;
+using nresx.Core.Extensions;
 using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.Add

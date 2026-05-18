@@ -1,4 +1,4 @@
-namespace nresx.Tools.Exceptions
+﻿namespace nresx.Core.Exceptions
 {
     /// <summary>
     /// Raised when nresx is asked to operate on a format it doesn't recognize —

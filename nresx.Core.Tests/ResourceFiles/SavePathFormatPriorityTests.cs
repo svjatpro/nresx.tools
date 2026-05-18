@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
-using nresx.Tools;
-using nresx.Tools.Exceptions;
+using nresx.Core;
+using nresx.Core.Exceptions;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.Extensions

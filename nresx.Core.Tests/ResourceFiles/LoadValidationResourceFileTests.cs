@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using FluentAssertions;
-using nresx.Tools;
+using nresx.Core;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles

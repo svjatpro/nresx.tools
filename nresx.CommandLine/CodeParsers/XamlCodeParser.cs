@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using nresx.Tools.Extensions;
+using nresx.Core;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.CodeParsers
+namespace nresx.CommandLine.CodeParsers
 {
     public class XamlCodeParser : CodeParserBase
     {
@@ -107,12 +108,12 @@ namespace nresx.Tools.CodeParsers
                 if ( !GetValue( match, out var value ) ) continue;
                 var key = GenerateElementName( line, elementPath, match, ref matchIndex );
                 var newKey = processExtractedElement( key, value );
-                
+
                 // add matches part to result line
                 if ( prevIndex < match.Index )
                     replacedLine.Append( line.Substring( prevIndex, match.Index - prevIndex ) );
 
-                if ( newKey != null ) 
+                if ( newKey != null )
                     replacedLine.Append( GetStringPlaceholder( newKey ) );
                 else
                     replacedLine.Append( line.Substring( match.Index, match.Length ) );

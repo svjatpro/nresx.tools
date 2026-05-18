@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nresx.Tools
+namespace nresx.Core
 {
     /// <summary>
     /// Ordered, mutable collection of <see cref="ResourceElement"/>. Indexable by position,

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.Extensions

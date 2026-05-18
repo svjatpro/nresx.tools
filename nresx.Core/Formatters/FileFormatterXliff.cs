@@ -1,12 +1,10 @@
-#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // XLIFF 1.2 — OASIS standard, widely supported by TMS platforms (Crowdin, Lokalise, Phrase).
     // XLIFF 2.0 exists but TMS adoption lags; revisit if requested.

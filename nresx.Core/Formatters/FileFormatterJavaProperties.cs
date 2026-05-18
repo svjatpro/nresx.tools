@@ -1,11 +1,9 @@
-#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // Java `.properties` file (ISO-8859-1 in classic Java; UTF-8 in modern Spring/Java 9+).
     // We treat the file as UTF-8 (most modern tooling does).

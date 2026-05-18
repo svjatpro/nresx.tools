@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     /// <summary>
     /// Plain test resource file in simple "key: value" format

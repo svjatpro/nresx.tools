@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using nresx.Tools;
+using nresx.Core;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests

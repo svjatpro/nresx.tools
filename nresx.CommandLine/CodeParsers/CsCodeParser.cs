@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.CodeParsers
+namespace nresx.CommandLine.CodeParsers
 {
     public class CsCodeParser : CodeParserBase
     {
@@ -83,7 +83,7 @@ namespace nresx.Tools.CodeParsers
             return $"GetStringLocale(\"{key}\")";
         }
 
-        public override void ProcessNextLine( 
+        public override void ProcessNextLine(
             string line, string elementPath,
             Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine )
@@ -120,7 +120,7 @@ namespace nresx.Tools.CodeParsers
                     replacedLine.Append( line.Substring( match.Index, match.Length ) );
                 prevIndex = match.Index + match.Length;
             }
-            
+
             if( prevIndex < line.Length )
                 replacedLine.Append( line.Substring( prevIndex ) );
             writeProcessedLine( replacedLine.ToString() );

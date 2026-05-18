@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using nresx.Core;
 
-namespace nresx.Tools.CodeParsers
+namespace nresx.CommandLine.CodeParsers
 {
     public abstract class CodeParserBase : ICodeParser
     {
@@ -33,7 +34,7 @@ namespace nresx.Tools.CodeParsers
         #endregion
 
         public abstract void ProcessNextLine( string line, string elementPath,
-            Func<string, string, string> processExtractedElement, 
+            Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine );
 
         public virtual string IncrementKey( string key, List<ResourceElement> elements )

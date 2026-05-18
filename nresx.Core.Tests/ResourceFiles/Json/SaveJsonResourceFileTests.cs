@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
-using nresx.Tools;
-using nresx.Tools.Formatters;
+using nresx.Core;
+using nresx.Core.Formatters;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles.Json

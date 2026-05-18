@@ -1,6 +1,6 @@
 ﻿using System;
 using CommandLine;
-using nresx.Tools;
+using nresx.Core;
 
 namespace nresx.CommandLine.Commands
 {

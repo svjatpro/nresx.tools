@@ -1,19 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using nresx.Tools.CodeParsers;
+using nresx.CommandLine.CodeParsers;
+using nresx.Core.Tests;
 using NUnit.Framework;
 
-namespace nresx.Core.Tests.CodeParsers
+namespace nresx.CommandLine.Tests.CodeParsers
 {
     [TestFixture]
     public class XamlCodeParserTests : TestBase
     {
-        [TestCase( @"         <TextBlock Grid.Row=""0"" x:Name=""SampleTitle"" Text=""The title"" TextWrapping=""Wrap"" Margin=""0, 10, 0, 0"" FontSize=""28""/>", 
+        [TestCase( @"         <TextBlock Grid.Row=""0"" x:Name=""SampleTitle"" Text=""The title"" TextWrapping=""Wrap"" Margin=""0, 10, 0, 0"" FontSize=""28""/>",
             "TheFile", "TheFile_SampleTitle.Text", "The title",
             @"         <TextBlock Grid.Row=""0"" x:Name=""SampleTitle"" x:Uid=""TheFile_SampleTitle"" TextWrapping=""Wrap"" Margin=""0, 10, 0, 0"" FontSize=""28""/>" )]
-        [TestCase( @"         <TextBlock Grid.Row=""0"" Name=""SampleTitle"" Content=""The content"" TextWrapping=""Wrap"" Margin=""0, 10, 0, 0"" FontSize=""28""/>", 
+        [TestCase( @"         <TextBlock Grid.Row=""0"" Name=""SampleTitle"" Content=""The content"" TextWrapping=""Wrap"" Margin=""0, 10, 0, 0"" FontSize=""28""/>",
             "TheFile", "TheFile_SampleTitle.Content", "The content",
             @"         <TextBlock Grid.Row=""0"" Name=""SampleTitle"" x:Uid=""TheFile_SampleTitle"" TextWrapping=""Wrap"" Margin=""0, 10, 0, 0"" FontSize=""28""/>" )]
 
@@ -25,7 +26,7 @@ namespace nresx.Core.Tests.CodeParsers
             string processedLine = null;
             var result = new Dictionary<string, string>();
 
-            new XamlCodeParser().ProcessNextLine( 
+            new XamlCodeParser().ProcessNextLine(
                 line, elPath,
                 ( k, v ) =>
                 {

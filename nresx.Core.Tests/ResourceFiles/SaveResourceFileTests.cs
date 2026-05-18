@@ -1,7 +1,7 @@
-﻿using nresx.Tools.Helpers;
+﻿using nresx.Core.Helpers;
 using NUnit.Framework;
 using System.IO;
-using nresx.Tools;
+using nresx.Core;
 
 namespace nresx.Core.Tests.ResourceFiles
 {

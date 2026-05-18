@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using nresx.Core;
 
-namespace nresx.Tools.CodeParsers
+namespace nresx.CommandLine.CodeParsers
 {
     public interface ICodeParser
     {
-        void ProcessNextLine( 
+        void ProcessNextLine(
             string line, string elementPath,
             Func<string, string, string> processExtractedElement,
             Action<string> writeProcessedLine );

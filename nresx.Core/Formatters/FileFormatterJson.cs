@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     public enum JsonElementType
     {
@@ -15,7 +15,7 @@ namespace nresx.Tools.Formatters
         KeyObject,
         Object
     }
-    public class ResourceElementJson : ResourceElement
+    internal class ResourceElementJson : ResourceElement
     {
         public string Path { get; set; }
         public string KeyPropertyName { get; set; }

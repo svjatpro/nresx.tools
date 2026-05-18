@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using nresx.Tools.Exceptions;
-using nresx.Tools.Formatters;
+using nresx.Core.Exceptions;
+using nresx.Core.Formatters;
 
-namespace nresx.Tools;
+namespace nresx.Core;
 
 /// <summary>
 /// Classification of a comment line associated with a resource element or
@@ -59,7 +59,6 @@ public class ResourceFile
     #region Private fields
 
     private readonly IFileFormatter SourceFormatter;
-    private ResourceFileOption ResourceOptions;
 
     #endregion
 
@@ -112,9 +111,6 @@ public class ResourceFile
 
     /// <summary>True when this instance was constructed in-memory (not loaded from disk).</summary>
     public bool IsNewFile { get; }
-
-    /// <summary>Currently always false. Reserved.</summary>
-    public bool HasChanges { get; } = false;
 
     /// <summary>Bare file name of the source file (when loaded from disk); empty otherwise.</summary>
     public string FileName { get; }
@@ -194,7 +190,6 @@ public class ResourceFile
         {
             FileFormat = descriptor!.Type;
             SourceFormatter = descriptor.CreateFormatter( options );
-            ResourceOptions = options;
         }
         else
         {
@@ -247,13 +242,11 @@ public class ResourceFile
         {
             FileFormat = resourceFormat;
             SourceFormatter = byType!.CreateFormatter( options );
-            ResourceOptions = options;
         }
         else if ( FormatRegistry.TryGetByStream( stream, out var byStream ) )
         {
             FileFormat = byStream!.Type;
             SourceFormatter = byStream.CreateFormatter( options );
-            ResourceOptions = options;
         }
         else
         {
@@ -285,7 +278,6 @@ public class ResourceFile
 
         FileFormat = descriptor!.Type;
         SourceFormatter = descriptor.CreateFormatter( options );
-        ResourceOptions = options;
 
         Culture = GetCultureByName( path );
 
@@ -313,14 +305,12 @@ public class ResourceFile
         IsNewFile = true;
         FileFormat = ResourceFormatType.NA;
         Elements = new ResourceElements();
-        ResourceOptions = options;
     }
 
     /// <summary>Creates a new, empty resource file of the given format.</summary>
     public ResourceFile( ResourceFormatType fileFormat, ResourceFileOption? options = null )
     {
         IsNewFile = true;
-        ResourceOptions = options;
 
         FileFormat = fileFormat;
         if ( FormatRegistry.TryGetByType( fileFormat, out var descriptor ) )

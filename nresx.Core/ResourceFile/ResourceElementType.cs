@@ -1,4 +1,4 @@
-﻿namespace nresx.Tools
+﻿namespace nresx.Core
 {
     /// <summary>Kind of value a <see cref="ResourceElement"/> carries. Currently only string is modeled.</summary>
     public enum ResourceElementType

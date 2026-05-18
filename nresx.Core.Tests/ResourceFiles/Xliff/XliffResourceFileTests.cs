@@ -1,9 +1,9 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using FluentAssertions;
-using nresx.Tools;
+using nresx.Core;
 using NUnit.Framework;
 
 namespace nresx.Core.Tests.ResourceFiles.Xliff

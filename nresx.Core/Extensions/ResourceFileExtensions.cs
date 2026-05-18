@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nresx.Tools.Extensions
+namespace nresx.Core.Extensions
 {
     public static class ResourceFileExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace nresx.Tools
+﻿namespace nresx.Core
 {
     /// <summary>
     /// Identifies a supported resource file format. Each value corresponds to a registered

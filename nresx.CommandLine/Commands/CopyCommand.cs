@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
-using nresx.Tools;
-using nresx.Tools.Extensions;
+using nresx.Core;
+using nresx.Core.Extensions;
 
 namespace nresx.CommandLine.Commands
 {

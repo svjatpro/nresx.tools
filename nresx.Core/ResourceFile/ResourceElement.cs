@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace nresx.Tools
+namespace nresx.Core
 {
     /// <summary>
     /// A single resource entry: key, value, optional context, optional plural variants, optional comments.

@@ -1,6 +1,6 @@
-using nresx.Tools.Formatters;
+﻿using nresx.Core.Formatters;
 
-namespace nresx.Tools.Helpers
+namespace nresx.Core.Helpers
 {
     public class ResourceFormatHelper
     {

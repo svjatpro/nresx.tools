@@ -1,4 +1,4 @@
-namespace nresx.Tools
+﻿namespace nresx.Core
 {
     /// <summary>
     /// Well-known header keys used inside <see cref="ResourceFile.Headers"/>.

@@ -1,4 +1,4 @@
-namespace nresx.Tools.Exceptions
+﻿namespace nresx.Core.Exceptions
 {
     /// <summary>
     /// Raised when a caller-supplied path and an explicit <see cref="ResourceFormatType"/>

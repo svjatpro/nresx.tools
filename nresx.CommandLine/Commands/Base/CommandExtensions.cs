@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
 namespace nresx.CommandLine.Commands.Base
 {

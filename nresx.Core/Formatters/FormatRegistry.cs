@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     // Describes a single resource format: its enum type, file extension,
     // and a factory that builds a formatter instance honoring caller-supplied options.

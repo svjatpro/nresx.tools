@@ -1,15 +1,13 @@
-#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters;
+namespace nresx.Core.Formatters;
 
 // YAML formatter — supports `key: value` and block-scalar values (`|`, `>`).
 // Comments: `# ...` lines immediately preceding an entry (blank-line-bounded)

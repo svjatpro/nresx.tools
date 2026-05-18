@@ -1,6 +1,6 @@
-﻿using nresx.Tools;
-using nresx.Tools.Extensions;
-using nresx.Tools.Helpers;
+﻿using nresx.Core;
+using nresx.Core.Extensions;
+using nresx.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

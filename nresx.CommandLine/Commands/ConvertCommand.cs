@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
-using nresx.Tools;
-using nresx.Tools.Extensions;
-using nresx.Tools.Helpers;
+using nresx.Core;
+using nresx.Core.Extensions;
+using nresx.Core.Helpers;
 
 namespace nresx.CommandLine.Commands
 {

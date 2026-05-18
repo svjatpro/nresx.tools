@@ -1,11 +1,11 @@
-﻿using nresx.Tools.Extensions;
+﻿using nresx.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     internal class FileFormatterPo( ResourceFileOption? options = null ) : IFileFormatter
     {

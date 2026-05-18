@@ -2,9 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using nresx.Tools.Extensions;
+using nresx.Core.Extensions;
 
-namespace nresx.Tools.Formatters
+namespace nresx.Core.Formatters
 {
     internal class FileFormatterResx : IFileFormatter
     {
