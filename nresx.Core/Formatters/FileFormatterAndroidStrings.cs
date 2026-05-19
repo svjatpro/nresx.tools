@@ -7,7 +7,7 @@ using nresx.Core.Extensions;
 
 namespace nresx.Core.Formatters
 {
-    // Android resources XML — typically named strings.xml under res/values[-<locale>]/.
+    // Android resources XML - typically named strings.xml under res/values[-<locale>]/.
     //   <resources>
     //     <string name="key">value</string>
     //     <!-- comment for next string -->
@@ -15,7 +15,7 @@ namespace nresx.Core.Formatters
     //   </resources>
     //
     // Scope (MVP): <string> elements only. <string-array> and <plurals> are
-    // deferred — they don't fit single-value ResourceElement cleanly.
+    // deferred - they don't fit single-value ResourceElement cleanly.
     internal class FileFormatterAndroidStrings : IFileFormatter
     {
         public bool LoadResourceFile(

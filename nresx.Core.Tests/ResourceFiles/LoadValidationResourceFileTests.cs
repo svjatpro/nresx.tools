@@ -29,7 +29,7 @@ namespace nresx.Core.Tests.ResourceFiles
                 .BeEquivalentTo( GetExampleResourceFile().Elements.Select( el => (el.Value, el.Value) ) );
         }
 
-        // Builds a corrupt XLIFF on disk (duplicate key Entry2) — the canonical "broken file" fixture
+        // Builds a corrupt XLIFF on disk (duplicate key Entry2) - the canonical "broken file" fixture
         // for the three load-mode tests below.
         private string BuildCorruptXliff()
         {

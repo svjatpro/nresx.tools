@@ -9,7 +9,7 @@ using nresx.Core.Extensions;
 
 namespace nresx.Core.Formatters;
 
-// YAML formatter — supports `key: value` and block-scalar values (`|`, `>`).
+// YAML formatter - supports `key: value` and block-scalar values (`|`, `>`).
 // Comments: `# ...` lines immediately preceding an entry (blank-line-bounded)
 // attach as that entry's comment. Inline (`key: value # foo`) and trailing
 // comments are not preserved.
@@ -46,7 +46,7 @@ internal class FileFormatterYaml : IFileFormatter
         List<Comment> comments,
         ResourceFileOption? options = null )
     {
-        // leaveOpen: true — caller owns the stream
+        // leaveOpen: true - caller owns the stream
         using var writer = new StreamWriter( stream, new UTF8Encoding( false ), bufferSize: 1024, leaveOpen: true );
         var serializer = new SerializerBuilder().Build();
 
@@ -58,7 +58,7 @@ internal class FileFormatterYaml : IFileFormatter
                     writer.WriteLine( $"# {line.TrimEnd()}" );
             }
 
-            // serialize one key:value at a time — Serializer handles quoting,
+            // serialize one key:value at a time - Serializer handles quoting,
             // escaping, block-scalar selection for multi-line values
             var single = new Dictionary<string, string> { { el.Key ?? string.Empty, el.Value ?? string.Empty } };
             var serialized = serializer.Serialize( single ).TrimEnd();
@@ -100,7 +100,7 @@ internal class FileFormatterYaml : IFileFormatter
     }
 
     // Walks YAML events and extracts top-level (key, value, keyLineNumber) tuples.
-    // Skips nested mappings/sequences — they'd be a deeper structural change.
+    // Skips nested mappings/sequences - they'd be a deeper structural change.
     private static List<(string key, string value, int keyLine)> ExtractTopLevelPairs( string text )
     {
         var result = new List<(string, string, int)>();

@@ -154,7 +154,7 @@ public class ResourceFile
             }
             catch
             {
-                // ignore malformed culture names — header is still stored as authored
+                // ignore malformed culture names - header is still stored as authored
             }
         }
     }
@@ -214,7 +214,7 @@ public class ResourceFile
     #region Static members
 
     /// <summary>
-    /// Loads raw element rows from a file without deduping by key — duplicates are preserved
+    /// Loads raw element rows from a file without deduping by key - duplicates are preserved
     /// in document order. Use this when you need to inspect the file as authored, including
     /// duplicate or malformed entries.
     /// </summary>
@@ -689,7 +689,7 @@ public class ResourceFile
     #endregion
 
     // If `path` has an extension we recognize and it conflicts with `type`,
-    // refuse to silently overwrite — the caller has a typo somewhere.
+    // refuse to silently overwrite - the caller has a typo somewhere.
     // RSX-116 policy: extension + explicit format must agree when both are specified.
     private static void EnsurePathFormatConsistent( string path, ResourceFormatType type )
     {

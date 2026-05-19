@@ -18,7 +18,7 @@ namespace nresx.Core.Tests
         public bool SkipFilesWithoutComment { get; set; } = false;
         // When true, GetRandomType only picks formats whose files survive byte-level
         // ReplaceKey substitution. Required by any test that calls TestHelper.ReplaceKey
-        // on a temporary file with a random extension — otherwise xlsx (ZIP-of-XML) gets
+        // on a temporary file with a random extension - otherwise xlsx (ZIP-of-XML) gets
         // picked and its central directory ends up corrupted.
         public bool RequireMangleable { get; set; } = false;
 

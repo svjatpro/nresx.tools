@@ -6,7 +6,7 @@ using nresx.Core.Extensions;
 
 namespace nresx.Core.Formatters
 {
-    // XLIFF 1.2 — OASIS standard, widely supported by TMS platforms (Crowdin, Lokalise, Phrase).
+    // XLIFF 1.2 - OASIS standard, widely supported by TMS platforms (Crowdin, Lokalise, Phrase).
     // XLIFF 2.0 exists but TMS adoption lags; revisit if requested.
     //
     // Semantic note: XLIFF natively separates source and target. nresx's model is

@@ -77,7 +77,7 @@ namespace nresx.Core.Tests.ResourceFiles.Xliff
             // step 2: mangle: replace key "Entry2" with empty
             TestHelper.ReplaceKey( dstPath, "Entry2", "" );
 
-            // step 3: load and verify the empty-key element exists (Lenient — file deliberately mangled)
+            // step 3: load and verify the empty-key element exists (Lenient - file deliberately mangled)
             var loaded = new ResourceFile( dstPath, new ResourceFileOption { LoadMode = LoadMode.Lenient } );
             var emptyKeyElement = loaded.Elements.SingleOrDefault( e => string.IsNullOrEmpty( e.Key ) );
 

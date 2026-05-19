@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace nresx.Core.Tests.ResourceFiles
 {
     // RSX-116: when both the path extension and an explicit format type are
-    // provided to Save, they must agree. If they conflict, throw — don't
+    // provided to Save, they must agree. If they conflict, throw - don't
     // silently rewrite the extension (the old behavior).
     [TestFixture]
     public class SavePathFormatPriorityTests : TestBase

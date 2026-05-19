@@ -5,7 +5,7 @@ using nresx.Core.Extensions;
 
 namespace nresx.Core.Formatters
 {
-    // INI format — old, simple, somewhat ambiguous (no formal spec).
+    // INI format - old, simple, somewhat ambiguous (no formal spec).
     //
     // Supported:
     //   ; comment   or   # comment   (line-leading)
@@ -15,7 +15,7 @@ namespace nresx.Core.Formatters
     //
     // Section/key combine into the ResourceElement key as `section.key`.
     // Keys outside any section (the "global" section) are stored without prefix.
-    // Values may be quoted with `"..."` — we strip the quotes on load and re-add
+    // Values may be quoted with `"..."` - we strip the quotes on load and re-add
     // on save if the value contains characters that need quoting.
     internal class FileFormatterIni : IFileFormatter
     {

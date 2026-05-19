@@ -103,7 +103,7 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
-            // en is auto-picked as base (English preference) — only fr is flagged
+            // en is auto-picked as base (English preference) - only fr is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
                 $"{new FileInfo( files[1] ).FullName}: warning: NotTranslated: {resFr.Elements[1].Key}",
                 "Found 1 issue (0 errors, 1 warning)" );
@@ -123,7 +123,7 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
-            // en is auto-picked as base — only fr is flagged
+            // en is auto-picked as base - only fr is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
                 $"{new FileInfo( files[1] ).FullName}: warning: NotTranslated: {resFr.Elements[1].Key}",
                 "Found 1 issue (0 errors, 1 warning)" );
@@ -161,7 +161,7 @@ namespace nresx.CommandLine.Tests.Validate
 
             var args = TestHelper.RunCommandLine( commandLine, new CommandLineParameters { UniqueKeys = { key1 } } );
 
-            // fr is the explicit base — en is flagged
+            // fr is the explicit base - en is flagged
             args.ConsoleOutput.Should().BeEquivalentTo(
                 $"{new FileInfo( files[0] ).FullName}: warning: NotTranslated: {resEn.Elements[0].Key}",
                 "Found 1 issue (0 errors, 1 warning)" );

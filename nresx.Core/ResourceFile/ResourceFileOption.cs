@@ -59,7 +59,7 @@
         /// <summary>If true (default), writes the embedded XSD schema (~50 lines). Turn off for compact output; .NET <c>ResXResourceReader</c> still reads the file fine without it.</summary>
         public bool WriteEmbeddedSchema { get; set; } = true;
 
-        /// <summary>If true (default), writes the four standard <c>&lt;resheader&gt;</c> entries (resmimetype, version, reader, writer). Required for .NET <c>ResXResourceReader</c> compatibility — turn off only if writing a "bare" resx for a custom reader.</summary>
+        /// <summary>If true (default), writes the four standard <c>&lt;resheader&gt;</c> entries (resmimetype, version, reader, writer). Required for .NET <c>ResXResourceReader</c> compatibility - turn off only if writing a "bare" resx for a custom reader.</summary>
         public bool WriteStandardResHeaders { get; set; } = true;
     }
 }

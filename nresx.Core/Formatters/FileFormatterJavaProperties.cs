@@ -136,7 +136,7 @@ namespace nresx.Core.Formatters
         }
 
         // Properties separators: `=`, `:`, or run of whitespace. Spec also allows
-        // escaped separators inside the key — we honor that.
+        // escaped separators inside the key - we honor that.
         private static bool TrySplitKeyValue( string line, out string key, out string value )
         {
             int i = 0;

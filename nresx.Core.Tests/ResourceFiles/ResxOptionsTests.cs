@@ -72,7 +72,7 @@ namespace nresx.Core.Tests.ResourceFiles
         [Test]
         public void Save_FullyMinified_StillReadable()
         {
-            // Drop everything optional — file should still load back with same elements
+            // Drop everything optional - file should still load back with same elements
             var res = GetExampleResourceFile();
             var opts = new ResourceFileOptionResx
             {

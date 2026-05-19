@@ -33,7 +33,7 @@ namespace nresx.Core.Tests
         }
 
         // CanBeMangled = file survives TestHelper.ReplaceKey (byte-level text substitution).
-        // .xlsx is a ZIP archive containing OpenXML SpreadsheetML XML files — text-level
+        // .xlsx is a ZIP archive containing OpenXML SpreadsheetML XML files - text-level
         // substitution corrupts the ZIP central directory, so it's excluded from any pool
         // a mangling test draws from (see RequireMangleable below).
         //
@@ -80,7 +80,7 @@ namespace nresx.Core.Tests
 
         // Subset of ResourceFormats whose files tolerate TestHelper.ReplaceKey byte-level
         // text substitution. Use this for tests that mangle on-disk content (corrupt keys,
-        // simulate broken files). Xlsx is excluded — it's a ZIP container of XML and
+        // simulate broken files). Xlsx is excluded - it's a ZIP container of XML and
         // text-level substitution corrupts the central directory.
         public static IEnumerable ResourceFormatsMangleable
         {

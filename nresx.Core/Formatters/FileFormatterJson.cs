@@ -263,7 +263,7 @@ namespace nresx.Core.Formatters
             out Dictionary<string, string> headers,
             out List<Comment> comments )
         {
-            // leaveOpen: true — caller owns the stream
+            // leaveOpen: true - caller owns the stream
             using var sr = new StreamReader( stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true );
             using var reader = new JsonTextReader( sr );
 
@@ -339,7 +339,7 @@ namespace nresx.Core.Formatters
                 }
             }
 
-            // leaveOpen: true — caller owns the stream
+            // leaveOpen: true - caller owns the stream
             using var writer = new StreamWriter( stream, new UTF8Encoding( false ), bufferSize: 1024, leaveOpen: true );
             using var jsonTextWriter = new JsonTextWriter( writer ){ Formatting = Formatting.Indented };
             root.WriteTo( jsonTextWriter );

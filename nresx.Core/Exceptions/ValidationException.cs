@@ -6,8 +6,8 @@ namespace nresx.Core.Exceptions
 {
     /// <summary>
     /// Thrown by <see cref="ResourceFile"/> constructors in <see cref="LoadMode.Strict"/> when post-load validation finds
-    /// one or more Error-severity issues (duplicate keys, empty keys, etc.). The full list of findings — including
-    /// warnings that did not by themselves trigger the throw — is exposed via <see cref="Errors"/>.
+    /// one or more Error-severity issues (duplicate keys, empty keys, etc.). The full list of findings - including
+    /// warnings that did not by themselves trigger the throw - is exposed via <see cref="Errors"/>.
     /// </summary>
     public class ValidationException : NresxException
     {

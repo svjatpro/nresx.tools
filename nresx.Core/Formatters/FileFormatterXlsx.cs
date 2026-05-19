@@ -7,7 +7,7 @@ using nresx.Core.Extensions;
 namespace nresx.Core.Formatters
 {
     // XLSX translator-exchange format (RSX-138). One sheet, three columns: Key | Value | Comment.
-    // Column names are recognized case-insensitively. Header row is required — translator tools
+    // Column names are recognized case-insensitively. Header row is required - translator tools
     // always emit headers, and the binary format gives us no clean way to auto-detect their
     // absence. Use CSV/TSV (RSX-137) for headerless table exchange.
     //
@@ -46,7 +46,7 @@ namespace nresx.Core.Formatters
                 var value = ReadCell( dict, "Value" );
                 var comment = ReadCell( dict, "Comment" );
 
-                // Skip fully blank rows — translator tools sometimes pad sheets with empties.
+                // Skip fully blank rows - translator tools sometimes pad sheets with empties.
                 if ( string.IsNullOrEmpty( key ) && string.IsNullOrEmpty( value ) && string.IsNullOrEmpty( comment ) )
                     continue;
 

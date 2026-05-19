@@ -5,7 +5,7 @@ using nresx.Core.Extensions;
 
 namespace nresx.Core.Formatters
 {
-    // CSV / TSV — translator-friendly exchange format.
+    // CSV / TSV - translator-friendly exchange format.
     //
     // Columns: key, value, comment (in that order). First row is treated as a
     // header row when it matches the expected column names (case-insensitive);

@@ -66,7 +66,7 @@ namespace nresx.Core
         }
 
         /// <summary>
-        /// Appends a new string element. Duplicate keys are not checked here — pass through validation
+        /// Appends a new string element. Duplicate keys are not checked here - pass through validation
         /// (see <c>Validate</c> extension) to detect duplicates after loading.
         /// </summary>
         public void Add(

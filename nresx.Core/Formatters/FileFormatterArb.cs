@@ -7,7 +7,7 @@ using nresx.Core.Extensions;
 
 namespace nresx.Core.Formatters
 {
-    // Flutter ARB (Application Resource Bundle) — JSON-based localization format.
+    // Flutter ARB (Application Resource Bundle) - JSON-based localization format.
     //
     // Shape:
     //   {
@@ -20,7 +20,7 @@ namespace nresx.Core.Formatters
     // We round-trip strings only. The `@key` metadata description (if present)
     // is used as the element's Comment; other metadata fields
     // (placeholders, type, context) are not represented and are dropped on Save
-    // — same lossy roundtrip pattern as XLIFF. Documented in the epic file.
+    // - same lossy roundtrip pattern as XLIFF. Documented in the epic file.
     internal class FileFormatterArb : IFileFormatter
     {
         public bool LoadResourceFile(

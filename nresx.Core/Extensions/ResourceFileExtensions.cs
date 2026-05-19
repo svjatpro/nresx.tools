@@ -181,7 +181,7 @@ namespace nresx.Core.Extensions
 
         /// <summary>Element is present in the base file but missing from a translation file.</summary>
         MissedElement = 0x05,
-        /// <summary>Translation file's value equals the base file's value — the element wasn't translated.</summary>
+        /// <summary>Translation file's value equals the base file's value - the element wasn't translated.</summary>
         NotTranslated = 0x06,
     }
 

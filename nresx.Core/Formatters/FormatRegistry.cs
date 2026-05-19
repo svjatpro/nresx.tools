@@ -28,7 +28,7 @@ namespace nresx.Core.Formatters
     // Built-in formats register themselves at static initialization. New formats
     // (RSX-129 XLIFF onward) plug in by calling Register from the static ctor.
     //
-    // Today the registry is internal — public registration is gated on
+    // Today the registry is internal - public registration is gated on
     // making IFileFormatter public, which is a deliberate future decision.
     internal static class FormatRegistry
     {

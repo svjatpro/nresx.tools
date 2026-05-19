@@ -129,10 +129,10 @@ namespace nresx.CommandLine.Commands
 
         // Pick the base (source-language) file for a translation group:
         //   1. Explicit --basic-lan match (by full culture name or 2-letter ISO)
-        //   2. The neutral file (no culture in path) — typical .NET satellite layout
+        //   2. The neutral file (no culture in path) - typical .NET satellite layout
         //   3. The English file
         //   4. First alphabetical by culture name
-        //   5. None — single-file group or no cultures detected → no NotTranslated checks
+        //   5. None - single-file group or no cultures detected → no NotTranslated checks
         private static FileInfo PickBaseFile( List<GroupMember> files, string explicitBasicLang )
         {
             if ( files.Count < 2 ) return null;

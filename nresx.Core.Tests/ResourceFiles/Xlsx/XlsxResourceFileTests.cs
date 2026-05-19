@@ -32,7 +32,7 @@ namespace nresx.Core.Tests.ResourceFiles.Xlsx
 
             File.Exists( dstPath ).Should().BeTrue();
 
-            // Verify column shape directly via MiniExcel — independent of our loader
+            // Verify column shape directly via MiniExcel - independent of our loader
             var rows = MiniExcel.Query( dstPath, useHeaderRow: true ).Cast<object>().ToList();
             rows.Should().HaveCount( 2 );
             var firstRow = (System.Collections.Generic.IDictionary<string, object?>) rows[0];

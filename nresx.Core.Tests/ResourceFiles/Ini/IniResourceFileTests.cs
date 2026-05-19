@@ -58,7 +58,7 @@ namespace nresx.Core.Tests.ResourceFiles.Ini
         public void Save_WritesFlatKeysAndComments()
         {
             // Sections are honored on load (for reading existing files) but Save
-            // emits flat `key=value` to keep round-trip clean — see formatter comment.
+            // emits flat `key=value` to keep round-trip clean - see formatter comment.
             var res = new ResourceFile( ResourceFormatType.Ini );
             res.Elements.Add( "App.title", "MyApp", comment: "shown in title bar" );
             res.Elements.Add( "App.version", "1.0" );

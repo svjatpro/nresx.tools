@@ -16,7 +16,7 @@ namespace nresx.Core.Formatters
     // Escape sequences inside quoted strings: \" \\ \n \t \r \0 \uXXXX
     internal class FileFormatterIosStrings : IFileFormatter
     {
-        // "key" = "value";   — values and keys are double-quoted; escape sequences allowed inside
+        // "key" = "value";   - values and keys are double-quoted; escape sequences allowed inside
         private static readonly Regex EntryRegex = new(
             @"""(?<key>(?:[^""\\]|\\.)*)""\s*=\s*""(?<value>(?:[^""\\]|\\.)*)""\s*;",
             RegexOptions.Compiled | RegexOptions.Singleline );
