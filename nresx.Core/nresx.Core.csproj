@@ -21,6 +21,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>localization;i18n;l10n;resx;po;json;yaml;xliff;android;ios;flutter;arb;xlsx;resource-files;translation</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -36,6 +37,7 @@
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
