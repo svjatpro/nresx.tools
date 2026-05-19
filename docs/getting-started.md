@@ -161,5 +161,5 @@ collects them; `Raw` skips validation entirely.
   format.
 - [Library API reference](api/README.md) - every public type, auto-generated
   from XML doc comments.
-- *(WIP)* Recipes - convert between formats, integrate with CI, batch
-  workflows.
+- [Recipes](recipes/README.md) - translator handoff, CI validation, drift
+  detection, batch convert, programmatic bulk edits.

@@ -109,6 +109,7 @@ both accept a `CancellationToken`.
 
 Longer walkthrough: [`docs/getting-started.md`](docs/getting-started.md).
 Full API reference: [`docs/api/`](docs/api/README.md).
+Recipes for common workflows: [`docs/recipes/`](docs/recipes/README.md).
 
 ## License
 
