@@ -1,15 +1,54 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <AssemblyName>nresx</AssemblyName>
-    <Version>0.3.0</Version>
+    <RootNamespace>nresx.CommandLine</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- dotnet tool packaging -->
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>nresx</ToolCommandName>
+  </PropertyGroup>
+
+  <!-- NuGet package metadata -->
+  <PropertyGroup>
+    <PackageId>nresx</PackageId>
+    <Version>0.3.0</Version>
+    <Authors>Sviatoslav Prokipets</Authors>
+    <Copyright>Copyright (c) 2026 Sviatoslav Prokipets</Copyright>
+    <Description>Command-line tool for working with localization resource files. Convert, validate, inspect, and manipulate resx/resw, po, json, yaml, xliff, ini, csv/tsv, android strings.xml, ios .strings, java .properties, flutter .arb, and xlsx files. Install with: dotnet tool install -g nresx</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/svjatpro/nresx.tools</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/svjatpro/nresx.tools</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>localization;i18n;l10n;resx;po;json;yaml;xliff;android;ios;flutter;arb;xlsx;cli;dotnet-tool;translation</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <!-- Source Link / symbol packages -->
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\nresx.Core\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
