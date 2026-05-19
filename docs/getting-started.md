@@ -157,6 +157,7 @@ collects them; `Raw` skips validation entirely.
 
 - [Command reference](../nresx.CommandLine/README.md) - every CLI command with
   full flag documentation.
-- *(WIP)* Format reference - what's preserved, what's lossy, per format.
+- [Format reference](formats/README.md) - what's preserved, what's lossy, per
+  format.
 - *(WIP)* Recipes - convert between formats, integrate with CI, batch
   workflows.

@@ -33,6 +33,9 @@ Ordered roughly by ecosystem reach. More formats are on the roadmap.
 | INI               | `.ini`              |
 | Plain text        | `.txt`              |
 
+Per-format details (what's preserved, what's lossy, format quirks):
+[`docs/formats/`](docs/formats/README.md).
+
 ## Install
 
 Multiple install channels are landing for 1.0. Available today:
