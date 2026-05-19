@@ -1,47 +1,51 @@
 # nresx
 
-Multi-format resource file library and CLI for .NET. Read, write, convert, and
-validate localization files across 13 formats with a single dependency.
+Toolkit for localization resource files. Read, write, convert, and validate
+files across various formats. Ships as a **.NET library** (for use from .NET
+apps) and a **cross-platform CLI** (run it from any shell - no .NET runtime
+visible to the user once installed).
 
 ## What it is
 
-Two things in one repository:
-
-- **`nresx.Core`** - a netstandard2.0 library for loading, manipulating, and
-  saving resource files. Use it from any .NET app (Framework 4.6.1+, Core 2.0+,
-  Mono, Xamarin, Unity).
-- **`nresx`** - a CLI wrapping the library for convert / inspect / validate /
-  batch operations on the file system.
+- **`nresx.Core`** - .NET library targeting `netstandard2.0`. Works on .NET
+  Framework 4.6.1+, .NET Core 2.0+, Mono, Xamarin, and Unity.
+- **`nresx`** - cross-platform CLI for Windows / Linux / macOS. Convert
+  between formats, inspect files, add/update/remove keys, batch-process
+  whole trees, validate for drift and duplicates.
 
 ## Supported formats
 
+Ordered roughly by ecosystem reach. More formats are on the roadmap.
+
 | Format            | Extensions          |
 | ----------------- | ------------------- |
+| JSON              | `.json`             |
 | .NET resx / resw  | `.resx` `.resw`     |
 | YAML              | `.yaml` `.yml`      |
-| JSON              | `.json`             |
 | Gettext PO        | `.po`               |
-| XLIFF 1.2         | `.xlf` `.xliff`     |
 | Android strings   | `.xml`              |
 | iOS strings       | `.strings`          |
 | Java properties   | `.properties`       |
-| INI               | `.ini`              |
+| XLIFF 1.2         | `.xlf` `.xliff`     |
 | CSV / TSV         | `.csv` `.tsv`       |
-| Flutter ARB       | `.arb`              |
 | Excel             | `.xlsx`             |
+| Flutter ARB       | `.arb`              |
+| INI               | `.ini`              |
 | Plain text        | `.txt`              |
 
 ## Install
 
-### CLI
+Multiple install channels are landing for 1.0. Available today:
+
+### CLI via dotnet tool
 
 ```sh
 dotnet tool install -g nresx
 nresx --help
 ```
 
-Requires the .NET SDK. Standalone binaries for win/linux/mac are planned for
-a future release.
+Requires the .NET SDK to install; the resulting `nresx` command runs anywhere
+the .NET 9 runtime is available.
 
 ### Library
 
@@ -49,24 +53,31 @@ a future release.
 dotnet add package nresx.Core
 ```
 
+### Coming in 1.0
+
+- **Standalone binaries** (no .NET required) - direct download from the
+  GitHub Releases page, for Windows / Linux / macOS
+- **Chocolatey** - `choco install nresx`
+- *Additional channels under discussion; see the phase plan.*
+
 ## Quick start
 
 ### CLI
 
 ```sh
-# Convert a .resx to .po
+# Convert a single .resx into a .po file (placed next to the source)
 nresx convert strings.resx -f po
 
-# Convert every .resx in a tree to .yaml
+# Convert every .resx in the current directory tree into a .yaml sibling
 nresx convert *.resx -f yaml -r
 
-# Inspect a file
+# Show format, culture, and element count for a file
 nresx info strings.resx
 
-# Print every key/value
+# Print every key=value pair (use -t to customize the row template)
 nresx list strings.resx
 
-# Validate (empty entries, duplicates, drift between languages)
+# Surface drift, duplicates, and empty entries across language siblings (non-zero exit on issues)
 nresx validate strings.*.resx -r
 ```
 
@@ -90,8 +101,8 @@ file.Elements.Add("hello", "Hello, world!");
 file.Save("strings.po", ResourceFormatType.Po);
 ```
 
-Async overloads are available: `ResourceFile.LoadAsync` and
-`file.SaveAsync` both accept a `CancellationToken`.
+Async overloads are available: `ResourceFile.LoadAsync` and `file.SaveAsync`
+both accept a `CancellationToken`.
 
 Longer walkthrough: [`docs/getting-started.md`](docs/getting-started.md).
 
