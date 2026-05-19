@@ -108,6 +108,7 @@ Async overloads are available: `ResourceFile.LoadAsync` and `file.SaveAsync`
 both accept a `CancellationToken`.
 
 Longer walkthrough: [`docs/getting-started.md`](docs/getting-started.md).
+Full API reference: [`docs/api/`](docs/api/README.md).
 
 ## License
 

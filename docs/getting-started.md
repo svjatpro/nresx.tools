@@ -159,5 +159,7 @@ collects them; `Raw` skips validation entirely.
   full flag documentation.
 - [Format reference](formats/README.md) - what's preserved, what's lossy, per
   format.
+- [Library API reference](api/README.md) - every public type, auto-generated
+  from XML doc comments.
 - *(WIP)* Recipes - convert between formats, integrate with CI, batch
   workflows.
