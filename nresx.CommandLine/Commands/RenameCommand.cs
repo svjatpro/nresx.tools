@@ -34,7 +34,7 @@ namespace nresx.CommandLine.Commands
 
                     if ( element == null )
                     {
-                        Console.WriteLine( $"fatal: '{Key}' element not found" );
+                        WriteError( ElementNotFoundErrorMessage, Key, shortFilePath );
                         return;
                     }
                     else

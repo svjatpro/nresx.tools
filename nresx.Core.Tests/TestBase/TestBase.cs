@@ -8,11 +8,17 @@ namespace nresx.Core.Tests
 {
     public class TestBase
     {
-        protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";    
-        protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
-        protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
-        protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
-        protected const string FileAlreadyExistErrorMessage = "fatal: file '{0}' already exist";
+        // Mirror of the templates in nresx.CommandLine BaseCommand.cs - update both together when wording changes (RSX-150).
+        protected const string FilesNotFoundErrorMessage =
+            "fatal: path mask '{0}' did not match any files. Check the path is correct, or use -r to search subdirectories.";
+        protected const string FileLoadErrorMessage =
+            "fatal: failed to load resource file '{0}'. The file may be corrupt or in an unrecognized format - pass -f <format> to override format detection.";
+        protected const string DirectoryNotFoundErrorMessage =
+            "fatal: path '{0}' does not exist. Check the path is correct.";
+        protected const string FormatUndefinedErrorMessage =
+            "fatal: resource format could not be determined. Pass -f <format> with one of: resx, resw, po, json, yaml, xliff, xml, strings, properties, arb, csv, tsv, xlsx, ini, txt.";
+        protected const string FileAlreadyExistErrorMessage =
+            "fatal: destination file '{0}' already exists. Move or rename the existing file before running this command.";
 
         protected readonly string ElementsSeparateLine = new( '-', 30 );
         

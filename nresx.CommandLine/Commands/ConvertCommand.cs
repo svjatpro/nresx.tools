@@ -47,7 +47,7 @@ namespace nresx.CommandLine.Commands
                 }
                 else
                 {
-                    Console.WriteLine( FormatUndefinedErrorMessage );
+                    WriteError( FormatUndefinedErrorMessage );
                     return;
                 }
             }
@@ -68,7 +68,7 @@ namespace nresx.CommandLine.Commands
                         }
                         else
                         {
-                            Console.WriteLine( FormatUndefinedErrorMessage ); // never happen?
+                            WriteError( FormatUndefinedErrorMessage ); // never happen?
                             return;
                         }
                     }
@@ -88,7 +88,7 @@ namespace nresx.CommandLine.Commands
                         }
                         else
                         {
-                            Console.WriteLine( FormatUndefinedErrorMessage );
+                            WriteError( FormatUndefinedErrorMessage );
                             return;
                         }
 
@@ -117,12 +117,12 @@ namespace nresx.CommandLine.Commands
                         var destFile = new FileInfo( destination );
                         if ( resource.AbsolutePath == destFile.FullName ) // the same name
                         {
-                            Console.WriteLine( FileAlreadyExistErrorMessage, destination.GetShortPath() );
+                            WriteError( FileAlreadyExistErrorMessage, destination.GetShortPath() );
                             return;
                         }
                         if ( destFile.Exists /* overwrite option */ )
                         {
-                            Console.WriteLine( FileAlreadyExistErrorMessage, destination.GetShortPath() );
+                            WriteError( FileAlreadyExistErrorMessage, destination.GetShortPath() );
                             return;
                         }
 

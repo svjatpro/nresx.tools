@@ -89,7 +89,7 @@ namespace nresx.CommandLine.Commands.Base
             {
                 foreach ( var error in context.Errors )
                 {
-                    Console.WriteLine( error );
+                    Console.Error.WriteLine( error );
                 }
             }
             return context.Success;

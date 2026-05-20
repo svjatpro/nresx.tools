@@ -112,7 +112,7 @@ namespace nresx.CommandLine.Tests.Info
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: Invalid path: '{args.UniqueKeys[0]}\\*.resx': no such file or directory" );
+                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path '{args.UniqueKeys[0]}\\*.resx' does not exist. Check the path is correct." );
                 } );
         }
 
@@ -125,7 +125,7 @@ namespace nresx.CommandLine.Tests.Info
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path mask '{commandLine[5..]}' did not match any files" );
+                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path mask '{commandLine[5..]}' did not match any files. Check the path is correct, or use -r to search subdirectories." );
                 } );
         }
 
@@ -174,7 +174,7 @@ namespace nresx.CommandLine.Tests.Info
                 .ValidateStdout( args =>
                 {
                     args.ConsoleOutput.Count.Should().Be( 13 );
-                    args.ConsoleOutput[0].Should().StartWith( $"fatal: invalid file: '{new FileInfo( wrongFile ).FullName}' can't load resource file" );
+                    args.ConsoleOutput[0].Should().StartWith( $"fatal: failed to load resource file '{new FileInfo( wrongFile ).FullName}'" );
                     ValidateOutputInfo( args.ConsoleOutput, 2, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
                     ValidateOutputInfo( args.ConsoleOutput, 6, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
                     ValidateOutputInfo( args.ConsoleOutput, 10, Path.GetFileName( files[2] ), Path.GetFullPath( files[2] ) );

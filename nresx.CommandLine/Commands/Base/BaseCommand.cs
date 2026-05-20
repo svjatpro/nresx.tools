@@ -37,13 +37,33 @@ namespace nresx.CommandLine.Commands
 
         #region private fields
 
-        protected const string FilesNotFoundErrorMessage = "fatal: path mask '{0}' did not match any files";
-        protected const string FileLoadErrorMessage = "fatal: invalid file: '{0}' can't load resource file";
-        protected const string DirectoryNotFoundErrorMessage = "fatal: Invalid path: '{0}': no such file or directory";
-        protected const string FormatUndefinedErrorMessage = "fatal: resource format is not defined";
-        protected const string FileAlreadyExistErrorMessage = "fatal: file '{0}' already exist";
+        protected const string FilesNotFoundErrorMessage =
+            "fatal: path mask '{0}' did not match any files. Check the path is correct, or use -r to search subdirectories.";
+        protected const string FileLoadErrorMessage =
+            "fatal: failed to load resource file '{0}'. The file may be corrupt or in an unrecognized format - pass -f <format> to override format detection.";
+        protected const string DirectoryNotFoundErrorMessage =
+            "fatal: path '{0}' does not exist. Check the path is correct.";
+        protected const string FormatUndefinedErrorMessage =
+            "fatal: resource format could not be determined. Pass -f <format> with one of: resx, resw, po, json, yaml, xliff, xml, strings, properties, arb, csv, tsv, xlsx, ini, txt.";
+        protected const string FileAlreadyExistErrorMessage =
+            "fatal: destination file '{0}' already exists. Move or rename the existing file before running this command.";
+        protected const string ElementNotFoundErrorMessage =
+            "fatal: element with key '{0}' was not found in '{1}'. Use 'nresx list' to see existing keys, or pass --new-element to add it.";
 
         #endregion
+
+        // Writes a fatal error to stderr and marks the command unsuccessful so the
+        // process exits non-zero. Use for any condition that prevents the command
+        // from completing (file not found, format undefined, missing element, etc.).
+        // Diagnostic / informational output stays on stdout via Console.WriteLine.
+        protected void WriteError( string format, params object[] args )
+        {
+            if ( args == null || args.Length == 0 )
+                Console.Error.WriteLine( format );
+            else
+                Console.Error.WriteLine( format, args );
+            Successful = false;
+        }
 
         #region Common options
 
@@ -241,17 +261,17 @@ namespace nresx.CommandLine.Commands
                             switch ( exception )
                             {
                                 case FileNotFoundException:
-                                    Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
+                                    WriteError( FilesNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case DirectoryNotFoundException:
-                                    Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
+                                    WriteError( DirectoryNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case UnknownResourceFormatException:
-                                    Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
+                                    WriteError( FormatUndefinedErrorMessage, sourcePattern );
                                     break;
                                 case FileLoadException:
                                 default:
-                                    Console.WriteLine( FileLoadErrorMessage, context.FullName );
+                                    WriteError( FileLoadErrorMessage, context.FullName );
                                     break;
                             }
                         } ),
@@ -287,17 +307,17 @@ namespace nresx.CommandLine.Commands
                             switch ( exception )
                             {
                                 case FileNotFoundException:
-                                    Console.WriteLine( FilesNotFoundErrorMessage, sourcePattern );
+                                    WriteError( FilesNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case DirectoryNotFoundException:
-                                    Console.WriteLine( DirectoryNotFoundErrorMessage, sourcePattern );
+                                    WriteError( DirectoryNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case UnknownResourceFormatException:
-                                    Console.WriteLine( FormatUndefinedErrorMessage, sourcePattern );
+                                    WriteError( FormatUndefinedErrorMessage, sourcePattern );
                                     break;
                                 case FileLoadException:
                                 default:
-                                    Console.WriteLine( FileLoadErrorMessage, context.FullName );
+                                    WriteError( FileLoadErrorMessage, context.FullName );
                                     break;
                             }
                         } ),
@@ -312,14 +332,14 @@ namespace nresx.CommandLine.Commands
         {
             if ( string.IsNullOrWhiteSpace( path ) || ( !new FileInfo( path ).Exists && !createNonExisting ) )
             {
-                Console.WriteLine( FilesNotFoundErrorMessage, path );
+                WriteError( FilesNotFoundErrorMessage, path );
                 resourceFile = null;
                 return false;
             }
 
             try
             {
-                resourceFile = 
+                resourceFile =
                     ( !new FileInfo( path ).Exists && createNonExisting ) ?
                     new ResourceFile( ResourceFormatHelper.GetFormatType( path ) ) :
                     new ResourceFile( path );
@@ -327,11 +347,11 @@ namespace nresx.CommandLine.Commands
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine( FilesNotFoundErrorMessage, path );
+                WriteError( FilesNotFoundErrorMessage, path );
             }
             catch ( FileLoadException )
             {
-                Console.WriteLine( FileLoadErrorMessage, path );
+                WriteError( FileLoadErrorMessage, path );
             }
 
             resourceFile = null;

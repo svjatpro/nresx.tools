@@ -91,7 +91,7 @@ namespace nresx.CommandLine.Tests.Update
             var element = res.Elements.FirstOrDefault( el => el.Key == args.UniqueKeys[0] );
             element?.Should().BeNull();
 
-            args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: '{args.UniqueKeys[0]}' element not found" );
+            args.ConsoleOutput.Should().ContainSingle( line => line.StartsWith( $"fatal: element with key '{args.UniqueKeys[0]}' was not found" ) );
         }
         
 

@@ -337,22 +337,35 @@ namespace nresx.Core.Tests
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardOutput = true;
-            if ( !string.IsNullOrWhiteSpace( options?.WorkingDirectory ) ) 
+            process.StartInfo.RedirectStandardError = true;
+            if ( !string.IsNullOrWhiteSpace( options?.WorkingDirectory ) )
                 process.StartInfo.WorkingDirectory = options.WorkingDirectory;
 
+            // Capture stdout + stderr in arrival order via async events so tests
+            // that depend on output position keep working after errors moved to
+            // stderr (RSX-150).
+            var outputLock = new object();
+            process.OutputDataReceived += ( _, e ) =>
+            {
+                if ( e.Data == null ) return;
+                lock ( outputLock ) p.ConsoleOutput.Add( e.Data );
+            };
+            process.ErrorDataReceived += ( _, e ) =>
+            {
+                if ( e.Data == null ) return;
+                lock ( outputLock ) p.ConsoleOutput.Add( e.Data );
+            };
+
             process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
             if ( debugCommandLine )
                 process.WaitForExit();
-            else
-                process.WaitForExit( 5000 );
+            else if ( process.WaitForExit( 5000 ) )
+                process.WaitForExit(); // drain pending OutputDataReceived/ErrorDataReceived events
 
             p.ExitCode = process.ExitCode;
-
-            while ( !process.StandardOutput.EndOfStream )
-            {
-                var line = process.StandardOutput.ReadLine();
-                p.ConsoleOutput.Add( line );
-            }
 
             Console.WriteLine( $@"============ command line run: =============" );
             Console.WriteLine( $@"nresx {args}" );

@@ -36,7 +36,7 @@ namespace nresx.CommandLine.Commands
             var destination = new ResourceFile( destFile );
             if ( destination.IsNewFile && !CreateNewFile )
             {
-                Console.WriteLine( FilesNotFoundErrorMessage, destFile.GetShortPath() );
+                WriteError( FilesNotFoundErrorMessage, destFile.GetShortPath() );
                 return;
             }
 

@@ -63,7 +63,7 @@ namespace nresx.CommandLine.Tests.Add
                 } )
                 .ValidateStdout( ( args, param ) =>
                 {
-                    args.ConsoleOutput[0].Should().Be( $"fatal: path mask '{param.file}' did not match any files" );
+                    args.ConsoleOutput[0].Should().Be( $"fatal: path mask '{param.file}' did not match any files. Check the path is correct, or use -r to search subdirectories." );
                 } );
         }
 
@@ -116,7 +116,7 @@ namespace nresx.CommandLine.Tests.Add
                 } )
                 .ValidateStdout( ( args, param ) =>
                 {
-                    args.ConsoleOutput[0].Should().Be( $"fatal: Invalid path: '{param.file}': no such file or directory" );
+                    args.ConsoleOutput[0].Should().Be( $"fatal: path '{param.file}' does not exist. Check the path is correct." );
                 } );
         }
 
