@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Order Details</value>
+    <comment>Form title shown in the title bar.</comment>
+  </data>
+  <data name="customerLabel.Text" xml:space="preserve">
+    <value>Customer:</value>
+  </data>
+  <data name="totalLabel.Text" xml:space="preserve">
+    <value>Total:</value>
+  </data>
+  <data name="confirmButton.Text" xml:space="preserve">
+    <value>Confirm order</value>
+    <comment>Primary action. Triggers checkout.</comment>
+  </data>
+  <data name="cancelButton.Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="emptyCartMessage" xml:space="preserve">
+    <value>Your cart is empty.</value>
+    <comment>Shown when the order has no line items.</comment>
+  </data>
+</root>
