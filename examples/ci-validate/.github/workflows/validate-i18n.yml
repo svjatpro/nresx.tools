@@ -1,0 +1,39 @@
+# Drop this into your repository's .github/workflows/ directory.
+#
+# Runs `nresx validate` on every push and PR. Fails the build if any
+# resource file has broken keys, drift between language siblings, or
+# duplicate entries.
+#
+# Tweak the `validate` glob to match where your translation files live.
+
+name: validate-i18n
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install nresx
+        run: dotnet tool install -g nresx
+
+      # Adjust the glob to wherever your localized files live.
+      # Examples:
+      #   src/Resources/*.resx          - .NET resx
+      #   locales/*.json                - web (i18next, vue-i18n)
+      #   public/locales/**/*.json      - i18next default layout
+      #   app/src/main/res/values*/strings.xml - Android
+      - name: Validate translations
+        run: nresx validate "src/Resources/*.resx" -r
