@@ -65,11 +65,16 @@ namespace nresx.CommandLine.Commands
                             }
                             Console.WriteLine( $"'{element.Key}' element have been overwritten in '{destFile.GetShortPath()}' file" );
                         }
+                        else if ( destElement != null )
+                        {
+                            WriteVerbose( "skipped: '{0}' already in destination (use --overwrite to replace)", element.Key );
+                        }
                     }
                 } );
 
             if ( !DryRun )
             {
+                WriteVerbose( "writing destination: {0}", destFile );
                 destination.Save( destFile );
             }
         }

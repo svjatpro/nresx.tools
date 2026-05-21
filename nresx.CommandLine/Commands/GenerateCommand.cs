@@ -179,6 +179,8 @@ namespace nresx.CommandLine.Commands
             // save destination resource file
             if ( !DryRun )
             {
+                if ( destination != null )
+                    WriteVerbose( "writing destination: {0} ({1} elements)", destFile, destination.Elements.Count() );
                 destination?.Save( destFile );
             }
         }

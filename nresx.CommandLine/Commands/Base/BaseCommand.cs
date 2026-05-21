@@ -88,6 +88,18 @@ namespace nresx.CommandLine.Commands
                 _exitCode = ExitUsageError;
         }
 
+        // Writes a diagnostic line to stdout, but only when --verbose is active.
+        // Use for "what did the command actually do?" signals: matched files, format
+        // detection, per-element operations, skipped destinations.
+        protected void WriteVerbose( string format, params object[] args )
+        {
+            if ( !Verbose ) return;
+            if ( args == null || args.Length == 0 )
+                Console.WriteLine( "[verbose] " + format );
+            else
+                Console.WriteLine( "[verbose] " + format, args );
+        }
+
         #region Common options
 
         [Option( 's', "source", HelpText = "Source resource file(s)" )]
@@ -116,6 +128,9 @@ namespace nresx.CommandLine.Commands
         [Option( "dry-run", HelpText = "Test command without actual performing", Hidden = true)]
         public bool DryRun { get; set; }
         protected virtual bool IsDryRunAllowed => true;
+
+        [Option( 'V', "verbose", HelpText = "Print extra diagnostics about file matching, format detection, and per-element actions" )]
+        public bool Verbose { get; set; }
 
         [Option( "debug", HelpText = "Debug command", Hidden = true )]
         public bool Debugger { get; set; }
@@ -264,20 +279,31 @@ namespace nresx.CommandLine.Commands
         }
 
         protected void ForEachSourceFile(
-            List<string> sourceFiles, 
+            List<string> sourceFiles,
             Action<FilesSearchContext, ResourceFile> resourceAction,
             Action<FilesSearchContext, Exception> errorHandler = null,
             bool splitFiles = false)
         {
             if ( sourceFiles?.Count > 0 )
             {
+                var recursive = Recursive && IsRecursiveAllowed;
                 for ( var i = 0; i < sourceFiles.Count; i++ )
                 {
                     var sourcePattern = sourceFiles[i];
                     if( i > 0 && splitFiles ) Console.WriteLine( new string( '-', 30 ) );
+                    WriteVerbose( "searching '{0}'{1}", sourcePattern, recursive ? " (recursive)" : "" );
+                    var wrappedAction = resourceAction;
+                    if ( Verbose )
+                    {
+                        wrappedAction = ( ctx, res ) =>
+                        {
+                            WriteVerbose( "matched: {0} (format: {1})", ctx.FullName, res.FileFormat );
+                            resourceAction( ctx, res );
+                        };
+                    }
                     FilesHelper.SearchResourceFiles(
                         sourcePattern,
-                        resourceAction,
+                        wrappedAction,
                         errorHandler ??
                         ( ( context, exception ) =>
                         {
@@ -317,13 +343,24 @@ namespace nresx.CommandLine.Commands
         {
             if ( sourceFiles?.Count > 0 )
             {
+                var recursive = Recursive && IsRecursiveAllowed;
                 for ( var i = 0; i < sourceFiles.Count; i++ )
                 {
                     var sourcePattern = sourceFiles[i];
                     if ( i > 0 && splitFiles ) Console.WriteLine( new string( '-', 30 ) );
+                    WriteVerbose( "searching '{0}'{1}", sourcePattern, recursive ? " (recursive)" : "" );
+                    var wrappedAction = resourceAction;
+                    if ( Verbose )
+                    {
+                        wrappedAction = ctx =>
+                        {
+                            WriteVerbose( "matched: {0}", ctx.FullName );
+                            resourceAction( ctx );
+                        };
+                    }
                     FilesHelper.SearchFiles(
                         sourcePattern,
-                        resourceAction,
+                        wrappedAction,
                         errorHandler ??
                         ( ( context, exception ) =>
                         {

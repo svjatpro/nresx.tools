@@ -132,16 +132,22 @@ namespace nresx.CommandLine.Tests.Info
         [TestCase( @"info [TmpFile] [UniqueKey] [TmpFile]" )]
         public void GetWrongFileSpecMultiple( string commandLine )
         {
+            // Position-tolerant: stderr (the fatal: line, from RSX-150) and stdout
+            // (the info blocks + separators) are captured by separate async event
+            // handlers, so their relative order in ConsoleOutput is timing-dependent.
+            // Assert that each expected line appears somewhere instead.
             commandLine
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
                     var tmp1 = Path.GetFullPath( args.TemporaryFiles[0] );
                     var tmp2 = Path.GetFullPath( args.TemporaryFiles[1] );
+                    var name1 = Path.GetFileName( args.TemporaryFiles[0] );
+                    var name2 = Path.GetFileName( args.TemporaryFiles[1] );
 
-                    ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( args.TemporaryFiles[0] ), tmp1, ResourceFormatHelper.GetFormatType( tmp1 ) );
-                    args.ConsoleOutput[4].Should().StartWith( $"fatal: path mask '{args.UniqueKeys[0]}' did not match any files" );
-                    ValidateOutputInfo( args.ConsoleOutput, 6, Path.GetFileName( args.TemporaryFiles[1] ), tmp2, ResourceFormatHelper.GetFormatType( tmp2 ) );
+                    args.ConsoleOutput.Should().Contain( $"Resource file name: \"{name1}\", (\"{tmp1})\"" );
+                    args.ConsoleOutput.Should().Contain( $"Resource file name: \"{name2}\", (\"{tmp2})\"" );
+                    args.ConsoleOutput.Should().ContainSingle( line => line.StartsWith( $"fatal: path mask '{args.UniqueKeys[0]}' did not match any files" ) );
                 } );
         }
 
@@ -168,16 +174,17 @@ namespace nresx.CommandLine.Tests.Info
             var wrongFile = GetOutputPath( $"{fileKey}_0" );
             new FileInfo( GetTestPath( TestData.WrongFormatResourceFile ) ).CopyTo( wrongFile );
 
+            // Position-tolerant: see GetWrongFileSpecMultiple - stderr (the fatal: line)
+            // interleaves with stdout (info blocks + separators) non-deterministically.
             commandLine
                 .PrepareArgs( () => new CommandLineParameters { UniqueKeys = { fileKey } } )
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    args.ConsoleOutput.Count.Should().Be( 13 );
-                    args.ConsoleOutput[0].Should().StartWith( $"fatal: failed to load resource file '{new FileInfo( wrongFile ).FullName}'" );
-                    ValidateOutputInfo( args.ConsoleOutput, 2, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
-                    ValidateOutputInfo( args.ConsoleOutput, 6, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
-                    ValidateOutputInfo( args.ConsoleOutput, 10, Path.GetFileName( files[2] ), Path.GetFullPath( files[2] ) );
+                    args.ConsoleOutput.Should().ContainSingle( line => line.StartsWith( $"fatal: failed to load resource file '{new FileInfo( wrongFile ).FullName}'" ) );
+                    args.ConsoleOutput.Should().Contain( $"Resource file name: \"{Path.GetFileName( files[0] )}\", (\"{Path.GetFullPath( files[0] )})\"" );
+                    args.ConsoleOutput.Should().Contain( $"Resource file name: \"{Path.GetFileName( files[1] )}\", (\"{Path.GetFullPath( files[1] )})\"" );
+                    args.ConsoleOutput.Should().Contain( $"Resource file name: \"{Path.GetFileName( files[2] )}\", (\"{Path.GetFullPath( files[2] )})\"" );
                 } );
         }
     }

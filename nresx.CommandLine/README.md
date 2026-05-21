@@ -12,6 +12,7 @@ Commands
 - [Copy](#copy)
 - [Validate](#validate)
 - [Generate](#generate)
+- [Verbose mode](#verbose-mode)
 - [Exit codes](#exit-codes)
 - [Scripting nresx](#scripting-nresx)
 
@@ -400,6 +401,36 @@ nresx generate
 nresx generate * <file1> -r
 ```
 
+
+## Verbose mode
+
+Every command accepts `-V` / `--verbose`. It adds extra diagnostic lines to stdout
+(prefixed with `[verbose]`) that explain *what the command actually did*: which
+files matched a pathspec, what format was detected for each, what destination was
+written, and what elements were skipped. Use it when a command is silent or
+behaves differently than you expected.
+
+Verbose output stays on stdout (errors are still on stderr), so existing
+non-verbose output is unchanged.
+
+```sh
+$ nresx info "strings.*.resx" -r --verbose
+[verbose] searching 'strings.*.resx' (recursive)
+[verbose] matched: C:\app\strings.en.resx (format: Resx)
+[verbose] matched: C:\app\strings.de.resx (format: Resx)
+[verbose] matched: C:\app\strings.uk.resx (format: Resx)
+Resource file name: "strings.en.resx", ("C:\app\strings.en.resx")
+resource format type: Resx
+text elements: 42
+...
+```
+
+Diagnostics emitted today:
+
+- `searching '<pattern>'` (with `(recursive)` when `-r` is active) - before each source pathspec scan.
+- `matched: <path> (format: <fmt>)` - for every file that survived format detection.
+- `writing: <path> (format: <fmt>, N elements)` / `writing destination: <path>` - before each destination save.
+- `skipped: '<key>' already in destination (use --overwrite to replace)` - in `copy`, when a destination element is left alone.
 
 ## Exit codes
 

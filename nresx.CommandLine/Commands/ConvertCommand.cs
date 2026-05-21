@@ -126,8 +126,9 @@ namespace nresx.CommandLine.Commands
                             return;
                         }
 
+                        WriteVerbose( "writing: {0} (format: {1}, {2} elements)", destination, format, resource.Elements.Count() );
                         Console.WriteLine( $"'{resource.AbsolutePath.GetShortPath()}' resource have been converted to '{destination.GetShortPath()}'" );
-                        
+
                         if ( !DryRun )
                         {
                             resource.Save( destination, format );
