@@ -13,7 +13,7 @@
   <!-- NuGet package metadata -->
   <PropertyGroup>
     <PackageId>nresx.Core</PackageId>
-    <Version>0.3.0</Version>
+    <Version>0.5.0</Version>
     <Authors>Sviatoslav Prokipets</Authors>
     <Copyright>Copyright (c) 2026 Sviatoslav Prokipets</Copyright>
     <Description>Multi-format resource file library for .NET. Read, write, convert, and validate localization files across resx/resw, po, json, yaml, xliff, ini, csv/tsv, android strings.xml, ios .strings, java .properties, flutter .arb, and xlsx.</Description>
