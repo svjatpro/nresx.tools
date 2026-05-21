@@ -88,6 +88,18 @@ chmod +x ~/.local/bin/nresx
 nresx --version
 ```
 
+**Linux runtime dependency**: requires `libicu` (standard .NET globalization library). Most desktop distros (Ubuntu, Debian, Fedora) include it by default. On minimal containers / slim server images, install it:
+
+```sh
+# Debian / Ubuntu
+sudo apt-get install -y libicu-dev
+
+# Fedora / RHEL / Rocky
+sudo dnf install -y libicu
+
+# Alpine is not supported - the binary needs glibc, not musl
+```
+
 On macOS, Gatekeeper may quarantine the binary on first run. Remove the quarantine flag:
 
 ```sh

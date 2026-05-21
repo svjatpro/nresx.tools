@@ -48,7 +48,11 @@ verify the actual zip you're about to ship:
 - **Windows** - extract `nresx-win-x64.zip`, run `nresx --version`,
   `nresx info .test_files\Resources.resx`, `nresx convert ... -f po` against
   a real file.
-- **Linux** - same drill under WSL or a Linux VM.
+- **Linux** - run `powershell -File scripts\smoke-linux-docker.ps1`. Spins up
+  a vanilla `ubuntu:latest` container and runs the same commands against the
+  produced zip. This catches missing-runtime-dep regressions that the GitHub
+  smoke runner won't (the runner has `libicu` preinstalled; a clean container
+  doesn't).
 - **macOS** - no local option without a Mac. Trust the CI green check, or
   ask a Mac user to spot-check.
 
