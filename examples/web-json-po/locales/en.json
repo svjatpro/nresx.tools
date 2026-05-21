@@ -1,0 +1,12 @@
+{
+  "app.title": "Acme Store",
+  "app.tagline": "Everything you need, fast.",
+  "nav.home": "Home",
+  "nav.cart": "Cart",
+  "nav.account": "Account",
+  "cart.empty": "Your cart is empty.",
+  "cart.checkout": "Proceed to checkout",
+  "auth.signIn": "Sign in",
+  "auth.signOut": "Sign out",
+  "auth.welcomeBack": "Welcome back!"
+}
