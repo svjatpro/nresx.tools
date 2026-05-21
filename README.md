@@ -39,22 +39,6 @@ formats are on the roadmap.
 
 Available channels:
 
-### CLI via dotnet tool
-
-```sh
-dotnet tool install -g nresx
-nresx --help
-```
-
-Requires the .NET SDK to install; the resulting `nresx` command runs anywhere
-the .NET 9 runtime is available.
-
-### Library
-
-```sh
-dotnet add package nresx.Core
-```
-
 ### Standalone binary (no .NET required)
 
 Single-file self-contained executable. Download from the [latest release](https://github.com/svjatpro/nresx.tools/releases/latest):
@@ -106,6 +90,22 @@ xattr -d com.apple.quarantine ~/.local/bin/nresx
 ```
 
 </details>
+
+### CLI via dotnet tool
+
+```sh
+dotnet tool install -g nresx
+nresx --help
+```
+
+Requires the .NET SDK to install; the resulting `nresx` command runs anywhere
+the .NET 9 runtime is available.
+
+### Library
+
+```sh
+dotnet add package nresx.Core
+```
 
 ### Roadmap
 
