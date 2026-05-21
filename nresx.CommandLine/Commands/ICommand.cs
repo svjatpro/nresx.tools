@@ -10,5 +10,6 @@ namespace nresx.CommandLine.Commands
 
         bool Successful { get; }
         Exception Exception { get; }
+        int ExitCode { get; }
     }
 }

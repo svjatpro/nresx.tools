@@ -42,7 +42,7 @@ namespace nresx.CommandLine.Commands
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true ) 
                 .Single( DestinationFiles, out var destFile, mandatory: !DryRun )
-                .Validate();
+                .Validate( this );
             if ( !optionsParsed )
                 return;
 
@@ -57,7 +57,7 @@ namespace nresx.CommandLine.Commands
                 destination = new ResourceFile( destFile );
                 if ( destination.IsNewFile && !CreateNewFile )
                 {
-                    WriteError( FilesNotFoundErrorMessage, destFile.GetShortPath() );
+                    WriteError( ExitDestinationConflict, FilesNotFoundErrorMessage, destFile.GetShortPath() );
                     return;
                 }
             }

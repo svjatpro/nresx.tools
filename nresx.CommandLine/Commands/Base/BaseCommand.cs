@@ -35,7 +35,19 @@ namespace nresx.CommandLine.Commands
     public abstract class BaseCommand : ICommand
     {
 
-        #region private fields
+        #region exit codes
+
+        // Documented in nresx.CommandLine/README.md - keep that table in sync when adding codes.
+        public const int ExitSuccess = 0;
+        public const int ExitFailure = 1;             // general runtime error
+        public const int ExitUsageError = 2;          // bad / missing arguments
+        public const int ExitNotFound = 3;            // input file / directory / element not found
+        public const int ExitFormatError = 4;         // format undefined or file failed to load
+        public const int ExitDestinationConflict = 5; // destination already exists / required --new-file
+
+        #endregion
+
+        #region error message templates
 
         protected const string FilesNotFoundErrorMessage =
             "fatal: path mask '{0}' did not match any files. Check the path is correct, or use -r to search subdirectories.";
@@ -53,16 +65,27 @@ namespace nresx.CommandLine.Commands
         #endregion
 
         // Writes a fatal error to stderr and marks the command unsuccessful so the
-        // process exits non-zero. Use for any condition that prevents the command
-        // from completing (file not found, format undefined, missing element, etc.).
-        // Diagnostic / informational output stays on stdout via Console.WriteLine.
-        protected void WriteError( string format, params object[] args )
+        // process exits non-zero. The exit code argument categorizes the failure
+        // for scripting (see RSX-151). Diagnostic / informational output stays on
+        // stdout via Console.WriteLine.
+        protected void WriteError( int exitCode, string format, params object[] args )
         {
             if ( args == null || args.Length == 0 )
                 Console.Error.WriteLine( format );
             else
                 Console.Error.WriteLine( format, args );
             Successful = false;
+            if ( _exitCode == ExitSuccess )
+                _exitCode = exitCode; // first error wins
+        }
+
+        // Marks the command as having a usage / argument error. Called by CommandExtensions.Validate
+        // when option parsing helpers report missing required values.
+        internal void MarkUsageError()
+        {
+            Successful = false;
+            if ( _exitCode == ExitSuccess )
+                _exitCode = ExitUsageError;
         }
 
         #region Common options
@@ -127,6 +150,9 @@ namespace nresx.CommandLine.Commands
 
         public bool Successful { get; protected set; } = true;
         public Exception Exception { get; protected set; } = null;
+
+        private int _exitCode = ExitSuccess;
+        public int ExitCode => Successful ? ExitSuccess : ( _exitCode == ExitSuccess ? ExitFailure : _exitCode );
 
         protected OptionContext Options()
         {
@@ -261,17 +287,17 @@ namespace nresx.CommandLine.Commands
                             switch ( exception )
                             {
                                 case FileNotFoundException:
-                                    WriteError( FilesNotFoundErrorMessage, sourcePattern );
+                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case DirectoryNotFoundException:
-                                    WriteError( DirectoryNotFoundErrorMessage, sourcePattern );
+                                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case UnknownResourceFormatException:
-                                    WriteError( FormatUndefinedErrorMessage, sourcePattern );
+                                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
                                     break;
                                 case FileLoadException:
                                 default:
-                                    WriteError( FileLoadErrorMessage, context.FullName );
+                                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
                                     break;
                             }
                         } ),
@@ -307,17 +333,17 @@ namespace nresx.CommandLine.Commands
                             switch ( exception )
                             {
                                 case FileNotFoundException:
-                                    WriteError( FilesNotFoundErrorMessage, sourcePattern );
+                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case DirectoryNotFoundException:
-                                    WriteError( DirectoryNotFoundErrorMessage, sourcePattern );
+                                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
                                     break;
                                 case UnknownResourceFormatException:
-                                    WriteError( FormatUndefinedErrorMessage, sourcePattern );
+                                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
                                     break;
                                 case FileLoadException:
                                 default:
-                                    WriteError( FileLoadErrorMessage, context.FullName );
+                                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
                                     break;
                             }
                         } ),
@@ -332,7 +358,7 @@ namespace nresx.CommandLine.Commands
         {
             if ( string.IsNullOrWhiteSpace( path ) || ( !new FileInfo( path ).Exists && !createNonExisting ) )
             {
-                WriteError( FilesNotFoundErrorMessage, path );
+                WriteError( ExitNotFound, FilesNotFoundErrorMessage, path );
                 resourceFile = null;
                 return false;
             }
@@ -347,11 +373,11 @@ namespace nresx.CommandLine.Commands
             }
             catch (FileNotFoundException)
             {
-                WriteError( FilesNotFoundErrorMessage, path );
+                WriteError( ExitNotFound, FilesNotFoundErrorMessage, path );
             }
             catch ( FileLoadException )
             {
-                WriteError( FileLoadErrorMessage, path );
+                WriteError( ExitFormatError, FileLoadErrorMessage, path );
             }
 
             resourceFile = null;

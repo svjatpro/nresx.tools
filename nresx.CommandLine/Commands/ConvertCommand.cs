@@ -26,7 +26,7 @@ namespace nresx.CommandLine.Commands
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true )
                 .Multiple( DestinationFiles, out var destFiles, mandatory: false )
-                .Validate();
+                .Validate( this );
             if ( !optionsParsed )
                 return;
 
@@ -47,7 +47,7 @@ namespace nresx.CommandLine.Commands
                 }
                 else
                 {
-                    WriteError( FormatUndefinedErrorMessage );
+                    WriteError( ExitFormatError, FormatUndefinedErrorMessage );
                     return;
                 }
             }
@@ -68,7 +68,7 @@ namespace nresx.CommandLine.Commands
                         }
                         else
                         {
-                            WriteError( FormatUndefinedErrorMessage ); // never happen?
+                            WriteError( ExitFormatError, FormatUndefinedErrorMessage ); // never happen?
                             return;
                         }
                     }
@@ -88,7 +88,7 @@ namespace nresx.CommandLine.Commands
                         }
                         else
                         {
-                            WriteError( FormatUndefinedErrorMessage );
+                            WriteError( ExitFormatError, FormatUndefinedErrorMessage );
                             return;
                         }
 
@@ -117,12 +117,12 @@ namespace nresx.CommandLine.Commands
                         var destFile = new FileInfo( destination );
                         if ( resource.AbsolutePath == destFile.FullName ) // the same name
                         {
-                            WriteError( FileAlreadyExistErrorMessage, destination.GetShortPath() );
+                            WriteError( ExitDestinationConflict, FileAlreadyExistErrorMessage, destination.GetShortPath() );
                             return;
                         }
                         if ( destFile.Exists /* overwrite option */ )
                         {
-                            WriteError( FileAlreadyExistErrorMessage, destination.GetShortPath() );
+                            WriteError( ExitDestinationConflict, FileAlreadyExistErrorMessage, destination.GetShortPath() );
                             return;
                         }
 

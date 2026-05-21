@@ -365,7 +365,8 @@ namespace nresx.Core.Tests
             else if ( process.WaitForExit( 5000 ) )
                 process.WaitForExit(); // drain pending OutputDataReceived/ErrorDataReceived events
 
-            p.ExitCode = process.ExitCode;
+            if ( process.HasExited )
+                p.ExitCode = process.ExitCode;
 
             Console.WriteLine( $@"============ command line run: =============" );
             Console.WriteLine( $@"nresx {args}" );

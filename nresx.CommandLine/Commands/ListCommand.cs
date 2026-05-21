@@ -21,7 +21,7 @@ namespace nresx.CommandLine.Commands
         {
             var optionsParsed = Options()
                 .Single( SourceFiles, out var source, mandatory: true )
-                .Validate();
+                .Validate( this );
             if ( !optionsParsed )
                 return;
 

@@ -14,5 +14,6 @@ namespace nresx.CommandLine.Commands
 
         public bool Successful { get; protected set; } = true;
         public Exception Exception { get; protected set; } = null;
+        public int ExitCode => Successful ? BaseCommand.ExitSuccess : BaseCommand.ExitFailure;
     }
 }

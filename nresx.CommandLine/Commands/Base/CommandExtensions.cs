@@ -83,7 +83,7 @@ namespace nresx.CommandLine.Commands.Base
             return new OptionContext( args, success, errors );
         }
 
-        public static bool Validate( this OptionContext context )
+        public static bool Validate( this OptionContext context, BaseCommand command = null )
         {
             if ( !context.Success )
             {
@@ -91,6 +91,7 @@ namespace nresx.CommandLine.Commands.Base
                 {
                     Console.Error.WriteLine( error );
                 }
+                command?.MarkUsageError();
             }
             return context.Success;
         }

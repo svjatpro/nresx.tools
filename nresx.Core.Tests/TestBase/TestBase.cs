@@ -20,6 +20,14 @@ namespace nresx.Core.Tests
         protected const string FileAlreadyExistErrorMessage =
             "fatal: destination file '{0}' already exists. Move or rename the existing file before running this command.";
 
+        // Mirror of the exit-code constants in nresx.CommandLine BaseCommand.cs (RSX-151).
+        protected const int ExitSuccess = 0;
+        protected const int ExitFailure = 1;
+        protected const int ExitUsageError = 2;
+        protected const int ExitNotFound = 3;
+        protected const int ExitFormatError = 4;
+        protected const int ExitDestinationConflict = 5;
+
         protected readonly string ElementsSeparateLine = new( '-', 30 );
         
         public static void CleanOutputDir()

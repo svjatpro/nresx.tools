@@ -189,9 +189,9 @@ class Program
                 //Console.Error.WriteLine("Invalid command line arguments.");
                 //foreach ( var err in errors ) Console.Error.WriteLine( $"\t{err}" );
             })
-            .MapResult( 
-                cmd => ((ICommand)cmd).Successful ? 0 : -1,
-                err => -1 );
+            .MapResult(
+                cmd => ((ICommand)cmd).ExitCode,
+                err => BaseCommand.ExitUsageError );
 
 
         // ---------------------------------------------------------------------------

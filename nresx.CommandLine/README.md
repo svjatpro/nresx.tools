@@ -12,6 +12,8 @@ Commands
 - [Copy](#copy)
 - [Validate](#validate)
 - [Generate](#generate)
+- [Exit codes](#exit-codes)
+- [Scripting nresx](#scripting-nresx)
 
 ## Convert
 Convert resource file(s) to another format
@@ -396,4 +398,68 @@ nresx generate
 ```sh
 # will search all source files in current dir and all subdirs, extract all appropriate tests, replace with placeholder code and generate new resource file with extracted elements
 nresx generate * <file1> -r
+```
+
+
+## Exit codes
+
+Every command returns one of the codes below. Use them in CI and shell scripts to react to specific failure modes; the error message on stderr explains the details.
+
+| Code | Name                  | When it happens                                                                                                  |
+| ---- | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 0    | success               | Command completed without errors.                                                                                |
+| 1    | general failure       | Catch-all runtime error after arguments parsed (unexpected exception, write failure, etc.).                      |
+| 2    | usage error           | Argument parser rejected the command line, or a required option was missing.                                    |
+| 3    | not found             | Source file mask matched nothing, a directory does not exist, or a requested element key is missing from a file. |
+| 4    | format error          | Resource format could not be determined, or a file failed to load because its content was not recognized.       |
+| 5    | destination conflict  | Destination already exists, or a destination file does not exist and `--new-file` was not passed.                |
+
+When multiple errors occur in a single run, the first one wins - the exit code reflects the earliest failure.
+
+#### Per-command exit codes
+
+| Command  | 0 | 1 | 2 | 3 | 4 | 5 |
+| -------- |---|---|---|---|---|---|
+| info     | x | x | x | x | x |   |
+| list     | x | x | x | x | x |   |
+| convert  | x | x | x | x | x | x |
+| format   | x | x | x | x | x |   |
+| copy     | x | x | x | x | x | x |
+| add      | x | x | x | x | x |   |
+| update   | x | x | x | x | x |   |
+| rename   | x | x | x | x | x |   |
+| remove   | x | x | x | x | x |   |
+| validate | x | x | x | x | x |   |
+| generate | x | x | x | x | x | x |
+| version  | x | x |   |   |   |   |
+| help     | x |   | x |   |   |   |
+
+## Scripting nresx
+
+```sh
+# branch on exit code in bash
+nresx info "$file"
+case $? in
+  0) echo "ok" ;;
+  3) echo "missing - skipping" ;;
+  4) echo "unrecognized format - logging and continuing" ;;
+  *) echo "unexpected failure" >&2; exit 1 ;;
+esac
+```
+
+```powershell
+# branch on exit code in PowerShell
+nresx info $file
+switch ($LASTEXITCODE) {
+    0 { Write-Host "ok" }
+    3 { Write-Host "missing - skipping" }
+    4 { Write-Host "unrecognized format - logging and continuing" }
+    default { Write-Error "unexpected failure"; exit 1 }
+}
+```
+
+Diagnostic output (the per-file result lines, summaries) is on stdout. Fatal errors are on stderr. Redirect them independently when scripting:
+
+```sh
+nresx convert *.resx -f yaml 2> errors.log > converted.log
 ```

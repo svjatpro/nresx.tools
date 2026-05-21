@@ -21,7 +21,7 @@ namespace nresx.CommandLine.Commands
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
-                .Validate();
+                .Validate( this );
             if ( !optionsParsed )
                 return;
 
@@ -34,7 +34,7 @@ namespace nresx.CommandLine.Commands
 
                     if ( element == null )
                     {
-                        WriteError( ElementNotFoundErrorMessage, Key, shortFilePath );
+                        WriteError( ExitNotFound, ElementNotFoundErrorMessage, Key, shortFilePath );
                         return;
                     }
                     else

@@ -93,7 +93,9 @@ nresx validate strings.*.resx -r
 ```
 
 Exit code is non-zero when validation finds issues, which makes `nresx
-validate` drop-in usable as a CI gate.
+validate` drop-in usable as a CI gate. See the [exit code table](../nresx.CommandLine/README.md#exit-codes)
+for the full set of codes (`3` not-found, `4` format error, `5` destination conflict, etc.) so scripts
+can branch on specific failure modes.
 
 ## Library: load / mutate / save
 

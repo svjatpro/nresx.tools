@@ -32,7 +32,7 @@ namespace nresx.CommandLine.Commands
         {
             var optionsParsed = Options()
                 .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
-                .Validate();
+                .Validate( this );
             if ( !optionsParsed )
                 return;
 
