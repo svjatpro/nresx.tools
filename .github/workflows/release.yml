@@ -1,0 +1,94 @@
+name: release
+
+# Triggered by pushing a version tag (e.g. v0.4.0). Builds the standalone
+# binary for each supported RID on its native runner, smoke-tests each one,
+# then creates a draft GitHub Release with all three zips attached. The
+# release is left as a draft so you can review the auto-generated notes
+# before publishing.
+#
+# This complements smoke.yml: smoke = continuous portability check on every
+# push; release = artifact production on tag.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            exe: nresx.exe
+          - os: ubuntu-latest
+            rid: linux-x64
+            exe: nresx
+          - os: macos-latest
+            rid: osx-arm64
+            exe: nresx
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Publish standalone binary
+        shell: pwsh
+        run: pwsh -File scripts/publish-binaries.ps1 -Rid ${{ matrix.rid }}
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          tmp=$(mktemp -d)
+          unzip -q build/release/nresx-${{ matrix.rid }}.zip -d "$tmp"
+          chmod +x "$tmp/${{ matrix.exe }}" || true
+          "$tmp/${{ matrix.exe }}" --version
+          "$tmp/${{ matrix.exe }}" info .test_files/Resources.resx
+          "$tmp/${{ matrix.exe }}" info .test_files/Resources.yaml
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nresx-${{ matrix.rid }}
+          path: build/release/nresx-${{ matrix.rid }}.zip
+          retention-days: 7
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: nresx-*
+          merge-multiple: true
+
+      - name: List downloaded assets
+        run: ls -la artifacts/
+
+      - name: Create draft GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          draft: true
+          generate_release_notes: true
+          name: nresx ${{ github.ref_name }}
+          fail_on_unmatched_files: true

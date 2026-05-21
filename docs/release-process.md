@@ -1,14 +1,16 @@
 # Release process
 
-Manual release flow for cutting a new version of `nresx`. CI automation
-lands later (RSX-109); this is the canonical procedure until then.
+CI handles the binary build and the GitHub Release creation; NuGet push and
+the final "publish the draft" step stay manual so a human is always in the
+loop on what reaches users.
 
 ## Prerequisites
 
 - Push permission on `svjatpro/nresx.tools`.
-- PowerShell available (the publish script is `.ps1`).
 - A clean working tree on the release branch (typically `main`).
-- `dotnet` SDK 9.x.
+- `dotnet` SDK 9.x (for the NuGet push step).
+- A NuGet.org API key with publish rights for the `nresx` and `nresx.Core`
+  packages.
 
 ## 1. Bump version
 
@@ -17,49 +19,55 @@ Edit `<Version>` in both csprojs:
 - `nresx.Core/nresx.Core.csproj`
 - `nresx.CommandLine/nresx.CommandLine.csproj`
 
-Keep them in lockstep. Commit:
+Keep them in lockstep. Commit and push:
 
 ```sh
 git commit -am "Bump version to X.Y.Z"
+git push
 ```
 
-## 2. Build standalone binaries
+Wait for the `smoke` workflow on this commit to go green before tagging - a
+red smoke check means the release zips will be broken.
 
-```powershell
-powershell -File scripts\publish-binaries.ps1
+## 2. Tag - this triggers the release workflow
+
+```sh
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
-Produces three zips in `build/release/`:
+Pushing the tag triggers `.github/workflows/release.yml`, which:
 
-- `nresx-win-x64.zip`
-- `nresx-linux-x64.zip`
-- `nresx-osx-arm64.zip`
+- Builds the standalone binary for each RID (`win-x64`, `linux-x64`, `osx-arm64`)
+  on the matching OS runner.
+- Smoke-tests each binary (`--version` + `info` on resx and yaml fixtures).
+- Uploads each zip as a workflow artifact.
+- Creates a **draft** GitHub Release named `nresx vX.Y.Z` with auto-generated
+  release notes (from PRs/commits since the previous tag) and the three zips
+  attached.
 
-The asset names are intentionally version-less so the
-`releases/latest/download/nresx-<rid>.zip` URLs in `README.md` keep working
-across releases.
+Watch the workflow on the Actions tab. Total run time is typically 5-8 minutes.
 
-## 3. Manual smoke test
+## 3. Review and publish the draft release
 
-Cross-platform CI runs on every push (`.github/workflows/smoke.yml`), so green
-checks on the release commit cover the automated side. Before tagging,
-verify the actual zip you're about to ship:
+The release is created as a **draft** so you can review before it goes live.
 
-- **Windows** - extract `nresx-win-x64.zip`, run `nresx --version`,
-  `nresx info .test_files\Resources.resx`, `nresx convert ... -f po` against
-  a real file.
-- **Linux** - run `powershell -File scripts\smoke-linux-docker.ps1`. Spins up
-  a vanilla `ubuntu:latest` container and runs the same commands against the
-  produced zip. This catches missing-runtime-dep regressions that the GitHub
-  smoke runner won't (the runner has `libicu` preinstalled; a clean container
-  doesn't).
-- **macOS** - no local option without a Mac. Trust the CI green check, or
-  ask a Mac user to spot-check.
+1. Open the draft on the Releases page.
+2. Edit the auto-generated notes if needed (highlight breaking changes, big features).
+3. Confirm the three zips are attached: `nresx-win-x64.zip`, `nresx-linux-x64.zip`,
+   `nresx-osx-arm64.zip`.
+4. Hit "Publish release".
+
+The `README.md` download buttons start serving the new zips within seconds -
+GitHub's `releases/latest/download/<name>` URLs update the moment the release
+is published.
 
 ## 4. Push the NuGet packages
 
+This step stays manual (one-off per release, no value in automating yet).
+
 ```sh
-dotnet pack nresx.Core/nresx.Core.csproj         -c Release
+dotnet pack nresx.Core/nresx.Core.csproj             -c Release
 dotnet pack nresx.CommandLine/nresx.CommandLine.csproj -c Release
 dotnet nuget push <path-to-.nupkg> -s https://api.nuget.org/v3/index.json -k <api-key>
 ```
@@ -67,34 +75,26 @@ dotnet nuget push <path-to-.nupkg> -s https://api.nuget.org/v3/index.json -k <ap
 The CommandLine project is a `dotnet tool` package - publishing it makes
 `dotnet tool install -g nresx` pick up the new version.
 
-## 5. Tag and create the GitHub Release
-
-```sh
-git tag vX.Y.Z
-git push origin vX.Y.Z
-```
-
-Then on GitHub:
-
-1. Releases -> "Draft a new release".
-2. Tag: `vX.Y.Z` (the one you just pushed).
-3. Title: `nresx vX.Y.Z`.
-4. Description: highlights from the changelog. Link to the milestone if there is one.
-5. Upload the three zips from `build/release/` as release assets.
-6. Publish.
-
-That's it. The `README.md` download buttons will start serving the new zips
-within a few seconds (GitHub's `releases/latest/download/<name>` redirect
-updates as soon as the release is published).
-
-## 6. Verify
+## 5. Verify
 
 - Open `README.md` on GitHub, click a download button, confirm you get the
   new zip.
-- `dotnet tool update -g nresx`, then `nresx --version` should show the new
-  number.
+- `dotnet tool update -g nresx`, then `nresx --version` should show the new number.
 
 ## Hotfix flow
 
 For a patch release on an older version: branch from the tag, make the fix,
-bump to `X.Y.(Z+1)`, repeat steps 2-6.
+bump to `X.Y.(Z+1)`, push the new tag - the release workflow handles the rest.
+
+## Local builds and smoke tests
+
+The CI workflow is the production path. Two local helpers exist for
+debugging and pre-release confidence-building:
+
+- `scripts/publish-binaries.ps1` - produces the same zips locally in
+  `build/release/`. Useful for verifying a publish-config change without
+  pushing a tag, or for the docker smoke test below.
+- `scripts/smoke-linux-docker.ps1` - runs the linux-x64 zip inside a vanilla
+  `ubuntu:latest` container. Catches missing-runtime-dep regressions that the
+  GitHub smoke runner won't (the runner has `libicu` preinstalled; a clean
+  container doesn't).
