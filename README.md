@@ -56,11 +56,51 @@ the .NET 9 runtime is available.
 dotnet add package nresx.Core
 ```
 
+### Standalone binary (no .NET required)
+
+Single-file self-contained executable. Download from the [latest release](https://github.com/svjatpro/nresx.tools/releases/latest):
+
+| Platform              | Download                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| Windows (x64)         | [`nresx-win-x64.zip`](https://github.com/svjatpro/nresx.tools/releases/latest/download/nresx-win-x64.zip)       |
+| Linux (x64)           | [`nresx-linux-x64.zip`](https://github.com/svjatpro/nresx.tools/releases/latest/download/nresx-linux-x64.zip)   |
+| macOS (Apple Silicon) | [`nresx-osx-arm64.zip`](https://github.com/svjatpro/nresx.tools/releases/latest/download/nresx-osx-arm64.zip)   |
+
+After extracting, add the directory to your PATH so `nresx` is callable from any shell:
+
+<details><summary>Windows</summary>
+
+```powershell
+# Extract to C:\Tools\nresx, then:
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Tools\nresx", "User")
+# Restart your shell. Confirm:
+nresx --version
+```
+
+</details>
+
+<details><summary>Linux / macOS</summary>
+
+```sh
+# Extract to ~/.local/bin (already on PATH on most distros) or /usr/local/bin
+unzip nresx-linux-x64.zip -d ~/.local/bin/
+chmod +x ~/.local/bin/nresx
+nresx --version
+```
+
+On macOS, Gatekeeper may quarantine the binary on first run. Remove the quarantine flag:
+
+```sh
+xattr -d com.apple.quarantine ~/.local/bin/nresx
+```
+
+</details>
+
 ### Coming in 1.0
 
-- **Standalone binaries** (no .NET required) - direct download from the
-  GitHub Releases page, for Windows / Linux / macOS
 - **Chocolatey** - `choco install nresx`
+- **Homebrew** - `brew install nresx`
+- **Scoop** - `scoop install nresx`
 - *Additional channels under discussion; see the phase plan.*
 
 ## Quick start

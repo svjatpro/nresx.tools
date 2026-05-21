@@ -1,0 +1,85 @@
+name: smoke
+
+# Cross-platform sanity check: runs the full test suite on Windows, Linux,
+# and macOS, then publishes + smoke-tests the standalone binary on each.
+# This is the "library + CLI is still portable" net. The full release
+# pipeline (build all RIDs, create GitHub Release, upload assets) is RSX-109.
+
+on:
+  push:
+    branches: [main, master, release/**]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test-and-smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            exe: nresx.exe
+          - os: ubuntu-latest
+            rid: linux-x64
+            exe: nresx
+          - os: macos-latest
+            rid: osx-arm64
+            exe: nresx
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test --no-restore --configuration Release --verbosity normal
+
+      - name: Publish standalone binary
+        run: >
+          dotnet publish nresx.CommandLine/nresx.CommandLine.csproj
+          -c Release
+          -r ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=embedded
+          -p:DebugSymbols=false
+          -o build/smoke/${{ matrix.rid }}
+
+      - name: Smoke test - version
+        shell: bash
+        run: ./build/smoke/${{ matrix.rid }}/${{ matrix.exe }} --version
+
+      - name: Smoke test - info on resx
+        shell: bash
+        run: ./build/smoke/${{ matrix.rid }}/${{ matrix.exe }} info .test_files/Resources.resx
+
+      - name: Smoke test - info on yaml (YamlDotNet reflection)
+        shell: bash
+        run: ./build/smoke/${{ matrix.rid }}/${{ matrix.exe }} info .test_files/Resources.yaml
+
+      - name: Smoke test - info on json (Newtonsoft reflection)
+        shell: bash
+        run: ./build/smoke/${{ matrix.rid }}/${{ matrix.exe }} info .test_files/Resources.json
+
+      - name: Smoke test - info on xlsx (MiniExcel native libs)
+        shell: bash
+        run: ./build/smoke/${{ matrix.rid }}/${{ matrix.exe }} info .test_files/Resources.xlsx
+
+      - name: Smoke test - convert resx to po (end-to-end write)
+        shell: bash
+        run: |
+          cp .test_files/Resources.resx build/smoke/conv-src.resx
+          ./build/smoke/${{ matrix.rid }}/${{ matrix.exe }} convert build/smoke/conv-src.resx -f po
+          test -f build/smoke/conv-src.po
