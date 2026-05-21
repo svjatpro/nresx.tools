@@ -4,9 +4,9 @@ Small, real-shape walkthroughs of `nresx` in concrete project contexts.
 Each subdirectory is self-contained: sample files, the commands you run on
 them, and what the result looks like.
 
-If you want broader-pattern recipes (translator handoff, CI integration,
-batch ops), see [`docs/recipes/`](../docs/recipes/README.md) instead.
-Examples are about *projects*; recipes are about *workflows*.
+If you want broader-pattern walkthroughs (translator handoff, CI integration,
+batch ops), see the [recipes](../docs/recipes/README.md) instead. Examples
+are about *projects*; recipes are about *workflows*.
 
 ## Available examples
 

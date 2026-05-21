@@ -68,8 +68,8 @@ nresx validate "*.resx" -r || exit 1
 
 ## See also
 
-- [`docs/recipes/ci-validation.md`](../../docs/recipes/ci-validation.md) -
-  fuller walkthrough including a pre-commit.com integration and how to
-  interpret validate output line-by-line.
-- The [`validate` reference](../../nresx.CommandLine/README.md) - all flags
-  and their semantics.
+- [CI validation recipe](../../docs/recipes/ci-validation.md) - fuller
+  walkthrough including a pre-commit.com integration and how to interpret
+  validate output line-by-line.
+- [Command reference](../../nresx.CommandLine/README.md) - all `validate`
+  flags and their semantics.

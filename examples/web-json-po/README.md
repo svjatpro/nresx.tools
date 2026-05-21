@@ -107,4 +107,4 @@ For the files in this directory, validate exits 0.
   pre-processing script) and roundtrip works as shown above.
 - For YAML-based projects (vue-i18n in `.yaml`, Rails locale files), the
   same flow works - swap `en.json` for `en.yaml` and everything else stays
-  identical. See [`docs/formats/yaml.md`](../../docs/formats/yaml.md).
+  identical. See the [YAML format reference](../../docs/formats/yaml.md).

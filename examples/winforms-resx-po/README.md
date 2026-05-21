@@ -113,5 +113,5 @@ re-run.
 - The same flow works for `.resw` (UWP / WinUI) - everywhere you see
   `.resx` in this walkthrough, `.resw` works identically.
 - For richer translation-management workflows (XLIFF, glossaries,
-  translation memory), use [XLIFF](../../docs/formats/xliff.md):
+  translation memory), use the [XLIFF format](../../docs/formats/xliff.md):
   `nresx convert Form1.resx -f xliff`.

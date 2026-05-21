@@ -1,21 +1,23 @@
 # nresx
 
 Toolkit for localization resource files. Read, write, convert, and validate
-files across various formats. Ships as a **.NET library** (for use from .NET
-apps) and a **cross-platform CLI** (run it from any shell - no .NET runtime
-visible to the user once installed).
+files across 13+ formats. Ships as a **cross-platform CLI** (run it from any
+shell, no .NET visible to the user once installed) and a **.NET library**
+(for use from .NET apps).
 
 ## What it is
 
-- **`nresx.Core`** - .NET library targeting `netstandard2.0`. Works on .NET
-  Framework 4.6.1+, .NET Core 2.0+, Mono, Xamarin, and Unity.
 - **`nresx`** - cross-platform CLI for Windows / Linux / macOS. Convert
   between formats, inspect files, add/update/remove keys, batch-process
   whole trees, validate for drift and duplicates.
+- **`nresx.Core`** - .NET library targeting `netstandard2.0`. Works on .NET
+  Framework 4.6.1+, .NET Core 2.0+, Mono, Xamarin, and Unity.
 
-## Supported formats
+## [Supported formats](docs/formats/README.md)
 
-Ordered roughly by ecosystem reach. More formats are on the roadmap.
+Ordered roughly by ecosystem reach. Click the heading above for per-format
+details: what's preserved, what's lossy, and format-specific quirks. More
+formats are on the roadmap.
 
 | Format            | Extensions          |
 | ----------------- | ------------------- |
@@ -33,12 +35,9 @@ Ordered roughly by ecosystem reach. More formats are on the roadmap.
 | INI               | `.ini`              |
 | Plain text        | `.txt`              |
 
-Per-format details (what's preserved, what's lossy, format quirks):
-[`docs/formats/`](docs/formats/README.md).
-
 ## Install
 
-Multiple install channels are landing for 1.0. Available today:
+Available channels:
 
 ### CLI via dotnet tool
 
@@ -108,12 +107,13 @@ xattr -d com.apple.quarantine ~/.local/bin/nresx
 
 </details>
 
-### Coming in 1.0
+### Roadmap
+
+Additional channels planned for a future release:
 
 - **Chocolatey** - `choco install nresx`
 - **Homebrew** - `brew install nresx`
 - **Scoop** - `scoop install nresx`
-- *Additional channels under discussion; see the phase plan.*
 
 ## Quick start
 
@@ -136,7 +136,7 @@ nresx list strings.resx
 nresx validate strings.*.resx -r
 ```
 
-Full command reference: [`nresx.CommandLine/README.md`](nresx.CommandLine/README.md).
+Full [command reference](nresx.CommandLine/README.md).
 
 ### Library
 
@@ -159,10 +159,12 @@ file.Save("strings.po", ResourceFormatType.Po);
 Async overloads are available: `ResourceFile.LoadAsync` and `file.SaveAsync`
 both accept a `CancellationToken`.
 
-Longer walkthrough: [`docs/getting-started.md`](docs/getting-started.md).
-Full API reference: [`docs/api/`](docs/api/README.md).
-Recipes for common workflows: [`docs/recipes/`](docs/recipes/README.md).
-Worked examples (WinForms, web, CI): [`examples/`](examples/README.md).
+More:
+
+- [Getting started](docs/getting-started.md) - longer walkthrough.
+- [API reference](docs/api/README.md) - full `nresx.Core` API.
+- [Recipes](docs/recipes/README.md) - common workflows (translator handoff, CI validation, batch ops).
+- [Worked examples](examples/README.md) - WinForms, web, and CI project shapes.
 
 ## License
 
