@@ -1,0 +1,47 @@
+name: nuget-publish
+
+# Publishes nresx.Core + nresx (CLI tool) to nuget.org via Trusted Publishing
+# (OIDC - no stored API key; nuget.org policy maps this repo + workflow file
+# to a short-lived push credential; see RSX-239).
+#
+# Manually triggered on purpose - a human controls the moment a version
+# lands on nuget.org. Run from a ref whose csproj <Version> matches what
+# you intend to publish (normally main right after the release tag):
+#   gh workflow run nuget-publish.yml --ref main
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for GitHub OIDC token issuance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Pack
+        run: |
+          dotnet pack nresx.Core/nresx.Core.csproj -c Release -o packages
+          dotnet pack nresx.CommandLine/nresx.CommandLine.csproj -c Release -o packages
+          ls -la packages
+
+      - name: NuGet login (OIDC -> temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: svjatpro
+
+      - name: Push to nuget.org
+        run: >
+          dotnet nuget push packages/*.nupkg
+          --source https://api.nuget.org/v3/index.json
+          --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+          --skip-duplicate
