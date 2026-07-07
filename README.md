@@ -1,25 +1,25 @@
 # nresx
 
-[![NuGet: nresx.Core](https://img.shields.io/nuget/v/nresx.Core.svg?label=nresx.Core)](https://www.nuget.org/packages/nresx.Core)
-[![NuGet: nresx CLI](https://img.shields.io/nuget/v/nresx.svg?label=nresx%20CLI)](https://www.nuget.org/packages/nresx)
 [![CI](https://github.com/svjatpro/nresx.tools/actions/workflows/smoke.yml/badge.svg)](https://github.com/svjatpro/nresx.tools/actions/workflows/smoke.yml)
+[![NuGet: nresx CLI](https://img.shields.io/nuget/v/nresx.svg?label=nresx%20CLI)](https://www.nuget.org/packages/nresx)
+[![NuGet: nresx.Core](https://img.shields.io/nuget/v/nresx.Core.svg?label=nresx.Core)](https://www.nuget.org/packages/nresx.Core)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**One toolkit for every localization file format.** Read, write, convert, and
-validate translation resources across 13 formats - from a cross-platform CLI
-or a .NET library.
+**One command-line tool for every localization file format.** Read, write,
+convert, and validate translation resources across 13 formats, on Windows /
+Linux / macOS, from any shell.
 
 ```sh
-# a translator sent back a .po - fold it into your .NET project
-nresx convert strings.uk.po -f resx
+# a translator sent back a .po - fold it into your app's locale files
+nresx convert strings.uk.po -f json
 
 # gate CI on localization health: drift, duplicates, untranslated entries
-nresx validate "locales/strings.*.resx" -r --warnings-as-errors
+nresx validate "locales/strings.*.json" -r --warnings-as-errors
 ```
 
 ## Why nresx
 
-- **Format-agnostic.** resx, po, json, yaml, xliff, Android, iOS and more -
+- **Format-agnostic.** po, json, yaml, Android, iOS, resx, xliff and more -
   one model, one command set, any-to-any conversion.
 - **CI-friendly by design.** Deterministic output, documented
   [exit codes](nresx.CommandLine/README.md#exit-codes), errors on stderr,
@@ -27,24 +27,16 @@ nresx validate "locales/strings.*.resx" -r --warnings-as-errors
 - **Batch-first.** Every command accepts wildcards and `-r` to sweep whole
   directory trees in one call.
 - **Scriptable and embeddable.** The same operations from any shell (Windows /
-  Linux / macOS, no .NET visible once installed) or from C# via `nresx.Core`
-  (`netstandard2.0`: .NET Framework 4.6.1+, .NET Core 2.0+, Mono, Xamarin, Unity).
+  Linux / macOS, no .NET visible once installed) or from C# via `nresx.Core` -
+  a single `netstandard2.0` build that runs everywhere from .NET Framework 4.6.1
+  to the latest .NET, Unity included.
 
 ## Install
 
-### CLI via dotnet tool
-
-```sh
-dotnet tool install -g nresx
-nresx --help
-```
-
-Requires the .NET SDK to install; the resulting `nresx` command runs anywhere
-the .NET 9 runtime is available.
-
 ### Standalone binary (no .NET required)
 
-Single-file self-contained executable. Download from the [latest release](https://github.com/svjatpro/nresx.tools/releases/latest):
+The `nresx` command-line tool as a single self-contained executable -
+download, unzip, run. Grab it from the [latest release](https://github.com/svjatpro/nresx.tools/releases/latest):
 
 | Platform              | Download                                                                                                |
 | --------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -94,7 +86,18 @@ xattr -d com.apple.quarantine ~/.local/bin/nresx
 
 </details>
 
-### Library
+### CLI via dotnet tool
+
+If you already have the .NET SDK:
+
+```sh
+dotnet tool install -g nresx
+nresx --help
+```
+
+### .NET library
+
+The same engine as a package, for use from C# code:
 
 ```sh
 dotnet add package nresx.Core
@@ -132,26 +135,26 @@ formats are on the roadmap.
 ### CLI
 
 ```sh
-# Convert a single .resx into a .po file (placed next to the source)
-nresx convert strings.resx -f po
+# Convert a single file into another format (placed next to the source)
+nresx convert strings.po -f json
 
 # Convert every .resx in the current directory tree into a .yaml sibling
 nresx convert *.resx -f yaml -r
 
 # Show format, culture, and element count for a file
-nresx info strings.resx
+nresx info strings.json
 
 # Print every key=value pair (use -t to customize the row template)
-nresx list strings.resx
+nresx list strings.json
 
 # Surface drift, duplicates, and empty entries across language siblings
 # (non-zero exit on errors; --warnings-as-errors makes it strict)
-nresx validate strings.*.resx -r
+nresx validate strings.*.json -r
 ```
 
 Full [command reference](nresx.CommandLine/README.md).
 
-### Library
+### .NET library
 
 ```csharp
 using nresx.Core;

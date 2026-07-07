@@ -28,8 +28,8 @@ In any .NET project:
 dotnet add package nresx.Core
 ```
 
-Targets `netstandard2.0`, so it works on .NET Framework 4.6.1+, .NET Core
-2.0+, Mono, Xamarin, and Unity.
+Targets `netstandard2.0` - the widest-compatibility base: one build runs
+everywhere from .NET Framework 4.6.1 to the latest .NET, Unity included.
 
 ## Concepts
 
