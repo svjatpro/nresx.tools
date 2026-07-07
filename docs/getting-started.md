@@ -92,8 +92,11 @@ nresx validate strings.resx
 nresx validate strings.*.resx -r
 ```
 
-Exit code is non-zero when validation finds issues, which makes `nresx
-validate` drop-in usable as a CI gate. See the [exit code table](../nresx.CommandLine/README.md#exit-codes)
+Findings have two severities: *errors* (broken file: duplicated or empty keys)
+and *warnings* (quality issues: empty values, missed or not translated
+elements). The exit code is non-zero on errors; add `--warnings-as-errors` to
+fail on warnings too, which makes `nresx validate` drop-in usable as a strict
+CI gate. See the [exit code table](../nresx.CommandLine/README.md#exit-codes)
 for the full set of codes (`3` not-found, `4` format error, `5` destination conflict, etc.) so scripts
 can branch on specific failure modes.
 
@@ -141,7 +144,8 @@ await file.SaveAsync("strings.po", cancellationToken: ct);
 ```csharp
 var errors = file.Validate();
 foreach (var error in errors)
-    Console.WriteLine($"{error.ErrorType}: {error.Element?.Key}");
+    Console.WriteLine($"{error.ErrorType}: {error.ElementKey}");
+// severity: error.ErrorType.GetSeverity(), extension in nresx.Core.Extensions
 ```
 
 You can also choose how aggressively the constructor validates:

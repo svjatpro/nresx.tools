@@ -33,8 +33,11 @@ public ResourceFormatType FileFormat { get; }
 
 ### **Culture**
 
-Culture this file represents. Derived from the file name (e.g. `strings.de.resx` → `de`)
- or from the `Language` header when the file has one; defaults to [CultureInfo.InvariantCulture](https://docs.microsoft.com/en-us/dotnet/api/system.globalization.cultureinfo.invariantculture).
+Culture this file represents. Derived from an underscore-suffixed file name
+ (e.g. `strings_de.resx` → `de`) or from the `Language` header when the
+ file has one; defaults to [CultureInfo.InvariantCulture](https://docs.microsoft.com/en-us/dotnet/api/system.globalization.cultureinfo.invariantculture). For broader
+ path-based detection (dot suffix, culture directory) see
+ `PathExtensions.TryToExtractCultureFromPath`.
 
 ```csharp
 public CultureInfo Culture { get; set; }

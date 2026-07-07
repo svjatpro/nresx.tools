@@ -127,20 +127,18 @@ nresx info *.resx -r
 
 
 ## List
-List text elements from resource file.
+List text elements of a single resource file.
 
 ```sh
 nresx list
-  [-s | --source] <pathspec> 
+  [-s | --source] <file>
   [-t | --template <output template>]
 ```
 
 #### Options
 
-**-s | --source** Resource file(s) to process, can be a pathspec\
-**-t | --template** Output row template for each text element in a resource file,possible tags are:- \k - element key- \v - element value- \c - element comment
-
-the default template is "\k: \v"
+**-s | --source** Resource file to process (single file)\
+**-t | --template** Output row template for each text element. Possible tags: `\k` - element key, `\v` - element value, `\c` - element comment. The default template is `"\k: \v"`
 
 #### Examples
 
@@ -171,8 +169,8 @@ nresx add
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**-k | --key**  Element key\
-**-v | --value**  Element value\
+**-k | --key**  Element key (required)\
+**-v | --value**  Element value (required)\
 **-c | --comment**  Element comment\
 **--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
@@ -213,9 +211,9 @@ nresx update
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**-k | --key**  Element key\
-**-v | --value**  Element value\
-**-c | --comment**  Element comment\
+**-k | --key**  Element key (required)\
+**-v | --value**  Element value (at least one of `-v` / `-c` is required)\
+**-c | --comment**  Element comment (at least one of `-v` / `-c` is required)\
 **--new-element** Will create new element, if it not exist\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
@@ -254,8 +252,8 @@ nresx rename
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**-k | --key**  Element key\
-**-n | --new-key**  New key\
+**-k | --key**  Element key (required)\
+**-n | --new-key**  New key (required)\
 **--new-file** Will create destination file(s) if they do not exist\
 **--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
@@ -304,7 +302,7 @@ nresx remove -s <file1> <file2> -k <key1> <key2>
 # will remove from "file1" all items, which have empty value
 nresx remove <file1> --empty-value
 
-# will remove from all *.yaml files in current dir, including subirectories all items, which have empty key or value
+# will remove from all *.yaml files in current dir, including subdirectories, all items, which have empty key or value
 nresx remove *.yaml -r --empty
 ```
 
@@ -326,7 +324,7 @@ nresx copy
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-d | --destination**  Destination resource file(s), can be a pathspec, or a list of pathspec\
 **--skip**  Will skip duplicated elements (default option)\
 **--overwrite**  Will overwrite duplicated elements\
 **--new-file** Will create destination file(s) if they do not exist\
@@ -338,34 +336,68 @@ nresx copy
 # will copy all elements from the "file1" to "file2", if "file2" is not exist, it will be created
 nresx copy <file1> <file2>
 
-# will copy all elements from the "file1" to "file2", duplicated elements will be overwriten
+# will copy all elements from the "file1" to "file2", duplicated elements will be overwritten
 nresx copy <file1> <file2> --overwrite
 ```
 
 
 ## Validate
-Validate resource(s) in order to find any errors, such as duplicated elements, missed elements or not translated elements.
+Validate resource file(s): find broken entries (duplicated or empty keys) and,
+for translation groups, cross-file issues (missed or not translated elements).
 
 ```sh
 nresx validate
   [-s | --source] <pathspec>
   [-r | --recursive]
+  [--basic-lan <language code>]
+  [--warnings-as-errors]
 ```
 
 #### Options
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
-**-r | --recursive**  Process resource files in subdirectories
+**-r | --recursive**  Process resource files in subdirectories\
+**--basic-lan**  Base language code (e.g. `en`, `en-US`). Overrides auto-detection of the source-language file in a translation group\
+**--warnings-as-errors**  Treat warnings as errors when setting the exit code
+
+#### Checks and severity
+
+Files in the same directory with the same format and a culture in the name
+(e.g. `strings.resx` + `strings.de.resx`) are validated together as one
+translation group.
+
+| Check             | Severity | Meaning                                                         |
+| ----------------- | -------- | --------------------------------------------------------------- |
+| Duplicate         | error    | Two or more elements share the same key                         |
+| EmptyKey          | error    | Element has no key                                              |
+| EmptyValue        | warning  | Element has a key but no value                                  |
+| PossibleDuplicate | warning  | Keys differ only in case or whitespace                          |
+| MissedElement     | warning  | Key exists elsewhere in the group but is missing from this file |
+| NotTranslated     | warning  | Value equals the base (source-language) file's value            |
+
+Each finding prints as `<file>: <severity>: <check>: <key>`, followed by a
+summary line: `Found N issues (X errors, Y warnings)`.
+
+The exit code is non-zero when any error-severity finding is present; warnings
+alone exit 0 unless `--warnings-as-errors` is set.
+
+The base file for the `NotTranslated` check is picked per group: the explicit
+`--basic-lan` match if given, else the neutral file (no culture in the name),
+else the English file, else the first by culture name. Single-file groups skip
+the cross-file checks.
+
 #### Examples
 
 ```sh
-# will validate elements within single resource file: emptly or duplicated elements
+# will validate elements within a single resource file: empty or duplicated elements
 nresx validate <file1>
 
-# will validate elements in all matched resource files: including cross resource validates
-#  if some element has the same value in two resource files for different cultures, 
-#  then there will be 'not translated' error in the result.
+# will validate all matched resource files, including cross-file checks within
+#  each translation group (missed elements, not translated elements)
 nresx validate dir1\*.resw -r
+
+# CI gate: any finding fails the build, and 'uk' is the source language
+nresx validate *.resx -r --basic-lan uk --warnings-as-errors
 ```
 
 ## Generate
@@ -387,17 +419,17 @@ nresx generate
 
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
-**-d | --destination**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
+**-d | --destination**  Destination resource file(s), can be a pathspec, or a list of pathspec\
 **-f | --format**  Format of destination file(s)\
 **--new-file** Will create resource file, if it not exist (with --recursive it will also create all subdirectories)\
-**--link** Replace existing texts in project source code with links to localized resources.\
-**--exclude** Exclude directories when generating resources. Accepts a comma-separated list or quoted names. Default: ".git,.vs,bin,obj"
-**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.\
+**--link** Replace existing texts in project source code with links to localized resources\
+**--exclude** Exclude directories when generating resources. Accepts a comma-separated list or quoted names. Default: ".git,.vs,bin,obj"\
+**--dry-run** Execute the command in test mode. No modifications will be made to existing files or the creation of new files.
 
 #### Examples
 
 ```sh
-# will search all source files in current dir and all subdirs, extract all appropriate tests, replace with placeholder code and generate new resource file with extracted elements
+# will search all source files in current dir and all subdirs, extract all appropriate texts, replace them with placeholder code and generate new resource file with extracted elements
 nresx generate * <file1> -r
 ```
 

@@ -19,8 +19,13 @@
     <ProjectReference Include="..\nresx.Core\nresx.Core.csproj" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy &quot;$(SolutionDir).test_files\*.*&quot; &quot;$(TargetDir).test_files\&quot; /Y /I /E" />
+  <Target Name="CopyTestFixtures" BeforeTargets="PreBuildEvent">
+    <ItemGroup>
+      <_TestFiles Include="$(MSBuildThisFileDirectory)..\.test_files\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_TestFiles)"
+          DestinationFiles="@(_TestFiles->'$(TargetDir).test_files\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
   </Target>
 
 </Project>

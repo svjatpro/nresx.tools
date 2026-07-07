@@ -19,7 +19,7 @@ namespace nresx.CommandLine.Commands
         [Option( "link", HelpText = "Replace raw text with resource tag in source files", Required = false, Default = false )]
         public bool LinkResources { get; set; }
 
-        [Option( "exclude", HelpText = "Define directories, which will be excluded during", Required = false, Default = null )]
+        [Option( "exclude", HelpText = "Directories excluded from the source search, comma-separated. Default: .git,.vs,bin,obj", Required = false, Default = null )]
         public string ExcludeDir { get; set; }
 
         protected override bool IsFormatAllowed => true;

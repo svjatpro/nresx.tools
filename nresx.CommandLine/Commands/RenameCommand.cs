@@ -12,7 +12,7 @@ namespace nresx.CommandLine.Commands
         [Option( 'k', "key", HelpText = "element key", Required = true )]
         public string Key { get; set; }
 
-        [Option( 'n', "new-key", HelpText = "element key", Required = true )]
+        [Option( 'n', "new-key", HelpText = "new element key", Required = true )]
         public string NewKey { get; set; }
 
         protected override bool IsRecursiveAllowed => true;

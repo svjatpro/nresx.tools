@@ -1,43 +1,46 @@
 # nresx
 
-Toolkit for localization resource files. Read, write, convert, and validate
-files across 13+ formats. Ships as a **cross-platform CLI** (run it from any
-shell, no .NET visible to the user once installed) and a **.NET library**
-(for use from .NET apps).
+[![NuGet: nresx.Core](https://img.shields.io/nuget/v/nresx.Core.svg?label=nresx.Core)](https://www.nuget.org/packages/nresx.Core)
+[![NuGet: nresx CLI](https://img.shields.io/nuget/v/nresx.svg?label=nresx%20CLI)](https://www.nuget.org/packages/nresx)
+[![CI](https://github.com/svjatpro/nresx.tools/actions/workflows/smoke.yml/badge.svg)](https://github.com/svjatpro/nresx.tools/actions/workflows/smoke.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## What it is
+**One toolkit for every localization file format.** Read, write, convert, and
+validate translation resources across 13 formats - from a cross-platform CLI
+or a .NET library.
 
-- **`nresx`** - cross-platform CLI for Windows / Linux / macOS. Convert
-  between formats, inspect files, add/update/remove keys, batch-process
-  whole trees, validate for drift and duplicates.
-- **`nresx.Core`** - .NET library targeting `netstandard2.0`. Works on .NET
-  Framework 4.6.1+, .NET Core 2.0+, Mono, Xamarin, and Unity.
+```sh
+# a translator sent back a .po - fold it into your .NET project
+nresx convert strings.uk.po -f resx
 
-## [Supported formats](docs/formats/README.md)
+# gate CI on localization health: drift, duplicates, untranslated entries
+nresx validate "locales/strings.*.resx" -r --warnings-as-errors
+```
 
-Ordered roughly by ecosystem reach. Click the heading above for per-format
-details: what's preserved, what's lossy, and format-specific quirks. More
-formats are on the roadmap.
+## Why nresx
 
-| Format            | Extensions          |
-| ----------------- | ------------------- |
-| JSON              | `.json`             |
-| .NET resx / resw  | `.resx` `.resw`     |
-| YAML              | `.yaml` `.yml`      |
-| Gettext PO        | `.po`               |
-| Android strings   | `.xml`              |
-| iOS strings       | `.strings`          |
-| Java properties   | `.properties`       |
-| XLIFF 1.2         | `.xlf` `.xliff`     |
-| CSV / TSV         | `.csv` `.tsv`       |
-| Excel             | `.xlsx`             |
-| Flutter ARB       | `.arb`              |
-| INI               | `.ini`              |
-| Plain text        | `.txt`              |
+- **Format-agnostic.** resx, po, json, yaml, xliff, Android, iOS and more -
+  one model, one command set, any-to-any conversion.
+- **CI-friendly by design.** Deterministic output, documented
+  [exit codes](nresx.CommandLine/README.md#exit-codes), errors on stderr,
+  `validate` as a drop-in pipeline gate.
+- **Batch-first.** Every command accepts wildcards and `-r` to sweep whole
+  directory trees in one call.
+- **Scriptable and embeddable.** The same operations from any shell (Windows /
+  Linux / macOS, no .NET visible once installed) or from C# via `nresx.Core`
+  (`netstandard2.0`: .NET Framework 4.6.1+, .NET Core 2.0+, Mono, Xamarin, Unity).
 
 ## Install
 
-Available channels:
+### CLI via dotnet tool
+
+```sh
+dotnet tool install -g nresx
+nresx --help
+```
+
+Requires the .NET SDK to install; the resulting `nresx` command runs anywhere
+the .NET 9 runtime is available.
 
 ### Standalone binary (no .NET required)
 
@@ -91,29 +94,38 @@ xattr -d com.apple.quarantine ~/.local/bin/nresx
 
 </details>
 
-### CLI via dotnet tool
-
-```sh
-dotnet tool install -g nresx
-nresx --help
-```
-
-Requires the .NET SDK to install; the resulting `nresx` command runs anywhere
-the .NET 9 runtime is available.
-
 ### Library
 
 ```sh
 dotnet add package nresx.Core
 ```
 
-### Roadmap
+### Planned channels
 
-Additional channels planned for a future release:
+Coming with the 1.0 release: **Chocolatey** (`choco install nresx`) and
+**Scoop** (`scoop install nresx`). Homebrew is planned for a later release.
 
-- **Chocolatey** - `choco install nresx`
-- **Homebrew** - `brew install nresx`
-- **Scoop** - `scoop install nresx`
+## [Supported formats](docs/formats/README.md)
+
+Ordered roughly by ecosystem reach. Click the heading above for per-format
+details: what's preserved, what's lossy, and format-specific quirks. More
+formats are on the roadmap.
+
+| Format            | Extensions          |
+| ----------------- | ------------------- |
+| JSON              | `.json`             |
+| .NET resx / resw  | `.resx` `.resw`     |
+| YAML              | `.yaml` `.yml`      |
+| Gettext PO        | `.po`               |
+| Android strings   | `.xml`              |
+| iOS strings       | `.strings`          |
+| Java properties   | `.properties`       |
+| XLIFF 1.2         | `.xlf` `.xliff`     |
+| CSV / TSV         | `.csv` `.tsv`       |
+| Excel             | `.xlsx`             |
+| Flutter ARB       | `.arb`              |
+| INI               | `.ini`              |
+| Plain text        | `.txt`              |
 
 ## Quick start
 
@@ -132,7 +144,8 @@ nresx info strings.resx
 # Print every key=value pair (use -t to customize the row template)
 nresx list strings.resx
 
-# Surface drift, duplicates, and empty entries across language siblings (non-zero exit on issues)
+# Surface drift, duplicates, and empty entries across language siblings
+# (non-zero exit on errors; --warnings-as-errors makes it strict)
 nresx validate strings.*.resx -r
 ```
 
@@ -159,11 +172,13 @@ file.Save("strings.po", ResourceFormatType.Po);
 Async overloads are available: `ResourceFile.LoadAsync` and `file.SaveAsync`
 both accept a `CancellationToken`.
 
-More:
+## Docs
 
-- [Getting started](docs/getting-started.md) - longer walkthrough.
+- [Getting started](docs/getting-started.md) - install, first conversions, library walkthrough.
+- [Command reference](nresx.CommandLine/README.md) - every CLI command, flags, exit codes.
+- [Format reference](docs/formats/README.md) - per-format roundtrip and quirks.
 - [API reference](docs/api/README.md) - full `nresx.Core` API.
-- [Recipes](docs/recipes/README.md) - common workflows (translator handoff, CI validation, batch ops).
+- [Recipes](docs/recipes/README.md) - translator handoff, CI validation, batch ops.
 - [Worked examples](examples/README.md) - WinForms, web, and CI project shapes.
 
 ## License

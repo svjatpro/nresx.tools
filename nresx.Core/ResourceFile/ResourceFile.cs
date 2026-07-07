@@ -108,8 +108,11 @@ public class ResourceFile
     public ResourceFormatType FileFormat { get; }
 
     /// <summary>
-    /// Culture this file represents. Derived from the file name (e.g. <c>strings.de.resx</c> → <c>de</c>)
-    /// or from the <c>Language</c> header when the file has one; defaults to <see cref="CultureInfo.InvariantCulture"/>.
+    /// Culture this file represents. Derived from an underscore-suffixed file name
+    /// (e.g. <c>strings_de.resx</c> → <c>de</c>) or from the <c>Language</c> header when the
+    /// file has one; defaults to <see cref="CultureInfo.InvariantCulture"/>. For broader
+    /// path-based detection (dot suffix, culture directory) see
+    /// <c>PathExtensions.TryToExtractCultureFromPath</c>.
     /// </summary>
     public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
 
