@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>nresx</id>
+    <version>1.0.0</version>
+    <packageSourceUrl>https://github.com/svjatpro/nresx.tools/tree/main/packaging/chocolatey</packageSourceUrl>
+    <owners>svjatpro</owners>
+    <title>nresx</title>
+    <authors>Sviatoslav Prokipets</authors>
+    <projectUrl>https://github.com/svjatpro/nresx.tools</projectUrl>
+    <licenseUrl>https://github.com/svjatpro/nresx.tools/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/svjatpro/nresx.tools</projectSourceUrl>
+    <docsUrl>https://github.com/svjatpro/nresx.tools/tree/main/docs</docsUrl>
+    <bugTrackerUrl>https://github.com/svjatpro/nresx.tools/issues</bugTrackerUrl>
+    <tags>nresx localization i18n l10n resx resw po gettext xliff translation resources cli</tags>
+    <summary>Command-line tool for localization resource files</summary>
+    <description>
+One command-line tool for every localization file format. Read, write, convert, and validate translation resources across 13 formats - resx/resw, gettext .po, json, yaml, XLIFF 1.2, Android strings.xml, iOS .strings, Java .properties, Flutter .arb, ini, csv/tsv, xlsx, and plain text.
+
+- Convert any format to any other, single files or whole directory trees
+- Validate for broken entries and translation drift (missing keys, untranslated values) with CI-friendly exit codes
+- Inspect, list, add, update, rename, remove entries from any shell
+- Extract hardcoded strings from source code into resource files
+
+Standalone self-contained binary - no .NET runtime required. Documentation: https://github.com/svjatpro/nresx.tools
+    </description>
+    <releaseNotes>https://github.com/svjatpro/nresx.tools/releases/tag/v1.0.0</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

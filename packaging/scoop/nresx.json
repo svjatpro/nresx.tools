@@ -1,0 +1,23 @@
+{
+    "version": "1.0.0",
+    "description": "Command-line tool for localization resource files - convert, validate, inspect, and edit translations across 13 formats (resx, po, json, yaml, xliff, Android, iOS, ...)",
+    "homepage": "https://github.com/svjatpro/nresx.tools",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/svjatpro/nresx.tools/releases/download/v1.0.0/nresx-win-x64.zip",
+            "hash": "d8144e9789b1d940c19ab0b5623d52e3fedcd3eeee9ca411bdf8cf025bb6a44d"
+        }
+    },
+    "bin": "nresx.exe",
+    "checkver": {
+        "github": "https://github.com/svjatpro/nresx.tools"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/svjatpro/nresx.tools/releases/download/v$version/nresx-win-x64.zip"
+            }
+        }
+    }
+}

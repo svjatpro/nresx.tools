@@ -104,10 +104,20 @@ The same engine as a package, for use from C# code:
 dotnet add package nresx.Core
 ```
 
-### Planned channels
+### Scoop (Windows)
 
-Coming with the 1.0 release: **Chocolatey** (`choco install nresx`) and
-**Scoop** (`scoop install nresx`). Homebrew is planned for a later release.
+```sh
+scoop install https://raw.githubusercontent.com/svjatpro/nresx.tools/main/packaging/scoop/nresx.json
+```
+
+### Chocolatey (Windows)
+
+```sh
+choco install nresx
+```
+
+Submitted to chocolatey.org; available once first-time package moderation
+completes. Homebrew is planned for a later release.
 
 ## [Supported formats](docs/formats/README.md)
 

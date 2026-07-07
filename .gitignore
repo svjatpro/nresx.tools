@@ -24,6 +24,9 @@ bld/
 # test fixture: deliberately inside an obj/ dir to exercise generate --exclude
 !.test_projects/appUwp/obj/
 !.test_projects/appUwp/obj/**
+
+# locally built chocolatey package (built via choco pack, pushed manually)
+packaging/chocolatey/*.nupkg
 .publish/
 build/
 
