@@ -115,21 +115,21 @@ Ordered roughly by ecosystem reach. Click the heading above for per-format
 details: what's preserved, what's lossy, and format-specific quirks. More
 formats are on the roadmap.
 
-| Format            | Extensions          |
-| ----------------- | ------------------- |
-| JSON              | `.json`             |
-| .NET resx / resw  | `.resx` `.resw`     |
-| YAML              | `.yaml` `.yml`      |
-| Gettext PO        | `.po`               |
-| Android strings   | `.xml`              |
-| iOS strings       | `.strings`          |
-| Java properties   | `.properties`       |
-| XLIFF 1.2         | `.xlf` `.xliff`     |
-| CSV / TSV         | `.csv` `.tsv`       |
-| Excel             | `.xlsx`             |
-| Flutter ARB       | `.arb`              |
-| INI               | `.ini`              |
-| Plain text        | `.txt`              |
+| Format            | Extensions          | Typical use                        |
+| ----------------- | ------------------- | ---------------------------------- |
+| JSON              | `.json`             | Web apps (i18next, vue-i18n)       |
+| .NET resx / resw  | `.resx` `.resw`     | .NET / Windows apps                |
+| YAML              | `.yaml` `.yml`      | Rails, config-style locales        |
+| Gettext PO        | `.po`               | The classic translator format      |
+| Android strings   | `.xml`              | Android apps                       |
+| iOS strings       | `.strings`          | iOS / macOS apps                   |
+| Java properties   | `.properties`       | Java apps                          |
+| XLIFF 1.2         | `.xlf` `.xliff`     | Translation interchange standard   |
+| CSV / TSV         | `.csv` `.tsv`       | Spreadsheets, translator exchange  |
+| Excel             | `.xlsx`             | Translator-friendly handoff        |
+| Flutter ARB       | `.arb`              | Flutter apps                       |
+| INI               | `.ini`              | Desktop / legacy config            |
+| Plain text        | `.txt`              | Simple key=value lists             |
 
 ## Quick start
 
