@@ -33,10 +33,11 @@ nresx validate "locales/strings.*.json" -r --warnings-as-errors
 
 ## Install
 
-### Standalone binary (no .NET required)
+### Standalone CLI binary
 
-The `nresx` command-line tool as a single self-contained executable -
-download, unzip, run. Grab it from the [latest release](https://github.com/svjatpro/nresx.tools/releases/latest):
+The `nresx` command-line tool as a single self-contained executable - nothing
+to install first, no .NET required. Download, unzip, run. Grab it from the
+[latest release](https://github.com/svjatpro/nresx.tools/releases/latest):
 
 | Platform              | Download                                                                                                |
 | --------------------- | ------------------------------------------------------------------------------------------------------- |
