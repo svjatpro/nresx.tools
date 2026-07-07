@@ -1,0 +1,51 @@
+name: Bug report
+description: Something behaves incorrectly - a command, a format, or the library
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: nresx version
+      description: Output of `nresx --version` (or the nresx.Core package version).
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: channel
+    attributes:
+      label: Install channel
+      options:
+        - dotnet tool
+        - standalone binary
+        - NuGet package (nresx.Core library)
+        - built from source
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: Windows 11 / Ubuntu 24.04 / macOS 15
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: What did you run?
+      description: The exact command line (or C# snippet for library issues). Add `--verbose` output if relevant.
+      render: sh
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Resource file sample
+      description: Minimal file content that reproduces the problem (trim it down - a few entries are usually enough). Mention the format if the extension doesn't make it obvious.
+      render: text
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What you expected to happen, and what happened instead (including the exit code if it matters).
+    validations:
+      required: true

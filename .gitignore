@@ -21,6 +21,9 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+# test fixture: deliberately inside an obj/ dir to exercise generate --exclude
+!.test_projects/appUwp/obj/
+!.test_projects/appUwp/obj/**
 .publish/
 build/
 

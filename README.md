@@ -185,6 +185,13 @@ both accept a `CancellationToken`.
 - [Recipes](docs/recipes/README.md) - translator handoff, CI validation, batch ops.
 - [Worked examples](examples/README.md) - WinForms, web, and CI project shapes.
 
+## Feedback and contributing
+
+- Found a bug? [Open an issue](https://github.com/svjatpro/nresx.tools/issues/new/choose).
+- Question or idea? [Start a discussion](https://github.com/svjatpro/nresx.tools/discussions).
+- Want to contribute a fix or feature? See [CONTRIBUTING.md](CONTRIBUTING.md) -
+  `good first issue` labels mark approachable entry points.
+
 ## License
 
 [MIT](LICENSE)

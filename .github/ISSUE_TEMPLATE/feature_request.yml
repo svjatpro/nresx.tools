@@ -1,0 +1,29 @@
+name: Feature request
+description: A new capability - command, option, format, or library API
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you solving?
+      description: The workflow or situation where nresx currently falls short. Real examples help a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: What you'd like nresx to do - a sketch of the command line, option, or API is perfect.
+      render: sh
+    validations:
+      required: true
+  - type: input
+    id: scope
+    attributes:
+      label: Affected formats / commands
+      placeholder: e.g. po + resx, validate command, library only
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workarounds you've tried
+      description: How you handle this today (other tools, scripts, manual steps).
