@@ -9,12 +9,12 @@
 
 $ErrorActionPreference = 'Stop'
 
-# Walk up to the repo root (the folder that contains nresx.Core/)
+# Walk up to the repo root (the folder that contains src/)
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try
 {
-    $coreProj = Join-Path $repoRoot 'nresx.Core/nresx.Core.csproj'
+    $coreProj = Join-Path $repoRoot 'src/nresx.Core/nresx.Core.csproj'
     $depsDir  = Join-Path $repoRoot 'build/api-docs-deps'
     $apiDir   = Join-Path $repoRoot 'docs/api'
 

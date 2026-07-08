@@ -22,7 +22,7 @@ nresx validate "locales/strings.*.json" -r --warnings-as-errors
 - **Format-agnostic.** po, json, yaml, Android, iOS, resx, xliff and more -
   one model, one command set, any-to-any conversion.
 - **CI-friendly by design.** Deterministic output, documented
-  [exit codes](nresx.CommandLine/README.md#exit-codes), errors on stderr,
+  [exit codes](src/nresx.CommandLine/README.md#exit-codes), errors on stderr,
   `validate` as a drop-in pipeline gate.
 - **Batch-first.** Every command accepts wildcards and `-r` to sweep whole
   directory trees in one call.
@@ -163,7 +163,7 @@ nresx list strings.json
 nresx validate strings.*.json -r
 ```
 
-Full [command reference](nresx.CommandLine/README.md).
+Full [command reference](src/nresx.CommandLine/README.md).
 
 ### .NET library
 
@@ -189,7 +189,7 @@ both accept a `CancellationToken`.
 ## Docs
 
 - [Getting started](docs/getting-started.md) - install, first conversions, library walkthrough.
-- [Command reference](nresx.CommandLine/README.md) - every CLI command, flags, exit codes.
+- [Command reference](src/nresx.CommandLine/README.md) - every CLI command, flags, exit codes.
 - [Format reference](docs/formats/README.md) - per-format roundtrip and quirks.
 - [API reference](docs/api/README.md) - full `nresx.Core` API.
 - [Recipes](docs/recipes/README.md) - translator handoff, CI validation, batch ops.

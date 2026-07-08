@@ -21,7 +21,7 @@
 
   <Target Name="CopyTestFixtures" BeforeTargets="PreBuildEvent">
     <ItemGroup>
-      <_TestFiles Include="$(MSBuildThisFileDirectory)..\.test_files\**\*.*" />
+      <_TestFiles Include="$(MSBuildThisFileDirectory)..\..\.test_files\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(_TestFiles)"
           DestinationFiles="@(_TestFiles->'$(TargetDir).test_files\%(RecursiveDir)%(Filename)%(Extension)')"

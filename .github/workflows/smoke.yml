@@ -42,15 +42,15 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore src/nresx.tools.sln
 
       - name: Test
         if: matrix.os == 'windows-latest'
-        run: dotnet test --no-restore --configuration Release --verbosity normal
+        run: dotnet test src/nresx.tools.sln --no-restore --configuration Release --verbosity normal
 
       - name: Publish standalone binary
         run: >
-          dotnet publish nresx.CommandLine/nresx.CommandLine.csproj
+          dotnet publish src/nresx.CommandLine/nresx.CommandLine.csproj
           -c Release
           -r ${{ matrix.rid }}
           --self-contained true

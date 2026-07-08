@@ -8,7 +8,7 @@
     <title>nresx (Localization Resource File CLI)</title>
     <authors>Sviatoslav Prokipets</authors>
     <projectUrl>https://github.com/svjatpro/nresx.tools</projectUrl>
-    <iconUrl>https://cdn.jsdelivr.net/gh/svjatpro/nresx.tools@main/nresx.Core/icon.png</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/svjatpro/nresx.tools@main/src/nresx.Core/icon.png</iconUrl>
     <licenseUrl>https://github.com/svjatpro/nresx.tools/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/svjatpro/nresx.tools</projectSourceUrl>

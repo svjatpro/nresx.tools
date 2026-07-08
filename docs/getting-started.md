@@ -96,7 +96,7 @@ Findings have two severities: *errors* (broken file: duplicated or empty keys)
 and *warnings* (quality issues: empty values, missed or not translated
 elements). The exit code is non-zero on errors; add `--warnings-as-errors` to
 fail on warnings too, which makes `nresx validate` drop-in usable as a strict
-CI gate. See the [exit code table](../nresx.CommandLine/README.md#exit-codes)
+CI gate. See the [exit code table](../src/nresx.CommandLine/README.md#exit-codes)
 for the full set of codes (`3` not-found, `4` format error, `5` destination conflict, etc.) so scripts
 can branch on specific failure modes.
 
@@ -161,7 +161,7 @@ collects them; `Raw` skips validation entirely.
 
 ## Where to next
 
-- [Command reference](../nresx.CommandLine/README.md) - every CLI command with
+- [Command reference](../src/nresx.CommandLine/README.md) - every CLI command with
   full flag documentation.
 - [Format reference](formats/README.md) - what's preserved, what's lossy, per
   format.

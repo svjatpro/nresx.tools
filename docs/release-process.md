@@ -16,8 +16,8 @@ so a human is always in the loop on what reaches users.
 
 Edit `<Version>` in both csprojs:
 
-- `nresx.Core/nresx.Core.csproj`
-- `nresx.CommandLine/nresx.CommandLine.csproj`
+- `src/nresx.Core/nresx.Core.csproj`
+- `src/nresx.CommandLine/nresx.CommandLine.csproj`
 
 Keep them in lockstep. Commit and push:
 

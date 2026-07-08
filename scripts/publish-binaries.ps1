@@ -19,12 +19,12 @@ $ErrorActionPreference = 'Stop'
 $rids = @('win-x64', 'linux-x64', 'osx-arm64')
 if ($Rid) { $rids = @($Rid) }
 
-# Walk up to the inner repo root (the folder that contains nresx.CommandLine/)
+# Walk up to the inner repo root (the folder that contains src/)
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try
 {
-    $cliProj   = Join-Path $repoRoot 'nresx.CommandLine/nresx.CommandLine.csproj'
+    $cliProj   = Join-Path $repoRoot 'src/nresx.CommandLine/nresx.CommandLine.csproj'
     $outRoot   = Join-Path $repoRoot 'build/release'
     $stageRoot = Join-Path $repoRoot 'build/release/_stage'
 

@@ -29,8 +29,8 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack nresx.Core/nresx.Core.csproj -c Release -o packages
-          dotnet pack nresx.CommandLine/nresx.CommandLine.csproj -c Release -o packages
+          dotnet pack src/nresx.Core/nresx.Core.csproj -c Release -o packages
+          dotnet pack src/nresx.CommandLine/nresx.CommandLine.csproj -c Release -o packages
           ls -la packages
 
       - name: NuGet login (OIDC -> temp API key)

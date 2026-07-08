@@ -37,7 +37,7 @@ namespace nresx.CommandLine.Commands
 
         #region exit codes
 
-        // Documented in nresx.CommandLine/README.md - keep that table in sync when adding codes.
+        // Documented in src/nresx.CommandLine/README.md - keep that table in sync when adding codes.
         public const int ExitSuccess = 0;
         public const int ExitFailure = 1;             // general runtime error
         public const int ExitUsageError = 2;          // bad / missing arguments

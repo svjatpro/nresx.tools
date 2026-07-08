@@ -17,21 +17,21 @@ You need the .NET 9 SDK. Everything works on Windows, Linux, and macOS:
 ```sh
 git clone https://github.com/svjatpro/nresx.tools.git
 cd nresx.tools
-dotnet build
-dotnet test
+dotnet build src/nresx.tools.sln
+dotnet test src/nresx.tools.sln
 ```
 
-The CLI binary lands at `nresx.CommandLine/bin/Debug/net9.0/nresx` (`nresx.exe`
+The CLI binary lands at `src/nresx.CommandLine/bin/Debug/net9.0/nresx` (`nresx.exe`
 on Windows).
 
 ## Repo layout
 
 | Path                     | What it is                                          |
 | ------------------------ | --------------------------------------------------- |
-| `nresx.Core/`            | The library (`netstandard2.0`): formats, model, validation |
-| `nresx.CommandLine/`     | The CLI (`net9.0`): commands, argument handling     |
-| `nresx.Core.Tests/`      | Library tests (NUnit + FluentAssertions)            |
-| `nresx.CommandLine.Tests/` | CLI integration tests (run the built `nresx` binary) |
+| `src/nresx.Core/`        | The library (`netstandard2.0`): formats, model, validation |
+| `src/nresx.CommandLine/` | The CLI (`net9.0`): commands, argument handling     |
+| `src/nresx.Core.Tests/`  | Library tests (NUnit + FluentAssertions)            |
+| `src/nresx.CommandLine.Tests/` | CLI integration tests (run the built `nresx` binary) |
 | `.test_files/`           | Resource-file fixtures used by both test projects   |
 | `docs/`                  | Getting started, format reference, generated API docs, recipes |
 | `scripts/`               | Build / release / docs-generation scripts           |
@@ -42,17 +42,17 @@ on Windows).
   (`Method( arg1, arg2 )`) and K&R-ish braces; just make new code look like its
   neighbors.
 - **Every behavior change needs a test.** New CLI options get integration tests
-  in `nresx.CommandLine.Tests`; library changes get tests in `nresx.Core.Tests`.
+  in `src/nresx.CommandLine.Tests`; library changes get tests in `src/nresx.Core.Tests`.
   Run `dotnet test` before pushing - the full suite must pass on your platform
   (CI runs it on all three OSes).
 - **Error messages and exit codes live in two places.** If you touch the error
-  templates or exit-code constants in `nresx.CommandLine/Commands/Base/BaseCommand.cs`,
-  update the mirrored copies in `nresx.Core.Tests/TestBase/TestBase.cs` in the
+  templates or exit-code constants in `src/nresx.CommandLine/Commands/Base/BaseCommand.cs`,
+  update the mirrored copies in `src/nresx.Core.Tests/TestBase/TestBase.cs` in the
   same commit - they are intentional duplicates so the test project doesn't
   reference the CLI project.
 - **Docs follow the change.** New/changed CLI options belong in
-  `nresx.CommandLine/README.md`; format behavior changes belong in the matching
-  `docs/formats/*.md` page. If you edit XML doc comments in `nresx.Core`,
+  `src/nresx.CommandLine/README.md`; format behavior changes belong in the matching
+  `docs/formats/*.md` page. If you edit XML doc comments in `src/nresx.Core`,
   regenerate the API docs: `dotnet tool restore` once, then
   `powershell -File scripts/gen-api-docs.ps1` (or `pwsh -File ...`), and commit
   the regenerated `docs/api/` output.

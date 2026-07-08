@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace nresx.CommandLine.Tests.ExitCodes
 {
-    // Verifies the documented exit-code table in nresx.CommandLine/README.md (RSX-151).
+    // Verifies the documented exit-code table in src/nresx.CommandLine/README.md (RSX-151).
     // Keep the cases here in sync with that table.
     [TestFixture]
     public class ExitCodeTests : TestBase
