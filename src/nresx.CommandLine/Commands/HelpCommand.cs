@@ -1,9 +1,11 @@
-﻿using System;
+using System;
+using System.Linq;
 using CommandLine;
+using nresx.CommandLine.Commands.Base;
 
 namespace nresx.CommandLine.Commands;
 
-[Verb("help", HelpText = "help")]
+[Verb("help", HelpText = "Show help for a command")]
 public class HelpCommand : BaseCommand
 {
     [Option('a', "all", HelpText = "List all commands", Required = false)]
@@ -13,40 +15,43 @@ public class HelpCommand : BaseCommand
 
     protected override void ExecuteCommand()
     {
-        //if (ListAll)
+        // `nresx help <command>` - detailed help for a single command (same output as
+        // `nresx <command> --help`). Extra positional args beyond the first are ignored.
+        var target = Args?.FirstOrDefault();
+        if ( !string.IsNullOrWhiteSpace( target ) )
         {
-            Console.WriteLine("Main Commands:");
-            foreach (var t in Context.CommandTypes)
+            var cmdType = Context.CommandTypes.FirstOrDefault( t =>
+                string.Equals(
+                    ( t.GetCustomAttributes( typeof(VerbAttribute), false ).FirstOrDefault() as VerbAttribute )?.Name,
+                    target, StringComparison.CurrentCultureIgnoreCase ) );
+            if ( cmdType != null )
             {
-                var verb = t.GetCustomAttributes(typeof(VerbAttribute), false);
-                if (verb.Length > 0)
-                {
-                    var v = (VerbAttribute)verb[0];
-                    Console.WriteLine($"  {v.Name,-12} {v.HelpText}");
-                }
+                HelpRenderer.Render( cmdType );
+                return;
             }
+
+            WriteError( ExitUsageError, UnknownCommandErrorMessage, target );
+            WriteCommandList();
             return;
         }
 
-        //var help = HelpText.AutoBuild(result, h =>
-        //{
-        //    h.Heading = "nresx - resource tool";
-        //    h.Copyright = "© 2025 nresx";
-        //    h.Version = "0.3.0";
-        //    h.AddPreOptionsLine("Usage: nresx <command> [options]");
-        //    h.AddPostOptionsLine("");
-        //    h.AddPostOptionsLine("Available commands:");
-        //    foreach (var t in commandTypes)
-        //    {
-        //        var verb = t.GetCustomAttribute<VerbAttribute>();
-        //        if (verb != null)
-        //            h.AddPostOptionsLine($"  {verb.Name,-12} {verb.HelpText}");
-        //    }
-        //    h.AddPostOptionsLine("");
-        //    h.AddPostOptionsLine("Use 'nresx <command> -h' for more details.");
-        //    return h;
-        //}, e => e);
+        WriteCommandList();
+    }
 
-        //Console.WriteLine($@"nresx help");
+    private void WriteCommandList()
+    {
+        Console.WriteLine( "Main Commands:" );
+        foreach ( var t in Context.CommandTypes )
+        {
+            var verb = t.GetCustomAttributes( typeof(VerbAttribute), false );
+            if ( verb.Length > 0 )
+            {
+                var v = (VerbAttribute)verb[0];
+                Console.WriteLine( $"  {v.Name,-12} {v.HelpText}" );
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine( "Use 'nresx help <command>' or 'nresx <command> --help' for detailed help." );
     }
 }

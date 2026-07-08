@@ -1,6 +1,7 @@
 Commands
 ================
 
+- [Getting help](#getting-help)
 - [Convert](#convert)
 - [Format](#format)
 - [Info](#info)
@@ -15,6 +16,20 @@ Commands
 - [Verbose mode](#verbose-mode)
 - [Exit codes](#exit-codes)
 - [Scripting nresx](#scripting-nresx)
+
+## Getting help
+
+`nresx help` lists every command. For detailed help on a single command - its
+options and a few real example invocations - use either spelling (they print the
+same thing):
+
+```sh
+nresx help convert       # help verb
+nresx convert --help     # or the -h / --help flag
+```
+
+Both exit `0`. `nresx help <unknown>` prints `Unknown command: '<unknown>'` on
+stderr, falls back to the command list, and exits `2`.
 
 ## Convert
 Convert resource file(s) to another format

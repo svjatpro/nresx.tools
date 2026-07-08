@@ -19,6 +19,8 @@ namespace nresx.Core.Tests
             "fatal: resource format could not be determined. Pass -f <format> with one of: resx, resw, po, json, yaml, xliff, xml, strings, properties, arb, csv, tsv, xlsx, ini, txt.";
         protected const string FileAlreadyExistErrorMessage =
             "fatal: destination file '{0}' already exists. Move or rename the existing file before running this command.";
+        protected const string UnknownCommandErrorMessage =
+            "Unknown command: '{0}'";
 
         // Mirror of the exit-code constants in nresx.CommandLine BaseCommand.cs (RSX-151).
         protected const int ExitSuccess = 0;

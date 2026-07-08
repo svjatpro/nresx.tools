@@ -21,6 +21,17 @@ namespace nresx.CommandLine.Commands
         [Option( 'd', "destination", HelpText = "Destination resource file" )]
         public IEnumerable<string> DestinationFiles { get; set; }
 
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will convert single resource file (res1.resx) to .po format and save with new name (res2.po)\n" +
+            "nresx convert path1/res1.resx path2/res2.po",
+            "# will convert single resource file (res1.resx) to .yaml format and save as (res1.yaml) in the same folder\n" +
+            "nresx convert res1.resx -f yaml",
+            "# will convert all resource files in current folder and all subdirectories\n" +
+            "#   to .yaml format and save with the same name (but with .yaml extension) in an appropriate folder\n" +
+            "nresx convert *.resx -f yaml --recursive",
+        ];
+
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()

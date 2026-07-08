@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using CommandLine;
 using nresx.CommandLine.Commands;
+using nresx.CommandLine.Commands.Base;
 
 namespace nresx.CommandLine;
 
@@ -128,6 +129,23 @@ class Program
             s.AutoHelp = false;
         });
         var context = new CommandLineContext();
+
+        // `nresx <command> --help` / `-h`: render detailed help for that command and exit 0
+        // (help is a successful outcome, not a usage error). `-h`/`--help` as the first arg
+        // still routes to the general command list via commandMap above.
+        if ( parsedCommand != null && parsedCommand != helpCommand && parsedCommand != versionCommand &&
+             args.Skip( 1 ).Any( a => a is "-h" or "--help" ) )
+        {
+            var cmdType = context.CommandTypes.FirstOrDefault( t =>
+                string.Equals(
+                    ( t.GetCustomAttribute( typeof(VerbAttribute) ) as VerbAttribute )?.Name,
+                    parsedCommand, StringComparison.CurrentCultureIgnoreCase ) );
+            if ( cmdType != null )
+            {
+                HelpRenderer.Render( cmdType );
+                return BaseCommand.ExitSuccess;
+            }
+        }
 
         //if ( parsedCommand == versionCommand )
         //{

@@ -61,6 +61,8 @@ namespace nresx.CommandLine.Commands
             "fatal: destination file '{0}' already exists. Move or rename the existing file before running this command.";
         protected const string ElementNotFoundErrorMessage =
             "fatal: element with key '{0}' was not found in '{1}'. Use 'nresx list' to see existing keys, or pass --new-element to add it.";
+        protected const string UnknownCommandErrorMessage =
+            "Unknown command: '{0}'";
 
         #endregion
 
@@ -162,6 +164,16 @@ namespace nresx.CommandLine.Commands
         }
 
         protected abstract void ExecuteCommand();
+
+        // Real example invocations shown in the "Examples:" section of the detailed
+        // per-command help (`nresx <command> --help` / `nresx help <command>`). Each
+        // entry is one example - a leading '#' comment line (optional) plus the command
+        // line, separated by '\n'. Lifted verbatim from src/nresx.CommandLine/README.md.
+        protected virtual IEnumerable<string> HelpExamples => [];
+
+        // Accessor so HelpRenderer (outside the inheritance chain) can read the
+        // per-command examples while HelpExamples itself stays a protected override point.
+        internal IEnumerable<string> GetHelpExamples() => HelpExamples ?? [];
 
         public bool Successful { get; protected set; } = true;
         public Exception Exception { get; protected set; } = null;
