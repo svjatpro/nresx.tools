@@ -24,7 +24,7 @@ if (-not (Test-Path $zipPath))
 }
 
 $releaseDir = Join-Path $repoRoot 'build/release'
-$fixturesDir = Join-Path $repoRoot '.test_files'
+$fixturesDir = Join-Path $repoRoot 'src/.test_files'
 
 Write-Host "==> Running linux-x64 smoke inside ubuntu:latest..."
 

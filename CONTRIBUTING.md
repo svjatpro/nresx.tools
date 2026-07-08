@@ -32,7 +32,7 @@ on Windows).
 | `src/nresx.CommandLine/` | The CLI (`net9.0`): commands, argument handling     |
 | `src/nresx.Core.Tests/`  | Library tests (NUnit + FluentAssertions)            |
 | `src/nresx.CommandLine.Tests/` | CLI integration tests (run the built `nresx` binary) |
-| `.test_files/`           | Resource-file fixtures used by both test projects   |
+| `src/.test_files/`       | Resource-file fixtures used by both test projects   |
 | `docs/`                  | Getting started, format reference, generated API docs, recipes |
 | `scripts/`               | Build / release / docs-generation scripts           |
 

@@ -55,8 +55,8 @@ jobs:
           unzip -q build/release/nresx-${{ matrix.rid }}.zip -d "$tmp"
           chmod +x "$tmp/${{ matrix.exe }}" || true
           "$tmp/${{ matrix.exe }}" --version
-          "$tmp/${{ matrix.exe }}" info .test_files/Resources.resx
-          "$tmp/${{ matrix.exe }}" info .test_files/Resources.yaml
+          "$tmp/${{ matrix.exe }}" info src/.test_files/Resources.resx
+          "$tmp/${{ matrix.exe }}" info src/.test_files/Resources.yaml
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
