@@ -44,5 +44,19 @@ namespace nresx.Core
 
             source.Save( destinationPath, targetFormat, createDir: false );
         }
+
+        /// <summary>
+        /// Computes the key-based difference between two resource files (which may be in different formats).
+        /// Elements are read raw (duplicates preserved; first occurrence per key wins). See <see cref="ResourceDiff"/>.
+        /// </summary>
+        /// <param name="firstPath">The "before" / left file.</param>
+        /// <param name="secondPath">The "after" / right file.</param>
+        /// <exception cref="UnknownResourceFormatException">Thrown when either path's extension is not a recognized resource format.</exception>
+        public static ResourceDiff Diff( string firstPath, string secondPath )
+        {
+            var first = ResourceFile.LoadRawElements( firstPath );
+            var second = ResourceFile.LoadRawElements( secondPath );
+            return ResourceDiff.Compare( first, second );
+        }
     }
 }
