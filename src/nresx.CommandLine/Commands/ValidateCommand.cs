@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
@@ -36,30 +34,25 @@ namespace nresx.CommandLine.Commands
 
             ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
-                // load elements + capture detected culture per file
-                var resources = group
-                    .Select( f =>
-                    {
-                        var elements = ResourceFile.LoadRawElements( f.FileInfo.FullName ).ToList();
-                        f.FileInfo.FullName.TryToExtractCultureFromPath( out var culture );
-                        return new GroupMember( f.FileInfo, elements, culture );
-                    } )
+                // load raw elements (duplicates preserved) per file
+                var resources = group.Files
+                    .Select( f => new GroupMember( f, ResourceFile.LoadRawElements( f.AbsolutePath ).ToList() ) )
                     .ToList();
 
-                // union-of-keys map: key → (fileHash → value); used for MissedElement
-                var resourceMap = new Dictionary<string, Dictionary<int, string>>();
+                // union-of-keys map: key → (file → value); used for MissedElement
+                var resourceMap = new Dictionary<string, Dictionary<ResourceFile, string>>();
                 foreach ( var r in resources )
                 {
                     foreach ( var element in r.Elements )
                     {
                         var key = element.Key ?? string.Empty;
-                        resourceMap.TryAdd( key, new Dictionary<int, string>() );
-                        resourceMap[key].TryAdd( r.FileInfo.GetHashCode(), element.Value );
+                        resourceMap.TryAdd( key, new Dictionary<ResourceFile, string>() );
+                        resourceMap[key].TryAdd( r.File, element.Value );
                     }
                 }
 
-                // pick base file for the group (the source language file)
-                var baseFile = PickBaseFile( resources, BasicLanguage );
+                // base file for the group (the source language file), picked by ResourceGroup.Detect
+                var baseFile = group.BaseFile;
 
                 resources.ForEach( r =>
                 {
@@ -74,12 +67,12 @@ namespace nresx.CommandLine.Commands
                     }
 
                     // not translated: only for non-base files, only against the base's value
-                    if ( baseFile != null && r.FileInfo.GetHashCode() != baseFile.GetHashCode() )
+                    if ( baseFile != null && !ReferenceEquals( r.File, baseFile ) )
                     {
                         foreach ( var el in r.Elements )
                         {
                             if ( !resourceMap.TryGetValue( el.Key, out var elMap ) ) continue;
-                            if ( elMap.TryGetValue( baseFile.GetHashCode(), out var baseValue ) && baseValue == el.Value )
+                            if ( elMap.TryGetValue( baseFile, out var baseValue ) && baseValue == el.Value )
                             {
                                 result = false;
                                 errors.Add( new ResourceElementError( ResourceElementErrorType.NotTranslated, el.Key ) );
@@ -97,7 +90,7 @@ namespace nresx.CommandLine.Commands
                                 ? elementError.ElementKey
                                 : ( elementError.Message ?? string.Empty );
 
-                            Console.WriteLine( $"{r.FileInfo.FullName}: {severityLabel}: {elementError.ErrorType}: {detail}" );
+                            Console.WriteLine( $"{r.File.AbsolutePath}: {severityLabel}: {elementError.ErrorType}: {detail}" );
 
                             totalIssues++;
                             if ( severity == ResourceElementErrorSeverity.Error )
@@ -110,7 +103,7 @@ namespace nresx.CommandLine.Commands
                         }
                     }
                 } );
-            } );
+            }, BasicLanguage );
 
             if ( totalIssues > 0 )
             {
@@ -127,51 +120,15 @@ namespace nresx.CommandLine.Commands
             return $"Found {issues} {Plural( issues, "issue" )} ({errors} {Plural( errors, "error" )}, {warnings} {Plural( warnings, "warning" )})";
         }
 
-        // Pick the base (source-language) file for a translation group:
-        //   1. Explicit --basic-lan match (by full culture name or 2-letter ISO)
-        //   2. The neutral file (no culture in path) - typical .NET satellite layout
-        //   3. The English file
-        //   4. First alphabetical by culture name
-        //   5. None - single-file group or no cultures detected → no NotTranslated checks
-        private static FileInfo PickBaseFile( List<GroupMember> files, string explicitBasicLang )
-        {
-            if ( files.Count < 2 ) return null;
-
-            if ( !string.IsNullOrWhiteSpace( explicitBasicLang ) )
-            {
-                var explicitMatch = files.FirstOrDefault( f =>
-                    f.Culture != null &&
-                    ( string.Equals( f.Culture.Name, explicitBasicLang, StringComparison.OrdinalIgnoreCase ) ||
-                      string.Equals( f.Culture.TwoLetterISOLanguageName, explicitBasicLang, StringComparison.OrdinalIgnoreCase ) ) );
-                if ( explicitMatch != null ) return explicitMatch.FileInfo;
-            }
-
-            var neutral = files.FirstOrDefault( f => f.Culture == null );
-            if ( neutral != null ) return neutral.FileInfo;
-
-            var english = files.FirstOrDefault( f =>
-                f.Culture != null &&
-                string.Equals( f.Culture.TwoLetterISOLanguageName, "en", StringComparison.OrdinalIgnoreCase ) );
-            if ( english != null ) return english.FileInfo;
-
-            return files
-                .Where( f => f.Culture != null )
-                .OrderBy( f => f.Culture.Name, StringComparer.OrdinalIgnoreCase )
-                .FirstOrDefault()
-                ?.FileInfo;
-        }
-
         private sealed class GroupMember
         {
-            public FileInfo FileInfo { get; }
+            public ResourceFile File { get; }
             public List<ResourceElement> Elements { get; }
-            public CultureInfo Culture { get; }
 
-            public GroupMember( FileInfo fileInfo, List<ResourceElement> elements, CultureInfo culture )
+            public GroupMember( ResourceFile file, List<ResourceElement> elements )
             {
-                FileInfo = fileInfo;
+                File = file;
                 Elements = elements;
-                Culture = culture;
             }
         }
     }

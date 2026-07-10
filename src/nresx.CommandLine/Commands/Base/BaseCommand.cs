@@ -12,26 +12,6 @@ using nresx.Core.Helpers;
 
 namespace nresx.CommandLine.Commands
 {
-    public class ResourceFileInfo
-    {
-        public FileInfo FileInfo { get; }
-
-        private ResourceFile _resource;
-        public ResourceFile Resource
-        {
-            get
-            {
-                if ( _resource == null )
-                    _resource = new ResourceFile( FileInfo.FullName );
-                return _resource;
-            }
-        }
-
-        public ResourceFileInfo( string path )
-        {
-            FileInfo = new FileInfo( path );
-        }
-    }
     public abstract class BaseCommand : ICommand
     {
 
@@ -186,32 +166,31 @@ namespace nresx.CommandLine.Commands
             return new OptionContext( Args.ToList(), true );
         }
 
+        // Expands the source patterns into concrete files (CLI-side wildcard handling stays here,
+        // RSX-128) then delegates the multi-file grouping and base-language pick to
+        // nresx.Core's ResourceGroup.Detect (RSX-235) so the library and CLI share one implementation.
         protected void ForEachResourceGroup(
             List<string> sourceFiles,
-            Action<GroupSearchContext, List<ResourceFileInfo>> resourceAction,
-            Action<GroupSearchContext, Exception> errorHandler = null,
-            bool splitFiles = false )
+            Action<GroupSearchContext, ResourceGroup> resourceAction,
+            string baseLanguage = null )
         {
             if ( sourceFiles?.Count > 0 )
             {
-                var groups = new List<List<FileInfo>>();
-
-                var resFiles = new List<(FilesSearchContext context, ResourceFormatType format, CultureInfo culture)>();
+                var paths = new List<string>();
 
                 // query all resource files
                 for ( var i = 0; i < sourceFiles.Count; i++ )
                 {
                     var sourcePattern = sourceFiles[i];
-                    FilesHelper.SearchFiles( 
-                        sourcePattern, 
+                    FilesHelper.SearchFiles(
+                        sourcePattern,
                         context =>
                         {
                             if ( context.FileExists &&
-                               ( ResourceFormatHelper.DetectFormatByExtension( context.FullName, out var format ) ||
+                               ( ResourceFormatHelper.DetectFormatByExtension( context.FullName, out _ ) ||
                                  context.SourcePathSpec.IsRegularName() ) )
                             {
-                                context.FullName.TryToExtractCultureFromPath( out var culture );
-                                resFiles.Add( (context, format, culture) );
+                                paths.Add( context.FullName );
                             }
                         },
                         recursive: Recursive && IsRecursiveAllowed,
@@ -219,74 +198,13 @@ namespace nresx.CommandLine.Commands
                         dryRun: DryRun && IsDryRunAllowed );
                 }
 
-                // try to get group of resource in the same folder
-                resFiles = resFiles
-                    .GroupBy( r => Path.GetDirectoryName( r.context.FullName ) )
-                    .SelectMany( grp =>
-                    {
-                        var notProcessed = new List<(FilesSearchContext context, ResourceFormatType format, CultureInfo culture)>();
-                        grp
-                            .GroupBy( f => f.format )
-                            .ToList()
-                            .ForEach( g =>
-                            {
-                                var candidates = g.Where( f => f.format != ResourceFormatType.NA && f.culture != null ).ToList();
-                                if ( candidates.Count > 1 )
-                                {
-                                    groups.Add( candidates.Select( f => f.context.CurrentFile ).ToList() );
-                                    notProcessed.AddRange( g.Where( f => f.culture == null || f.format == ResourceFormatType.NA ) );
-                                }
-                                else
-                                {
-                                    notProcessed.AddRange( g );
-                                }
-                            });
-                        return notProcessed;
-                    } )
-                    .ToList();
-
-                // try to get group from culture specific folders
-                if ( resFiles.Any() )
+                var groups = ResourceGroup.Detect( paths, baseLanguage );
+                var totalFiles = groups.Sum( g => g.Files.Count );
+                foreach ( var group in groups )
                 {
-                    resFiles = resFiles
-                        .GroupBy( r => Path.GetFullPath( Path.Combine( r.context.FullName, "..", ".." ) ) )
-                        .SelectMany( grp =>
-                        {
-                            var notProcessed = new List<(FilesSearchContext context, ResourceFormatType format, CultureInfo culture)>();
-                            grp
-                                .GroupBy( f => f.format )
-                                .ToList()
-                                .ForEach( g =>
-                                {
-                                    var candidates = g.Where( f => f.format != ResourceFormatType.NA && f.culture != null ).ToList();
-                                    if ( candidates.Count > 1 )
-                                    {
-                                        groups.Add( candidates.Select( f => f.context.CurrentFile ).ToList() );
-                                        notProcessed.AddRange( g.Where( f => f.culture == null || f.format == ResourceFormatType.NA ) );
-                                    }
-                                    else
-                                    {
-                                        notProcessed.AddRange( g );
-                                    }
-                                } );
-                            return notProcessed;
-                        } )
-                        .ToList();
+                    var context = new GroupSearchContext( groups.Count, totalFiles );
+                    resourceAction( context, group );
                 }
-
-                // all remain resources add as a separate groups
-                if ( resFiles.Any() )
-                {
-                    groups.AddRange( resFiles.Select( f => new List<FileInfo>{ f.context.CurrentFile } ).ToList() );
-                }
-
-                groups.ForEach( group =>
-                {
-                    //var files = group.Select( g => new ResourceFile( g.FullName ) ).ToList();
-                    var files = group.Select( g => new ResourceFileInfo( g.FullName ) ).ToList();
-                    var context = new GroupSearchContext( groups.Count, groups.Select( g => g.Count ).Sum() );
-                    resourceAction( context, files );
-                } );
             }
         }
 
