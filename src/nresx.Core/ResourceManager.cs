@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using nresx.Core.Exceptions;
 using nresx.Core.Helpers;
 
@@ -20,6 +22,35 @@ namespace nresx.Core
             var version = $"v{ver.Major}.{ver.Minor}.{ver.Revision}";
 
             return version;
+        }
+
+        /// <summary>
+        /// Groups an explicit list of resource file paths into translation groups (locale sets), detecting
+        /// the base/source-language file of each. Wildcard expansion is a CLI concern - pass concrete paths.
+        /// Convenience passthrough to <see cref="ResourceGroup.Detect"/>.
+        /// </summary>
+        /// <param name="paths">Explicit file paths (each must exist).</param>
+        /// <param name="baseLanguage">Optional language code (e.g. <c>en</c>) forcing the base-file pick; auto-detected when null.</param>
+        /// <exception cref="System.IO.FileNotFoundException">Thrown when any path does not exist.</exception>
+        public static IReadOnlyList<ResourceGroup> LoadGroups( IEnumerable<string> paths, string? baseLanguage = null )
+        {
+            return ResourceGroup.Detect( paths, baseLanguage );
+        }
+
+        /// <summary>
+        /// Validates a set of resource files as translation groups and returns every finding as data.
+        /// Files are grouped by <see cref="ResourceGroup.Detect"/>, then each group is validated
+        /// (per-file element checks plus group-level missed / not-translated checks - see
+        /// <see cref="ResourceGroup.Validate"/>).
+        /// </summary>
+        /// <param name="paths">Explicit file paths (each must exist).</param>
+        /// <param name="baseLanguage">Optional language code (e.g. <c>en</c>) forcing the base-file pick; auto-detected when null.</param>
+        /// <exception cref="System.IO.FileNotFoundException">Thrown when any path does not exist.</exception>
+        public static IReadOnlyList<ResourceValidationIssue> Validate( IEnumerable<string> paths, string? baseLanguage = null )
+        {
+            return ResourceGroup.Detect( paths, baseLanguage )
+                .SelectMany( group => group.Validate() )
+                .ToList();
         }
 
         /// <summary>
