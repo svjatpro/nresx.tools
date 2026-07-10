@@ -31,16 +31,33 @@ namespace nresx.CommandLine.Tests.Info
         }
 
         private void ValidateOutputInfo(
-            List<string> consoleOutput, 
-            int startIndex, 
-            string fileName, 
-            string path, 
+            List<string> consoleOutput,
+            int startIndex,
+            string fileName,
+            string path,
             ResourceFormatType formatType = ResourceFormatType.Resx )
         {
             var elCount = GetExampleResourceFile().Elements.Count();
             consoleOutput[startIndex + 0].Should().Be( $"Resource file name: \"{fileName}\", (\"{path})\"" );
             consoleOutput[startIndex + 1].Should().Be( $"resource format type: {formatType}" );
             consoleOutput[startIndex + 2].Should().Be( $"text elements: {elCount}" );
+        }
+
+        // Order-insensitive variant: files matched by a mask are processed in OS directory
+        // enumeration order, which is alphabetical on Windows but arbitrary on Linux/macOS
+        // (RSX-243) - locate the file's block by its header line instead of by position.
+        private void ValidateOutputInfoAnyPosition(
+            List<string> consoleOutput,
+            string fileName,
+            string path,
+            ResourceFormatType formatType = ResourceFormatType.Resx )
+        {
+            var elCount = GetExampleResourceFile().Elements.Count();
+            var header = $"Resource file name: \"{fileName}\", (\"{path})\"";
+            var index = consoleOutput.IndexOf( header );
+            index.Should().BeGreaterThanOrEqualTo( 0, $"output should contain the info block for '{fileName}'" );
+            consoleOutput[index + 1].Should().Be( $"resource format type: {formatType}" );
+            consoleOutput[index + 2].Should().Be( $"text elements: {elCount}" );
         }
 
         #endregion
@@ -75,8 +92,8 @@ namespace nresx.CommandLine.Tests.Info
                 .ValidateStdout( args =>
                 {
                     args.ConsoleOutput.Count.Should().Be( 7 );
-                    ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
-                    ValidateOutputInfo( args.ConsoleOutput, 4, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
+                    ValidateOutputInfoAnyPosition( args.ConsoleOutput, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
+                    ValidateOutputInfoAnyPosition( args.ConsoleOutput, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
                 } );
         }
 
@@ -94,9 +111,9 @@ namespace nresx.CommandLine.Tests.Info
                 .ValidateStdout( args =>
                 {
                     args.ConsoleOutput.Count.Should().Be( 11 );
-                    ValidateOutputInfo( args.ConsoleOutput, 0, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
-                    ValidateOutputInfo( args.ConsoleOutput, 4, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
-                    ValidateOutputInfo( args.ConsoleOutput, 8, Path.GetFileName( files[2] ), Path.GetFullPath( files[2] ) );
+                    ValidateOutputInfoAnyPosition( args.ConsoleOutput, Path.GetFileName( files[0] ), Path.GetFullPath( files[0] ) );
+                    ValidateOutputInfoAnyPosition( args.ConsoleOutput, Path.GetFileName( files[1] ), Path.GetFullPath( files[1] ) );
+                    ValidateOutputInfoAnyPosition( args.ConsoleOutput, Path.GetFileName( files[2] ), Path.GetFullPath( files[2] ) );
                 } );
         }
 
