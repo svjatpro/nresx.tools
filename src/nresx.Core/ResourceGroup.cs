@@ -92,6 +92,65 @@ public class ResourceGroup
         return groups;
     }
 
+    /// <summary>
+    /// Validates the group and returns every finding as data (instead of printing). Combines per-file
+    /// element checks (duplicate/empty key, empty value - see <see cref="ResourceFileExtensions.ValidateElements(System.Collections.Generic.IEnumerable{ResourceElement},out System.Collections.Generic.List{ResourceElementError})"/>)
+    /// with the group-level checks: <see cref="ResourceElementErrorType.MissedElement"/> (a key present in
+    /// another file of the group but absent here) and <see cref="ResourceElementErrorType.NotTranslated"/>
+    /// (a non-base file whose value equals the <see cref="BaseFile"/>'s value for the same key). Elements are
+    /// read raw (duplicates preserved) so duplicate-key findings survive.
+    /// </summary>
+    public IReadOnlyList<ResourceValidationIssue> Validate()
+    {
+        var issues = new List<ResourceValidationIssue>();
+
+        var members = Files
+            .Select( f => (file: f, elements: ResourceFile.LoadRawElements( f.AbsolutePath ).ToList()) )
+            .ToList();
+
+        // union-of-keys map: key -> (file -> first value in that file); used for MissedElement / NotTranslated
+        var resourceMap = new Dictionary<string, Dictionary<ResourceFile, string>>();
+        foreach ( var m in members )
+        {
+            foreach ( var element in m.elements )
+            {
+                var key = element.Key ?? string.Empty;
+                if ( !resourceMap.TryGetValue( key, out var byFile ) )
+                {
+                    byFile = new Dictionary<ResourceFile, string>();
+                    resourceMap[key] = byFile;
+                }
+                if ( !byFile.ContainsKey( m.file ) )
+                    byFile[m.file] = element.Value;
+            }
+        }
+
+        foreach ( var m in members )
+        {
+            m.elements.ValidateElements( out var errors );
+
+            // missed elements: any key present somewhere else in the group but not here
+            var missed = resourceMap.Keys.Except( m.elements.Select( el => el.Key ) ).ToList();
+            errors.AddRange( missed.Select( el => new ResourceElementError( ResourceElementErrorType.MissedElement, el ) ) );
+
+            // not translated: only for non-base files, only against the base's value
+            if ( BaseFile != null && !ReferenceEquals( m.file, BaseFile ) )
+            {
+                foreach ( var el in m.elements )
+                {
+                    if ( !resourceMap.TryGetValue( el.Key, out var elMap ) ) continue;
+                    if ( elMap.TryGetValue( BaseFile, out var baseValue ) && baseValue == el.Value )
+                        errors.Add( new ResourceElementError( ResourceElementErrorType.NotTranslated, el.Key ) );
+                }
+            }
+
+            foreach ( var error in errors )
+                issues.Add( new ResourceValidationIssue( m.file.AbsolutePath, error ) );
+        }
+
+        return issues;
+    }
+
     // Runs one grouping pass over the not-yet-grouped files: buckets by keySelector, and within each
     // bucket by format, promoting any bucket with 2+ culture-carrying files to its own group. Returns
     // the files that were not grouped in this pass (to feed the next pass).

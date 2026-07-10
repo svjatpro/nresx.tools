@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
-using nresx.Core;
 using nresx.Core.Extensions;
 
 namespace nresx.CommandLine.Commands
@@ -32,77 +29,30 @@ namespace nresx.CommandLine.Commands
             var totalErrors = 0;
             var totalWarnings = 0;
 
+            // Cross-file validation lives in nresx.Core (RSX-235); the command only renders the
+            // findings, counts severities, and maps them to the exit code.
             ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
-                // load raw elements (duplicates preserved) per file
-                var resources = group.Files
-                    .Select( f => new GroupMember( f, ResourceFile.LoadRawElements( f.AbsolutePath ).ToList() ) )
-                    .ToList();
-
-                // union-of-keys map: key → (file → value); used for MissedElement
-                var resourceMap = new Dictionary<string, Dictionary<ResourceFile, string>>();
-                foreach ( var r in resources )
+                foreach ( var issue in group.Validate() )
                 {
-                    foreach ( var element in r.Elements )
-                    {
-                        var key = element.Key ?? string.Empty;
-                        resourceMap.TryAdd( key, new Dictionary<ResourceFile, string>() );
-                        resourceMap[key].TryAdd( r.File, element.Value );
-                    }
+                    var error = issue.Error;
+                    var severity = error.ErrorType.GetSeverity();
+                    var severityLabel = severity == ResourceElementErrorSeverity.Error ? "error" : "warning";
+                    var detail = !string.IsNullOrWhiteSpace( error.ElementKey )
+                        ? error.ElementKey
+                        : ( error.Message ?? string.Empty );
+
+                    Console.WriteLine( $"{issue.FilePath}: {severityLabel}: {error.ErrorType}: {detail}" );
+
+                    totalIssues++;
+                    if ( severity == ResourceElementErrorSeverity.Error )
+                        totalErrors++;
+                    else
+                        totalWarnings++;
+
+                    if ( severity == ResourceElementErrorSeverity.Error || WarningsAsErrors )
+                        anyFailure = true;
                 }
-
-                // base file for the group (the source language file), picked by ResourceGroup.Detect
-                var baseFile = group.BaseFile;
-
-                resources.ForEach( r =>
-                {
-                    var result = r.Elements.ValidateElements( out var errors );
-
-                    // missed elements: any key present somewhere else in the group but not here
-                    var missed = resourceMap.Keys.Except( r.Elements.Select( el => el.Key ) ).ToList();
-                    if ( missed.Any() )
-                    {
-                        result = false;
-                        errors.AddRange( missed.Select( el => new ResourceElementError( ResourceElementErrorType.MissedElement, el ) ) );
-                    }
-
-                    // not translated: only for non-base files, only against the base's value
-                    if ( baseFile != null && !ReferenceEquals( r.File, baseFile ) )
-                    {
-                        foreach ( var el in r.Elements )
-                        {
-                            if ( !resourceMap.TryGetValue( el.Key, out var elMap ) ) continue;
-                            if ( elMap.TryGetValue( baseFile, out var baseValue ) && baseValue == el.Value )
-                            {
-                                result = false;
-                                errors.Add( new ResourceElementError( ResourceElementErrorType.NotTranslated, el.Key ) );
-                            }
-                        }
-                    }
-
-                    if ( !result )
-                    {
-                        foreach ( var elementError in errors )
-                        {
-                            var severity = elementError.ErrorType.GetSeverity();
-                            var severityLabel = severity == ResourceElementErrorSeverity.Error ? "error" : "warning";
-                            var detail = !string.IsNullOrWhiteSpace( elementError.ElementKey )
-                                ? elementError.ElementKey
-                                : ( elementError.Message ?? string.Empty );
-
-                            Console.WriteLine( $"{r.File.AbsolutePath}: {severityLabel}: {elementError.ErrorType}: {detail}" );
-
-                            totalIssues++;
-                            if ( severity == ResourceElementErrorSeverity.Error )
-                                totalErrors++;
-                            else
-                                totalWarnings++;
-
-                            if ( severity == ResourceElementErrorSeverity.Error || WarningsAsErrors )
-                                anyFailure = true;
-                        }
-                    }
-                } );
             }, BasicLanguage );
 
             if ( totalIssues > 0 )
@@ -118,18 +68,6 @@ namespace nresx.CommandLine.Commands
         {
             string Plural( int n, string word ) => n == 1 ? word : word + "s";
             return $"Found {issues} {Plural( issues, "issue" )} ({errors} {Plural( errors, "error" )}, {warnings} {Plural( warnings, "warning" )})";
-        }
-
-        private sealed class GroupMember
-        {
-            public ResourceFile File { get; }
-            public List<ResourceElement> Elements { get; }
-
-            public GroupMember( ResourceFile file, List<ResourceElement> elements )
-            {
-                File = file;
-                Elements = elements;
-            }
         }
     }
 }
