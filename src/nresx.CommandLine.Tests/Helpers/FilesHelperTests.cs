@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +22,7 @@ namespace nresx.CommandLine.Tests.Helpers
             new DirectoryInfo( Path.Combine( TestData.OutputFolder, dirKey ) ).Create();
             var filePath1 = GetOutputPath( $"{fileKey}_11.resx" );
             var filePath2 = GetOutputPath( $"{fileKey}_2.resx" );
-            var filePath3 = GetOutputPath( $"{dirKey}\\{fileKey}_33.resx" );
+            var filePath3 = GetOutputPath( $"{dirKey}/{fileKey}_33.resx" );
 
             TestHelper.CopyTemporaryFile( destPath: filePath1 );
             TestHelper.CopyTemporaryFile( destPath: filePath2 );
@@ -37,7 +37,7 @@ namespace nresx.CommandLine.Tests.Helpers
             var actualFailed = new List<string>();
 
             FilesHelper.SearchResourceFiles(
-                $"{TestData.OutputFolder}\\{fileKey}*.resx",
+                $"{TestData.OutputFolder}/{fileKey}*.resx",
                 ( ctx, res ) => actualProcessed.Add( res.FileName ),
                 ( ctx, ex ) => actualFailed.Add( ctx.FileName ),
                 recursive: recursive);

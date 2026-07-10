@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using FluentAssertions;
 using nresx.Core.Extensions;
 using NUnit.Framework;
 
@@ -17,13 +19,16 @@ namespace nresx.Core.Tests.Extensions
             return source.SplitLines();
         }
 
-        [TestCase( "qqqqq\nwwwwww\r\neee", ExpectedResult = "qqqqq\r\nwwwwww\r\neee" )]
-        [TestCase( "qqqqq\nwwwwww\neee", ExpectedResult = "qqqqq\r\nwwwwww\r\neee" )]
-        [TestCase( "qqqqq\r\nwwwwww\neee", ExpectedResult = "qqqqq\r\nwwwwww\r\neee" )]
-        [TestCase( "qqqqq\r\nwwwwww\r\neee", ExpectedResult = "qqqqq\r\nwwwwww\r\neee" )]
-        public async Task<string> ReplaceNewLine( string source )
+        // ReplaceNewLine normalizes line endings to Environment.NewLine, so build the
+        // expected value from it rather than a hardcoded \r\n literal (cross-platform).
+        [TestCase( "qqqqq\nwwwwww\r\neee" )]
+        [TestCase( "qqqqq\nwwwwww\neee" )]
+        [TestCase( "qqqqq\r\nwwwwww\neee" )]
+        [TestCase( "qqqqq\r\nwwwwww\r\neee" )]
+        public void ReplaceNewLine( string source )
         {
-            return source.ReplaceNewLine();
+            var expected = $"qqqqq{Environment.NewLine}wwwwww{Environment.NewLine}eee";
+            source.ReplaceNewLine().Should().Be( expected );
         }
     }
 }

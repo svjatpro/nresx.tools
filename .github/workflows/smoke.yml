@@ -1,11 +1,8 @@
 name: smoke
 
-# Cross-platform sanity check: runs the full test suite on Windows, then
-# publishes + smoke-tests the standalone binary on Windows, Linux, and macOS.
-# The test suite itself is not yet portable (RSX-243: backslash paths and
-# CRLF expectations fail ~190 tests on linux/mac), so Test is Windows-only
-# until that lands. The per-OS binary smoke steps below are the portability
-# net for the shipped product. Release pipeline (all RIDs, GitHub Release,
+# Cross-platform sanity check: runs the full test suite and then publishes +
+# smoke-tests the standalone binary on Windows, Linux, and macOS (test suite
+# made portable in RSX-243). Release pipeline (all RIDs, GitHub Release,
 # upload assets) is RSX-109.
 
 on:
@@ -45,7 +42,6 @@ jobs:
         run: dotnet restore src/nresx.tools.sln
 
       - name: Test
-        if: matrix.os == 'windows-latest'
         run: dotnet test src/nresx.tools.sln --no-restore --configuration Release --verbosity normal
 
       - name: Publish standalone binary

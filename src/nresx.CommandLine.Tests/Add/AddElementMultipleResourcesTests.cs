@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
 using nresx.Core.Extensions;
@@ -57,10 +57,10 @@ namespace nresx.CommandLine.Tests.Add
 
 
 
-        [TestCase( @"add [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey]" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey]" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
         public void AddSingleElementToByNonRecursiveSpec( string commandLine )
         {
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
@@ -78,10 +78,10 @@ namespace nresx.CommandLine.Tests.Add
                 } );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --dry-run" )]
         public void AddSingleElementToByNonRecursiveSpecDryRun( string commandLine )
         {
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
@@ -99,12 +99,12 @@ namespace nresx.CommandLine.Tests.Add
         }
 
 
-        [TestCase( @"add [Output]\[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -r" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* -r -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --recursive" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* --recursive --key [UniqueKey] --value [UniqueKey]" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -r" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* -r -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --recursive" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* --recursive --key [UniqueKey] --value [UniqueKey]" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive" )]
         public void AddSingleElementToByRecursiveSpec( string commandLine )
         {
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );
@@ -122,10 +122,10 @@ namespace nresx.CommandLine.Tests.Add
                 } );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -r --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --recursive --dry-run" )]
-        [TestCase( @"add [Output]\[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -r --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --recursive --dry-run" )]
+        [TestCase( @"add [Output]/[UniqueKey]*.* --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive --dry-run" )]
         public void AddSingleElementToByRecursiveSpecDryRun( string commandLine )
         {
             var files = PrepareTemporaryFiles( 2, 1, out var fileKey );

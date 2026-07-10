@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
@@ -41,14 +41,14 @@ namespace nresx.CommandLine.Tests.Convert
         }
 
 
-        [TestCase( @"convert [Output]\[UniqueKey]* -f yaml" )]
-        [TestCase( @"convert [Output]\[UniqueKey]*.* -f yaml" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]*.* -f yaml" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]*.* -f yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* -f yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]*.* -f yaml" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]*.* -f yaml" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]*.* -f yaml" )]
 
-        [TestCase( @"convert [Output]\[UniqueKey]*.* *.yaml" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]*.* -d *.yaml" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]*.* --destination *.yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]*.* *.yaml" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]*.* -d *.yaml" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]*.* --destination *.yaml" )]
         public void ConvertFilesByPathSpec( string commandLine )
         {
             var files1 = PrepareTemporaryFiles( 2, 2, out var key1 );
@@ -78,14 +78,14 @@ namespace nresx.CommandLine.Tests.Convert
         }
 
         [TestCase( @"convert [UniqueKey]* -f yaml -r" )]
-        [TestCase( @"convert [Output]\[UniqueKey]* -f yaml -r" )]
-        [TestCase( @"convert [Output]\[UniqueKey]*.* -f yaml -r" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]*.* -f yaml -r" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]*.* -f yaml --recursive" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* -f yaml -r" )]
+        [TestCase( @"convert [Output]/[UniqueKey]*.* -f yaml -r" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]*.* -f yaml -r" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]*.* -f yaml --recursive" )]
 
-        [TestCase( @"convert [Output]\[UniqueKey]*.* *.yaml -r" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]*.* -d *.yaml -r" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]*.* --destination *.yaml --recursive" )]
+        [TestCase( @"convert [Output]/[UniqueKey]*.* *.yaml -r" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]*.* -d *.yaml -r" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]*.* --destination *.yaml --recursive" )]
         public void ConvertFilesByPathSpecRecursive( string commandLine )
         {
             var files1 = PrepareTemporaryFiles( 2, 2, out var key1 );
@@ -116,15 +116,15 @@ namespace nresx.CommandLine.Tests.Convert
                 } );
         }
 
-        [TestCase( @"convert [Output]\[UniqueKey]* [Output]\[UniqueKey]\*.yaml" )]
-        [TestCase( @"convert [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\*.yaml" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\*.yaml" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]* --destination [Output]\[UniqueKey]\*.yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* [Output]/[UniqueKey]/*.yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/*.yaml" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/*.yaml" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]* --destination [Output]/[UniqueKey]/*.yaml" )]
 
-        [TestCase( @"convert [Output]\[UniqueKey]* [Output]\[UniqueKey]\* -f yaml" )]
-        [TestCase( @"convert [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\* -f yaml" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\* -f yaml" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]* --destination [Output]\[UniqueKey]\* --format yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* [Output]/[UniqueKey]/* -f yaml" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/* -f yaml" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/* -f yaml" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]* --destination [Output]/[UniqueKey]/* --format yaml" )]
         public void ConvertFilesByPathSpecToAnotherDir( string commandLine )
         {
             var files1 = PrepareTemporaryFiles( 2, 2, out var key1 );
@@ -162,15 +162,15 @@ namespace nresx.CommandLine.Tests.Convert
                 } );
         }
 
-        [TestCase( @"convert [Output]\[UniqueKey]* [Output]\[UniqueKey]\*.yaml -r" )]
-        [TestCase( @"convert [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\*.yaml -r" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\*.yaml -r" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]* --destination [Output]\[UniqueKey]\*.yaml -r" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* [Output]/[UniqueKey]/*.yaml -r" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/*.yaml -r" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/*.yaml -r" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]* --destination [Output]/[UniqueKey]/*.yaml -r" )]
 
-        [TestCase( @"convert [Output]\[UniqueKey]* [Output]\[UniqueKey]\* -f yaml -r" )]
-        [TestCase( @"convert [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\* -f yaml -r" )]
-        [TestCase( @"convert -s [Output]\[UniqueKey]* -d [Output]\[UniqueKey]\* -f yaml -r" )]
-        [TestCase( @"convert --source [Output]\[UniqueKey]* --destination [Output]\[UniqueKey]\* --format yaml --recursive" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* [Output]/[UniqueKey]/* -f yaml -r" )]
+        [TestCase( @"convert [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/* -f yaml -r" )]
+        [TestCase( @"convert -s [Output]/[UniqueKey]* -d [Output]/[UniqueKey]/* -f yaml -r" )]
+        [TestCase( @"convert --source [Output]/[UniqueKey]* --destination [Output]/[UniqueKey]/* --format yaml --recursive" )]
         public void ConvertFilesByPathSpecToAnotherDirRecuresive( string commandLine )
         {
             var files1 = PrepareTemporaryFiles( 2, 2, out var key1 );

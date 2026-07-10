@@ -33,11 +33,11 @@ namespace nresx.CommandLine.Tests.Validate
                 } );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]*" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]*" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]*.*" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]*" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]*.*" )]
+        [TestCase( @"validate [Output]/[UniqueKey]*" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]*" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]*.*" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]*" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]*.*" )]
         public void ValidateBySpec( string commandLine )
         {
             var res = GetExampleResourceFile();
@@ -63,11 +63,11 @@ namespace nresx.CommandLine.Tests.Validate
                 } );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]*.* -r" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]* --recursive" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]*.* --recursive" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]*.* -r" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]* --recursive" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]*.* --recursive" )]
         public void ValidateBySpecRecursive( string commandLine )
         {
             var res = GetExampleResourceFile();

@@ -8,7 +8,7 @@ namespace nresx.Core.Tests.Helpers
     [TestFixture]
     public class ResourceFormatHelperTests
     {
-        [TestCase( @"fd\df\res.resx", ExpectedResult = ResourceFormatType.Resx )]
+        [TestCase( @"fd/df/res.resx", ExpectedResult = ResourceFormatType.Resx )]
         [TestCase( @".reSw", ExpectedResult = ResourceFormatType.Resw )]
         [TestCase( @".yml", ExpectedResult = ResourceFormatType.Yml )]
         [TestCase( @".yaml", ExpectedResult = ResourceFormatType.Yaml )]

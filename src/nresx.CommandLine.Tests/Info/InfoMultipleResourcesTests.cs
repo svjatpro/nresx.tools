@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -21,7 +21,7 @@ namespace nresx.CommandLine.Tests.Info
             new DirectoryInfo( Path.Combine( TestData.OutputFolder, dirKey ) ).Create();
             var filePath1 = GetOutputPath( $"{fileKey}_11.resx" );
             var filePath2 = GetOutputPath( $"{fileKey}_2.resx" );
-            var filePath3 = GetOutputPath( $"{dirKey}\\{fileKey}_33.resx" );
+            var filePath3 = GetOutputPath( $"{dirKey}/{fileKey}_33.resx" );
 
             TestHelper.CopyTemporaryFile( destPath: filePath1 );
             TestHelper.CopyTemporaryFile( destPath: filePath2 );
@@ -63,9 +63,9 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"[Output]\\[UniqueKey]*.resx" )]
-        [TestCase( @"info -s [Output]\\[UniqueKey]*.resx" )]
-        [TestCase( @"info --source [Output]\\[UniqueKey]*.resx" )]
+        [TestCase( @"[Output]/[UniqueKey]*.resx" )]
+        [TestCase( @"info -s [Output]/[UniqueKey]*.resx" )]
+        [TestCase( @"info --source [Output]/[UniqueKey]*.resx" )]
         public void GetFilesInfoByMask( string commandLine )
         {
             var files = PrepareFiles( out var fileKey );
@@ -80,11 +80,11 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"info [Output]\\[UniqueKey]*.resx -r" )]
-        [TestCase( @"info -s [Output]\\[UniqueKey]*.resx -r" )]
-        [TestCase( @"info -s [Output]\\[UniqueKey]*.resx --recursive" )]
-        [TestCase( @"info --source [Output]\\[UniqueKey]*.resx -r" )]
-        [TestCase( @"info --source [Output]\\[UniqueKey]*.resx --recursive" )]
+        [TestCase( @"info [Output]/[UniqueKey]*.resx -r" )]
+        [TestCase( @"info -s [Output]/[UniqueKey]*.resx -r" )]
+        [TestCase( @"info -s [Output]/[UniqueKey]*.resx --recursive" )]
+        [TestCase( @"info --source [Output]/[UniqueKey]*.resx -r" )]
+        [TestCase( @"info --source [Output]/[UniqueKey]*.resx --recursive" )]
         public void GetFilesInfoByMaskRecursive( string commandLine )
         {
             var files = PrepareFiles( out var fileKey );
@@ -100,19 +100,19 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"info [UniqueKey]\*.resx" )]
-        [TestCase( @"info [UniqueKey]\*.resx -r" )]
-        [TestCase( @"info -s [UniqueKey]\*.resx" )]
-        [TestCase( @"info -s [UniqueKey]\*.resx -r" )]
-        [TestCase( @"info --source [UniqueKey]\*.resx -r" )]
-        [TestCase( @"info --source [UniqueKey]\*.resx --recursive" )]
+        [TestCase( @"info [UniqueKey]/*.resx" )]
+        [TestCase( @"info [UniqueKey]/*.resx -r" )]
+        [TestCase( @"info -s [UniqueKey]/*.resx" )]
+        [TestCase( @"info -s [UniqueKey]/*.resx -r" )]
+        [TestCase( @"info --source [UniqueKey]/*.resx -r" )]
+        [TestCase( @"info --source [UniqueKey]/*.resx --recursive" )]
         public void GetFilesInfoForWrongDirectory( string commandLine )
         {
             commandLine
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path '{args.UniqueKeys[0]}\\*.resx' does not exist. Check the path is correct." );
+                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path '{args.UniqueKeys[0]}/*.resx' does not exist. Check the path is correct." );
                 } );
         }
 
@@ -163,11 +163,11 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"info [Output]\\[UniqueKey]*.resx -r" )]
-        [TestCase( @"info -s [Output]\\[UniqueKey]*.resx -r" )]
-        [TestCase( @"info -s [Output]\\[UniqueKey]*.resx --recursive" )]
-        [TestCase( @"info --source [Output]\\[UniqueKey]*.resx -r" )]
-        [TestCase( @"info --source [Output]\\[UniqueKey]*.resx --recursive" )]
+        [TestCase( @"info [Output]/[UniqueKey]*.resx -r" )]
+        [TestCase( @"info -s [Output]/[UniqueKey]*.resx -r" )]
+        [TestCase( @"info -s [Output]/[UniqueKey]*.resx --recursive" )]
+        [TestCase( @"info --source [Output]/[UniqueKey]*.resx -r" )]
+        [TestCase( @"info --source [Output]/[UniqueKey]*.resx --recursive" )]
         public void GetWrongFileFormatMultiple( string commandLine )
         {
             var files = PrepareFiles( out var fileKey );

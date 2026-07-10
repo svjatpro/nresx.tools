@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
@@ -73,11 +73,11 @@ namespace nresx.CommandLine.Tests.Format
                 } );
         }
 
-        [TestCase( @"format [Output]\[UniqueKey]* --start-with -p [UniqueKey]", "{1}{0}" )]
-        [TestCase( @"format -s [Output]\[UniqueKey]* --start-with -p [UniqueKey]", "{1}{0}" )]
-        [TestCase( @"format -s [Output]\[UniqueKey]*.* --start-with -p [UniqueKey]", "{1}{0}" )]
-        [TestCase( @"format --source [Output]\[UniqueKey]* --start-with --pattern [UniqueKey]", "{1}{0}" )]
-        [TestCase( @"format --source [Output]\[UniqueKey]*.* --start-with --pattern [UniqueKey]", "{1}{0}" )]
+        [TestCase( @"format [Output]/[UniqueKey]* --start-with -p [UniqueKey]", "{1}{0}" )]
+        [TestCase( @"format -s [Output]/[UniqueKey]* --start-with -p [UniqueKey]", "{1}{0}" )]
+        [TestCase( @"format -s [Output]/[UniqueKey]*.* --start-with -p [UniqueKey]", "{1}{0}" )]
+        [TestCase( @"format --source [Output]/[UniqueKey]* --start-with --pattern [UniqueKey]", "{1}{0}" )]
+        [TestCase( @"format --source [Output]/[UniqueKey]*.* --start-with --pattern [UniqueKey]", "{1}{0}" )]
         public void FormatBySpec( string commandLine, string template )
         {
             var pattern = TestData.UniqueKey();
@@ -138,11 +138,11 @@ namespace nresx.CommandLine.Tests.Format
                 } );
         }
 
-        [TestCase( @"format [Output]\[UniqueKey]* --start-with -p [UniqueKey] -r", "{1}{0}" )]
-        [TestCase( @"format -s [Output]\[UniqueKey]* --start-with -p [UniqueKey] -r", "{1}{0}" )]
-        [TestCase( @"format -s [Output]\[UniqueKey]*.* --start-with -p [UniqueKey] -r", "{1}{0}" )]
-        [TestCase( @"format --source [Output]\[UniqueKey]* --start-with --pattern [UniqueKey] -r", "{1}{0}" )]
-        [TestCase( @"format --source [Output]\[UniqueKey]*.* --start-with --pattern [UniqueKey] -r", "{1}{0}" )]
+        [TestCase( @"format [Output]/[UniqueKey]* --start-with -p [UniqueKey] -r", "{1}{0}" )]
+        [TestCase( @"format -s [Output]/[UniqueKey]* --start-with -p [UniqueKey] -r", "{1}{0}" )]
+        [TestCase( @"format -s [Output]/[UniqueKey]*.* --start-with -p [UniqueKey] -r", "{1}{0}" )]
+        [TestCase( @"format --source [Output]/[UniqueKey]* --start-with --pattern [UniqueKey] -r", "{1}{0}" )]
+        [TestCase( @"format --source [Output]/[UniqueKey]*.* --start-with --pattern [UniqueKey] -r", "{1}{0}" )]
         public void FormatBySpecRecursive( string commandLine, string template )
         {
             var pattern = TestData.UniqueKey();

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
@@ -99,13 +99,14 @@ namespace nresx.CommandLine.Tests.Add
                 } );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey][Ext] -k [UniqueKey] -v [UniqueKey] --new-file" )]
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey][Ext] --key [UniqueKey] --value [UniqueKey] --new-file" )]
+        [TestCase( @"add [Output]/[UniqueKey]/[UniqueKey][Ext] -k [UniqueKey] -v [UniqueKey] --new-file" )]
+        [TestCase( @"add [Output]/[UniqueKey]/[UniqueKey][Ext] --key [UniqueKey] --value [UniqueKey] --new-file" )]
         public void AddSingleElementToNonExistingResourceShouldNotCreateNonExistingDirectory( string commandLine )
         {
             commandLine
                 .WithOptions( opt => opt.SkipFilesWithoutKey = true )
-                .WithParams( args => new { file = $"{GetOutputPath( $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}{args.RandomExtensions[0]}" )}" } )
+                // the CLI echoes back the raw pathspec, so build the expected path with the same '/' separator
+                .WithParams( args => new { file = $"{TestData.OutputFolder}/{args.UniqueKeys[0]}/{args.UniqueKeys[1]}{args.RandomExtensions[0]}" } )
                 .ValidateDryRun( ( _, param ) =>
                 {
                     new FileInfo( param.file ).Exists.Should().BeFalse();
@@ -120,15 +121,15 @@ namespace nresx.CommandLine.Tests.Add
                 } );
         }
 
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey][Ext] -k [UniqueKey] -v [UniqueKey] --new-file -r" )]
-        [TestCase( @"add [Output]\[UniqueKey]\[UniqueKey][Ext] --key [UniqueKey] --value [UniqueKey] --new-file --recursive" )]
+        [TestCase( @"add [Output]/[UniqueKey]/[UniqueKey][Ext] -k [UniqueKey] -v [UniqueKey] --new-file -r" )]
+        [TestCase( @"add [Output]/[UniqueKey]/[UniqueKey][Ext] --key [UniqueKey] --value [UniqueKey] --new-file --recursive" )]
         public void AddSingleElementToNonExistingResourceShouldCreateDirectory( string commandLine )
         {
             commandLine
                 .WithOptions( opt => opt.SkipFilesWithoutKey = true )
                 .WithParams( args => new
                 {
-                    file = $"{GetOutputPath( $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}{args.RandomExtensions[0]}" )}",
+                    file = $"{GetOutputPath( $"{args.UniqueKeys[0]}/{args.UniqueKeys[1]}{args.RandomExtensions[0]}" )}",
                     key = args.UniqueKeys[2],
                     value = args.UniqueKeys[3]
                 } )

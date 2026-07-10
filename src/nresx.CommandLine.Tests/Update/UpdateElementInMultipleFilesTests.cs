@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
@@ -62,10 +62,10 @@ namespace nresx.CommandLine.Tests.Update
                 } );
         }
         
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
         public void UpdateSingleElementByNonRecursiveSpec( string commandLine )
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];
@@ -103,10 +103,10 @@ namespace nresx.CommandLine.Tests.Update
                 } );
         }
         
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -r" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --recursive" )]
-        [TestCase( @"update [Output]\[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -r" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] -r" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --recursive" )]
+        [TestCase( @"update [Output]/[UniqueKey]*.resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --recursive" )]
         public void UpdateSingleElementByRecursiveSpec( string commandLine )
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];

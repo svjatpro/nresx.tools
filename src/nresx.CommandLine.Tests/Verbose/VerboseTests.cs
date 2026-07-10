@@ -30,11 +30,11 @@ namespace nresx.CommandLine.Tests.Verbose
         [Test]
         public void VerboseLogsSearchPatternAndRecursiveFlag()
         {
-            var args = TestHelper.RunCommandLine( @"info [Output]\nonexistent*.resx -V" );
+            var args = TestHelper.RunCommandLine( @"info [Output]/nonexistent*.resx -V" );
             args.ConsoleOutput.Should().Contain( line =>
                 line.StartsWith( "[verbose] searching" ) && !line.Contains( "recursive" ) );
 
-            var argsRec = TestHelper.RunCommandLine( @"info [Output]\nonexistent*.resx -r -V" );
+            var argsRec = TestHelper.RunCommandLine( @"info [Output]/nonexistent*.resx -r -V" );
             argsRec.ConsoleOutput.Should().Contain( line =>
                 line.StartsWith( "[verbose] searching" ) && line.Contains( "(recursive)" ) );
         }

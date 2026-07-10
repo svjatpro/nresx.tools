@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
@@ -47,26 +47,27 @@ namespace nresx.CommandLine.Tests.Rename
                 } );
         }
 
-        [TestCase( @"rename [Output]\[UniqueKey].resx -k [UniqueKey] -n [UniqueKey]" )]
-        [TestCase( @"rename [Output]\[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey]" )]
+        [TestCase( @"rename [Output]/[UniqueKey].resx -k [UniqueKey] -n [UniqueKey]" )]
+        [TestCase( @"rename [Output]/[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey]" )]
         public void RenameInNonExistingFile( string commandLine )
         {
             var args = TestHelper.RunCommandLine( commandLine );
 
-            var file = GetOutputPath( args.UniqueKeys[0] );
+            // the CLI echoes back the raw pathspec, so build the expected path with the same '/' separator
+            var file = $"{TestData.OutputFolder}/{args.UniqueKeys[0]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
 
             args.ConsoleOutput.Should().BeEquivalentTo( string.Format( FilesNotFoundErrorMessage, file ) );
         }
 
-        [TestCase( @"rename [UniqueKey]\[UniqueKey].resx -k [UniqueKey] -n [UniqueKey]" )]
-        [TestCase( @"rename [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey]" )]
-        [TestCase( @"rename [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey] --new-file --recursive" )] // ignored for rename
+        [TestCase( @"rename [UniqueKey]/[UniqueKey].resx -k [UniqueKey] -n [UniqueKey]" )]
+        [TestCase( @"rename [UniqueKey]/[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey]" )]
+        [TestCase( @"rename [UniqueKey]/[UniqueKey].resx --key [UniqueKey] --new-key [UniqueKey] --new-file --recursive" )] // ignored for rename
         public void RenameNonExistingDir( string commandLine )
         {
             var args = TestHelper.RunCommandLine( commandLine );
 
-            var file = $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}.resx";
+            var file = $"{args.UniqueKeys[0]}/{args.UniqueKeys[1]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
 
             args.ConsoleOutput.Should().BeEquivalentTo( string.Format( DirectoryNotFoundErrorMessage, file ) );

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
@@ -74,10 +74,10 @@ namespace nresx.CommandLine.Tests.Convert
                 } );
         }
 
-        [TestCase( @"convert [TmpFile.resx] [Output]\[UniqueKey].* -f resx" )]
-        [TestCase( @"convert [TmpFile.resx] -d [Output]\[UniqueKey].* -f resx" )]
-        [TestCase( @"convert -s [TmpFile.resx] -d [Output]\[UniqueKey].* -f resx" )]
-        [TestCase( @"convert --source [TmpFile.resx] --destination [Output]\[UniqueKey].* -f resx" )]
+        [TestCase( @"convert [TmpFile.resx] [Output]/[UniqueKey].* -f resx" )]
+        [TestCase( @"convert [TmpFile.resx] -d [Output]/[UniqueKey].* -f resx" )]
+        [TestCase( @"convert -s [TmpFile.resx] -d [Output]/[UniqueKey].* -f resx" )]
+        [TestCase( @"convert --source [TmpFile.resx] --destination [Output]/[UniqueKey].* -f resx" )]
         public void CopySourceFile( string commandLine )
         {
             commandLine
@@ -99,10 +99,10 @@ namespace nresx.CommandLine.Tests.Convert
                 } );
         }
 
-        [TestCase( @"convert [TmpFile.resx] [Output]\[UniqueKey].*" )]
-        [TestCase( @"convert [TmpFile.resx] -d [Output]\[UniqueKey].*" )]
-        [TestCase( @"convert -s [TmpFile.resx] -d [Output]\[UniqueKey].*" )]
-        [TestCase( @"convert --source [TmpFile.resx] --destination [Output]\[UniqueKey].*" )]
+        [TestCase( @"convert [TmpFile.resx] [Output]/[UniqueKey].*" )]
+        [TestCase( @"convert [TmpFile.resx] -d [Output]/[UniqueKey].*" )]
+        [TestCase( @"convert -s [TmpFile.resx] -d [Output]/[UniqueKey].*" )]
+        [TestCase( @"convert --source [TmpFile.resx] --destination [Output]/[UniqueKey].*" )]
         public void CanNotDetectDestinationFormat( string commandLine )
         {
             commandLine

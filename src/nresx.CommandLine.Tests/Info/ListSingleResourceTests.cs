@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
@@ -19,8 +20,10 @@ namespace nresx.CommandLine.Tests.List
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    var output = string.Join( "\r\n", args.ConsoleOutput );
-                    var elements = string.Join( "\r\n", GetExampleResourceFile()
+                    // element values may be multi-line; the product normalizes embedded newlines
+                    // to Environment.NewLine, so join with it rather than a hardcoded \r\n.
+                    var output = string.Join( Environment.NewLine, args.ConsoleOutput );
+                    var elements = string.Join( Environment.NewLine, GetExampleResourceFile()
                         .Elements.Select( el => format
                             .Replace( "\\k", el.Key )
                             .Replace( "\\v", el.Value )

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
 using nresx.Core;
@@ -51,8 +51,8 @@ namespace nresx.CommandLine.Tests.Rename
                 } );
         }
 
-        [TestCase( @"rename [Output]\[UniqueKey]* -k [UniqueKey] -n [UniqueKey]" )]
-        [TestCase( @"rename [Output]\[UniqueKey]* --key [UniqueKey] --new-key [UniqueKey]" )]
+        [TestCase( @"rename [Output]/[UniqueKey]* -k [UniqueKey] -n [UniqueKey]" )]
+        [TestCase( @"rename [Output]/[UniqueKey]* --key [UniqueKey] --new-key [UniqueKey]" )]
         public void RenameSingleElementByNonRecursiveSpec( string commandLine )
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];
@@ -82,8 +82,8 @@ namespace nresx.CommandLine.Tests.Rename
                 } );
         }
 
-        [TestCase( @"rename [Output]\[UniqueKey]* -k [UniqueKey] -n [UniqueKey] -r" )]
-        [TestCase( @"rename [Output]\[UniqueKey]* --key [UniqueKey] --new-key [UniqueKey] --recursive" )]
+        [TestCase( @"rename [Output]/[UniqueKey]* -k [UniqueKey] -n [UniqueKey] -r" )]
+        [TestCase( @"rename [Output]/[UniqueKey]* --key [UniqueKey] --new-key [UniqueKey] --recursive" )]
         public void RenameSingleElementByRecursiveSpec( string commandLine )
         {
             var elementToUpdate = GetExampleResourceFile().Elements[1];

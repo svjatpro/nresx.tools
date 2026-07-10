@@ -104,8 +104,11 @@ namespace nresx.Core.Tests.ResourceFiles
         }
 
         [TestCase( "", false )]
-        [TestCase( "wrong", false )]
-        [TestCase( "wrong-wrong", false )]
+        // ICU (Linux/macOS) accepts arbitrary names like "wrong" as non-custom cultures, so the
+        // product detects a culture there; the "invalid name -> InvariantCulture" assertion only
+        // holds under Windows globalization. Guard these two so the rest stays cross-platform.
+        [TestCase( "wrong", false, IncludePlatform = "Win" )]
+        [TestCase( "wrong-wrong", false, IncludePlatform = "Win" )]
         [TestCase( "en", true )]
         [TestCase( "en-US", true )]
         [TestCase( "en-CA", true )]

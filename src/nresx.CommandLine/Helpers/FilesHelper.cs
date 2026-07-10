@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using nresx.Core;
 using nresx.Core.Exceptions;
 using nresx.Core.Extensions;
@@ -157,10 +158,33 @@ namespace nresx.CommandLine.Helpers
                 return;
             }
 
+            // An exact, existing file name: process it directly, don't enumerate the directory.
+            // On Linux a readdir disturbed by concurrent writes to the same directory can return
+            // an entry twice (double-processing) or miss it entirely (RSX-243).
+            if ( isFileName )
+            {
+                var fileContext = new FilesSearchContext( filePattern, filePattern );
+                try
+                {
+                    action( fileContext );
+                }
+                catch ( Exception ex )
+                {
+                    if ( errorHandler == null )
+                        throw;
+                    errorHandler( fileContext, ex );
+                }
+                return;
+            }
+
             var filesProcessed = 0;
             var filesFailed = 0;
             var mask = Path.GetFileName( filePattern );
-            foreach ( var file in Directory.EnumerateFiles( rootDir.FullName, mask, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly ) )
+            // GetFiles (snapshot), not EnumerateFiles (lazy): the action may create or rewrite
+            // files that match the mask, and on Linux a live readdir can re-return them
+            // mid-iteration, re-processing the command's own output. Distinct() drops entries
+            // the OS double-returned when the directory is mutated concurrently (RSX-243).
+            foreach ( var file in Directory.GetFiles( rootDir.FullName, mask, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly ).Distinct() )
             {
                 var context = new FilesSearchContext( filePattern, file, filesProcessed, filesFailed );
                 try

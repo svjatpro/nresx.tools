@@ -11,12 +11,12 @@ namespace nresx.Core.Tests.ResourceFiles.Json
     [TestFixture]
     public class LoadJsonResourceFileTests : TestBase
     {
-        [TestCase( @"json\plain.json", false )]
-        [TestCase( @"json\plain_key_object.json", true )]
-        [TestCase( @"json\plain_object.json", true )]
-        [TestCase( @"json\struct_plain.json", false )]
-        [TestCase( @"json\struct_plain_key_object.json", true )]
-        [TestCase( @"json\struct_plain_object.json", true )]
+        [TestCase( @"json/plain.json", false )]
+        [TestCase( @"json/plain_key_object.json", true )]
+        [TestCase( @"json/plain_object.json", true )]
+        [TestCase( @"json/struct_plain.json", false )]
+        [TestCase( @"json/struct_plain_key_object.json", true )]
+        [TestCase( @"json/struct_plain_object.json", true )]
         public async Task ParsePlainJson( string path, bool hasComments )
         {
             var resPath = GetTestPath( path );
@@ -34,7 +34,7 @@ namespace nresx.Core.Tests.ResourceFiles.Json
         [Test]
         public async Task ParsePropertyNames()
         {
-            var res = new ResourceFile( GetTestPath( @"json\struct_plain_object.json" ) );
+            var res = new ResourceFile( GetTestPath( @"json/struct_plain_object.json" ) );
             res.Elements
                 .Select( el => el as ResourceElementJson )
                 .Select( el => (key: el.KeyPropertyName, val: el.ValuePropertyName, comment: el.CommentPropertyName) )
@@ -44,12 +44,12 @@ namespace nresx.Core.Tests.ResourceFiles.Json
                     (key: "name", val: "content", comment: "comment")] );
         }
 
-        [TestCase( @"json\plain.json", JsonElementType.KeyValue, "" )]
-        [TestCase( @"json\plain_key_object.json", JsonElementType.KeyObject, "" )]
-        [TestCase( @"json\plain_object.json", JsonElementType.Object, "strings" )]
-        [TestCase( @"json\struct_plain.json", JsonElementType.KeyValue, "parent.middle" )]
-        [TestCase( @"json\struct_plain_key_object.json", JsonElementType.KeyObject, "parent.middle" )]
-        [TestCase( @"json\struct_plain_object.json", JsonElementType.Object, "parent.middle.strings" )]
+        [TestCase( @"json/plain.json", JsonElementType.KeyValue, "" )]
+        [TestCase( @"json/plain_key_object.json", JsonElementType.KeyObject, "" )]
+        [TestCase( @"json/plain_object.json", JsonElementType.Object, "strings" )]
+        [TestCase( @"json/struct_plain.json", JsonElementType.KeyValue, "parent.middle" )]
+        [TestCase( @"json/struct_plain_key_object.json", JsonElementType.KeyObject, "parent.middle" )]
+        [TestCase( @"json/struct_plain_object.json", JsonElementType.Object, "parent.middle.strings" )]
         public async Task ParseElementMetadata( string resourcePath, JsonElementType elementType, string elPath )
         {
             var res = new ResourceFile( GetTestPath( resourcePath ) );

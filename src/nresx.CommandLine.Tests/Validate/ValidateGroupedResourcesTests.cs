@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
@@ -10,9 +10,9 @@ namespace nresx.CommandLine.Tests.Validate
     [TestFixture]
     public class ValidateGroupedResourcesTests : TestBase
     {
-        [TestCase( @"validate [Output]\[UniqueKey]*" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]*" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]*" )]
+        [TestCase( @"validate [Output]/[UniqueKey]*" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]*" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]*" )]
         public void ValidateMissedElementSingleFolder( string commandLine )
         {
             var files = PrepareGroupedFiles( new []{"en", "fr"}, out var key1 );
@@ -36,9 +36,9 @@ namespace nresx.CommandLine.Tests.Validate
                 "Found 2 issues (0 errors, 2 warnings)" );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]* --recursive" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]* --recursive" )]
         public void ValidateMissedElementSingleFolderRecursive( string commandLine )
         {
             var files = PrepareGroupedFiles( new[] { "en", "fr" }, out var key1, dir: TestData.UniqueKey() );
@@ -62,9 +62,9 @@ namespace nresx.CommandLine.Tests.Validate
                 "Found 2 issues (0 errors, 2 warnings)" );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]* --recursive" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]* --recursive" )]
         public void ValidateMissedElementLocaleFolders( string commandLine )
         {
             var files = PrepareGroupedFiles( new[] { "en", "fr" }, out var key1, dir: TestData.UniqueKey(), dirLocales: true );
@@ -89,9 +89,9 @@ namespace nresx.CommandLine.Tests.Validate
         }
 
 
-        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]* --recursive" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]* --recursive" )]
         public void ValidateNotTranslatedSingleFolderRecursive( string commandLine )
         {
             var files = PrepareGroupedFiles( new[] { "en", "fr" }, out var key1, dir: TestData.UniqueKey() );
@@ -109,9 +109,9 @@ namespace nresx.CommandLine.Tests.Validate
                 "Found 1 issue (0 errors, 1 warning)" );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate -s [Output]\[UniqueKey]* -r" )]
-        [TestCase( @"validate --source [Output]\[UniqueKey]* --recursive" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate -s [Output]/[UniqueKey]* -r" )]
+        [TestCase( @"validate --source [Output]/[UniqueKey]* --recursive" )]
         public void ValidateNotTranslatedLocaleFolders( string commandLine )
         {
             var files = PrepareGroupedFiles( new[] { "en", "fr" }, out var key1, dir: TestData.UniqueKey(), dirLocales: true );
@@ -129,7 +129,7 @@ namespace nresx.CommandLine.Tests.Validate
                 "Found 1 issue (0 errors, 1 warning)" );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]* -r" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* -r" )]
         public void ValidateNotTranslated_AutoPicksBaseAlphabetically_WhenNoEnglish( string commandLine )
         {
             var files = PrepareGroupedFiles( new[] { "de", "fr" }, out var key1, dir: TestData.UniqueKey() );
@@ -148,7 +148,7 @@ namespace nresx.CommandLine.Tests.Validate
                 "Found 1 issue (0 errors, 1 warning)" );
         }
 
-        [TestCase( @"validate [Output]\[UniqueKey]* --basic-lan fr -r" )]
+        [TestCase( @"validate [Output]/[UniqueKey]* --basic-lan fr -r" )]
         public void ValidateNotTranslated_BasicLanOption_OverridesAutoPick( string commandLine )
         {
             var files = PrepareGroupedFiles( new[] { "en", "fr" }, out var key1, dir: TestData.UniqueKey() );

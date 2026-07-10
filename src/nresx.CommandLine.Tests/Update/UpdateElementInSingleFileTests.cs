@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using nresx.Core.Tests;
@@ -47,33 +47,34 @@ namespace nresx.CommandLine.Tests.Update
                 } );
         }
 
-        [TestCase( @"update [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-file" )] // ignored for update
-        [TestCase( @"update [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
-        [TestCase( @"update [Output]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --new-file" )] // ignored for update
+        [TestCase( @"update [Output]/[UniqueKey].resx -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-file" )] // ignored for update
+        [TestCase( @"update [Output]/[UniqueKey].resx --key [UniqueKey] --value [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [Output]/[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --new-file" )] // ignored for update
         public void UpdateNonExistingFile( string commandLine )
         {
             var args = TestHelper.RunCommandLine( commandLine );
 
-            var file = GetOutputPath( args.UniqueKeys[0] );
+            // the CLI echoes back the raw pathspec, so build the expected path with the same '/' separator
+            var file = $"{TestData.OutputFolder}/{args.UniqueKeys[0]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
-            
+
             args.ConsoleOutput.Should().BeEquivalentTo( string.Format( FilesNotFoundErrorMessage, file ) );
         }
         
-        [TestCase( @"update [UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey]" )]
-        [TestCase( @"update [UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
-        [TestCase( @"update [UniqueKey]\[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-file --recursive" )] // ignored for update
-        [TestCase( @"update [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey]" )]
-        [TestCase( @"update [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
-        [TestCase( @"update [UniqueKey]\[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --new-file --recursive" )] // ignored for update
+        [TestCase( @"update [UniqueKey]/[UniqueKey].resx -k [UniqueKey] -v [UniqueKey]" )]
+        [TestCase( @"update [UniqueKey]/[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey]" )]
+        [TestCase( @"update [UniqueKey]/[UniqueKey].resx -k [UniqueKey] -v [UniqueKey] -c [UniqueKey] --new-file --recursive" )] // ignored for update
+        [TestCase( @"update [UniqueKey]/[UniqueKey].resx --key [UniqueKey] --value [UniqueKey]" )]
+        [TestCase( @"update [UniqueKey]/[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey]" )]
+        [TestCase( @"update [UniqueKey]/[UniqueKey].resx --key [UniqueKey] --value [UniqueKey] --comment [UniqueKey] --new-file --recursive" )] // ignored for update
         public void UpdateNonExistingDir( string commandLine )
         {
             var args = TestHelper.RunCommandLine( commandLine );
 
-            var file = $"{args.UniqueKeys[0]}\\{args.UniqueKeys[1]}.resx";
+            var file = $"{args.UniqueKeys[0]}/{args.UniqueKeys[1]}.resx";
             new FileInfo( file ).Exists.Should().BeFalse();
 
             args.ConsoleOutput.Should().BeEquivalentTo( string.Format( DirectoryNotFoundErrorMessage, file ) );

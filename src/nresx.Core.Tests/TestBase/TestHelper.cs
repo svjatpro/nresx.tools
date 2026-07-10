@@ -47,7 +47,7 @@ namespace nresx.Core.Tests
                 var dirPrefix = match.Groups[1].Value;
                 if ( match.Groups.Count > 1 && dirPrefix == dirPlaceholder )
                 {
-                    dir = $"{TestData.UniqueKey()}\\";
+                    dir = $"{TestData.UniqueKey()}/";
                     new DirectoryInfo( Path.Combine( TestData.OutputFolder, dir ) ).Create();
                 }
 
@@ -341,29 +341,34 @@ namespace nresx.Core.Tests
             if ( !string.IsNullOrWhiteSpace( options?.WorkingDirectory ) )
                 process.StartInfo.WorkingDirectory = options.WorkingDirectory;
 
-            // Capture stdout + stderr in arrival order via async events so tests
-            // that depend on output position keep working after errors moved to
-            // stderr (RSX-150).
+            // Capture stdout + stderr in arrival order so tests that depend on output
+            // position keep working after errors moved to stderr (RSX-150). Read the pipes
+            // directly with ReadLineAsync loops, NOT via OutputDataReceived/BeginOutputReadLine:
+            // the event-based AsyncStreamReader can re-deliver the last line on Unix when the
+            // child exits with a gap between the final write and EOF, duplicating lines in
+            // ConsoleOutput (RSX-243, flaky FormatSingleFile failures on Linux).
             var outputLock = new object();
-            process.OutputDataReceived += ( _, e ) =>
+            async System.Threading.Tasks.Task ReadLinesAsync( StreamReader reader )
             {
-                if ( e.Data == null ) return;
-                lock ( outputLock ) p.ConsoleOutput.Add( e.Data );
-            };
-            process.ErrorDataReceived += ( _, e ) =>
-            {
-                if ( e.Data == null ) return;
-                lock ( outputLock ) p.ConsoleOutput.Add( e.Data );
-            };
+                string line;
+                while ( ( line = await reader.ReadLineAsync() ) != null )
+                    lock ( outputLock ) p.ConsoleOutput.Add( line );
+            }
 
             process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            var stdoutTask = ReadLinesAsync( process.StandardOutput );
+            var stderrTask = ReadLinesAsync( process.StandardError );
 
-            if ( debugCommandLine )
+            // 30s cap (debug: unlimited): recursive commands walking the shared .test_output
+            // can exceed 5s on slow runners (Docker/CI); on timeout kill the process so it
+            // can't keep mutating .test_output under later tests.
+            if ( !process.WaitForExit( debugCommandLine ? -1 : 30000 ) )
+            {
+                try { process.Kill( entireProcessTree: true ); } catch { /* already exited */ }
                 process.WaitForExit();
-            else if ( process.WaitForExit( 5000 ) )
-                process.WaitForExit(); // drain pending OutputDataReceived/ErrorDataReceived events
+            }
+            // drain both pipes to EOF (guaranteed after exit/kill closes the write ends)
+            System.Threading.Tasks.Task.WaitAll( stdoutTask, stderrTask );
 
             if ( process.HasExited )
                 p.ExitCode = process.ExitCode;

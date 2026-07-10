@@ -26,7 +26,7 @@ namespace nresx.CommandLine.Tests.ExitCodes
         [Test]
         public void DirectoryNotFoundReturnsExitNotFound()
         {
-            var args = TestHelper.RunCommandLine( @"info [UniqueKey]\foo.resx" );
+            var args = TestHelper.RunCommandLine( @"info [UniqueKey]/foo.resx" );
             args.ExitCode.Should().Be( ExitNotFound );
         }
 
@@ -49,7 +49,7 @@ namespace nresx.CommandLine.Tests.ExitCodes
         public void DestinationConflictReturnsExitDestinationConflict()
         {
             // copy without --new-file when destination doesn't exist
-            var args = TestHelper.RunCommandLine( @"copy [TmpFile] [Output]\[UniqueKey].resx" );
+            var args = TestHelper.RunCommandLine( @"copy [TmpFile] [Output]/[UniqueKey].resx" );
             args.ExitCode.Should().Be( ExitDestinationConflict );
         }
 

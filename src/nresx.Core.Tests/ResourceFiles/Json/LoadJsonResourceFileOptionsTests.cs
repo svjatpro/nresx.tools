@@ -12,24 +12,24 @@ namespace nresx.Core.Tests.ResourceFiles.Json
     {
         #region Options.Path
 
-        [TestCase( @"json\plain.json" )]
-        [TestCase( @"json\plain_key_object.json" )]
-        [TestCase( @"json\plain_object.json" )]
-        [TestCase( @"json\struct_plain.json" )]
-        [TestCase( @"json\struct_plain_key_object.json" )]
-        [TestCase( @"json\struct_plain_object.json" )]
+        [TestCase( @"json/plain.json" )]
+        [TestCase( @"json/plain_key_object.json" )]
+        [TestCase( @"json/plain_object.json" )]
+        [TestCase( @"json/struct_plain.json" )]
+        [TestCase( @"json/struct_plain_key_object.json" )]
+        [TestCase( @"json/struct_plain_object.json" )]
         public async Task LoadWithOptionsPathEmpty( string resourcePath )
         {
             var res = new ResourceFile( GetTestPath( resourcePath ), new ResourceFileOptionJson { Path = "wrong_parent" } );
             res.Elements.Should().BeEmpty();
         }
 
-        [TestCase(@"json\plain.json", "")]
-        [TestCase(@"json\plain_key_object.json", "")]
-        [TestCase(@"json\plain_object.json", "strings")]
-        [TestCase(@"json\struct_plain.json", "parent.middle")]
-        [TestCase(@"json\struct_plain_key_object.json", "parent.middle")]
-        [TestCase(@"json\struct_plain_object.json", "parent.middle.strings")]
+        [TestCase(@"json/plain.json", "")]
+        [TestCase(@"json/plain_key_object.json", "")]
+        [TestCase(@"json/plain_object.json", "strings")]
+        [TestCase(@"json/struct_plain.json", "parent.middle")]
+        [TestCase(@"json/struct_plain_key_object.json", "parent.middle")]
+        [TestCase(@"json/struct_plain_object.json", "parent.middle.strings")]
         public async Task LoadWithOptions( string resourcePath, string elPath )
         {
             var res = new ResourceFile( GetTestPath( resourcePath ), new ResourceFileOptionJson{ Path = elPath } );
@@ -47,7 +47,7 @@ namespace nresx.Core.Tests.ResourceFiles.Json
         [Test]
         public async Task ParseElementsMetadataEmptyKey()
         {
-            var res = new ResourceFile( GetTestPath( @"json\struct_plain_object.json" ), new ResourceFileOptionJson() );
+            var res = new ResourceFile( GetTestPath( @"json/struct_plain_object.json" ), new ResourceFileOptionJson() );
             res.Elements
                 .Select( el => el as ResourceElementJson )
                 .Select( el => (key: el.KeyPropertyName, val: el.ValuePropertyName, comment: el.CommentPropertyName) )
@@ -57,8 +57,8 @@ namespace nresx.Core.Tests.ResourceFiles.Json
                     (key: "name", val: "content", comment: "comment")]);
         }
         
-        [TestCase( @"json\plain_object.json", "id", "Entry1.Text" )]
-        [TestCase( @"json\struct_plain_object.json", "key", "Entry2" )]
+        [TestCase( @"json/plain_object.json", "id", "Entry1.Text" )]
+        [TestCase( @"json/struct_plain_object.json", "key", "Entry2" )]
         public async Task ParseElementMetadata( string resourcePath, string keyName, string keyValue )
         {
             var res = new ResourceFile( GetTestPath( resourcePath ), new ResourceFileOptionJson{ KeyName = keyName }  );
@@ -72,7 +72,7 @@ namespace nresx.Core.Tests.ResourceFiles.Json
         [Ignore("temporary disabled")]
         public async Task ParseElementMetadataCustomFields()
         {
-            var res = new ResourceFile( GetTestPath( @"json\plain_object_custom.json" ),
+            var res = new ResourceFile( GetTestPath( @"json/plain_object_custom.json" ),
                 new ResourceFileOptionJson { KeyName = "id2", ValueName = "text_custom2" } );
             res.Elements
                 .Select( el => el as ResourceElementJson )

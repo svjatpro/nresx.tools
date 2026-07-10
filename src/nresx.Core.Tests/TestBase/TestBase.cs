@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -122,14 +122,14 @@ namespace nresx.Core.Tests
                 if ( dirLocales )
                 {
                     new DirectoryInfo( Path.Combine( baseDir, locales[i] ) ).Create();
-                    var localeDir = !string.IsNullOrWhiteSpace( dir ) ? $"{dir}\\{locales[i]}" : $"{locales[i]}";
-                    filePath = GetOutputPath( $"{localeDir}\\{fileKey}_{locales[i]}.resx" );
+                    var localeDir = !string.IsNullOrWhiteSpace( dir ) ? $"{dir}/{locales[i]}" : $"{locales[i]}";
+                    filePath = GetOutputPath( $"{localeDir}/{fileKey}_{locales[i]}.resx" );
                 }
                 else
                 {
                     filePath =
                         !string.IsNullOrWhiteSpace( dir ) ? 
-                        GetOutputPath( $"{dir}\\{fileKey}_{locales[i]}.resx" ) :
+                        GetOutputPath( $"{dir}/{fileKey}_{locales[i]}.resx" ) :
                         GetOutputPath( $"{fileKey}_{locales[i]}.resx" );
                 }
 
@@ -159,7 +159,7 @@ namespace nresx.Core.Tests
                 var dirKey = TestData.UniqueKey();
                 new DirectoryInfo( Path.Combine( TestData.OutputFolder, dirKey ) ).Create();
 
-                var filePath = GetOutputPath( $"{dirKey}\\{fileKey}_{TestData.UniqueKey()}.resx" );
+                var filePath = GetOutputPath( $"{dirKey}/{fileKey}_{TestData.UniqueKey()}.resx" );
                 TestHelper.CopyTemporaryFile( destPath: filePath );
 
                 result.Add( filePath );
