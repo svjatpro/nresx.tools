@@ -8,6 +8,8 @@
 
 [LoadMode](./nresx.core.loadmode.md)
 
+[ResourceDiff](./nresx.core.resourcediff.md)
+
 [ResourceElement](./nresx.core.resourceelement.md)
 
 [ResourceElements](./nresx.core.resourceelements.md)
@@ -28,7 +30,11 @@
 
 [ResourceFormatType](./nresx.core.resourceformattype.md)
 
+[ResourceGroup](./nresx.core.resourcegroup.md)
+
 [ResourceManager](./nresx.core.resourcemanager.md)
+
+[ResourceValidationIssue](./nresx.core.resourcevalidationissue.md)
 
 ## nresx.Core.Exceptions
 

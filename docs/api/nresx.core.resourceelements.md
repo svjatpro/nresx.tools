@@ -10,7 +10,7 @@ Ordered, mutable collection of [ResourceElement](./nresx.core.resourceelement.md
  by [ResourceElement.Key](./nresx.core.resourceelement.md#key), or by `(key, context)` for PO-style disambiguation.
 
 ```csharp
-public sealed class ResourceElements : System.Collections.Generic.IEnumerable`1[[nresx.Core.ResourceElement, nresx.Core, Version=0.3.0.0, Culture=neutral, PublicKeyToken=null]], System.Collections.IEnumerable
+public sealed class ResourceElements : System.Collections.Generic.IEnumerable`1[[nresx.Core.ResourceElement, nresx.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Collections.IEnumerable
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ResourceElements](./nresx.core.resourceelements.md)<br>

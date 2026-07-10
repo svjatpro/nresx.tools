@@ -159,6 +159,38 @@ var file = new ResourceFile("strings.resx", options);
 `LoadMode.Strict` (default) throws on Error-severity findings; `Lenient`
 collects them; `Raw` skips validation entirely.
 
+### Multi-file operations
+
+`ResourceManager` is the static facade for operations that span more than one
+file: converting, grouping locale siblings, cross-file validation, and diffing.
+It takes explicit path lists - wildcard/glob expansion stays on the CLI side, so
+pass the paths you already have (from `Directory.EnumerateFiles`, a project scan,
+etc.).
+
+```csharp
+using nresx.Core;
+
+// Convert one file to another format (target format from the destination
+// extension, or pass it explicitly)
+ResourceManager.Convert("strings.resx", "strings.po");
+ResourceManager.Convert("strings.resx", "strings.out", ResourceFormatType.Json);
+
+// Group locale siblings into translation units and find each group's base file
+var paths = Directory.EnumerateFiles("Resources", "*.resx").ToList();
+foreach (var group in ResourceManager.LoadGroups(paths))
+    Console.WriteLine($"{group.Files.Count} files, base: {group.BaseFile?.FileName}");
+
+// Validate across a group: per-file issues plus missed / not-translated drift.
+// Pass a base language to override auto-detection (neutral > en > alphabetical).
+foreach (var issue in ResourceManager.Validate(paths, baseLanguage: "en"))
+    Console.WriteLine($"{issue.FilePath}: {issue.Error.ErrorType}: {issue.Error.ElementKey}");
+
+// Diff two files by key (works across formats)
+var diff = ResourceManager.Diff("strings.en.resx", "strings.fr.resx");
+if (!diff.AreSame)
+    Console.WriteLine($"+{diff.AddedElements.Count} -{diff.RemovedElements.Count} ~{diff.ChangedElements.Count}");
+```
+
 ## Where to next
 
 - [Command reference](../src/nresx.CommandLine/README.md) - every CLI command with
