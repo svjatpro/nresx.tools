@@ -30,7 +30,7 @@ namespace nresx.CommandLine.Tests.Validate
         [TestCase( @"validate --source [TmpFile]" )]
         public void ValidateEmptyKeyElements( string commandLine )
         {
-            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true, RequireMangleable = true } );
+            TestHelper.PrepareCommandLine( commandLine, out var preArgs, options: new CommandRunOptions { SkipFilesWithoutKey = true, RequireMangleable = true, RequireEmptyKeySupport = true } );
             var file = preArgs.TemporaryFiles[0];
             var res = new ResourceFile( file );
             TestHelper.ReplaceKey( file, res.Elements[1].Key, "" );

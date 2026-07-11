@@ -22,6 +22,12 @@ namespace nresx.Core.Tests
         // picked and its central directory ends up corrupted.
         public bool RequireMangleable { get; set; } = false;
 
+        // When true, GetRandomType only picks formats whose loader preserves elements with
+        // an empty key. Required by tests that blank a key and expect `validate` to report
+        // EmptyKey - json's loader silently drops such elements (RSX-247), so the report
+        // never appears there.
+        public bool RequireEmptyKeySupport { get; set; } = false;
+
         public string WorkingDirectory { get; set; }
     }
 
@@ -125,6 +131,11 @@ namespace nresx.Core.Tests
             return lines.ToArray();
         }
 
+        // Blanket text substitution over every line. RSX-227 step-1 diagnosis (every pool
+        // format + Xlf/Xliff forced through all ReplaceKey-based tests, 3 reps each) showed
+        // this is safe for the current fixtures: the example keys/values (Entry*/Value*)
+        // never collide as substrings in any writer's output. If fixtures ever gain
+        // colliding names, revisit the format-aware-mangler design parked in RSX-227.
         public static void ReplaceKey( string path, string key, string newValue )
         {
             var lines = new StringBuilder();

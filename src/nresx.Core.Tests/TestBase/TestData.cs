@@ -25,10 +25,12 @@ namespace nresx.Core.Tests
         {
             public bool HasKey { get; }
             public bool CanBeMangled { get; }
-            public TypeInfo( bool hasKey, bool canBeMangled )
+            public bool PreservesEmptyKey { get; }
+            public TypeInfo( bool hasKey, bool canBeMangled, bool preservesEmptyKey = true )
             {
                 HasKey = hasKey;
                 CanBeMangled = canBeMangled;
+                PreservesEmptyKey = preservesEmptyKey;
             }
         }
 
@@ -37,11 +39,10 @@ namespace nresx.Core.Tests
         // substitution corrupts the ZIP central directory, so it's excluded from any pool
         // a mangling test draws from (see RequireMangleable below).
         //
-        // Xlf/Xliff are intentionally still NOT in this random pool (a different concern):
-        // adding them shifts the Random sequence and surfaces a pre-existing flaky
-        // interaction in the CLI validate tests. Tracked separately as RSX-227.
-        // Their behavior is covered by XliffResourceFileTests + XliffMangledFileTests
-        // and by the explicit per-format ResourceFiles / ResourceFormats lists.
+        // PreservesEmptyKey = the loader keeps an element whose key was blanked out, so
+        // `validate` can report EmptyKey for it. Json's loader silently drops empty-keyed
+        // elements (RSX-247) - until that is fixed, tests that blank a key must not draw
+        // json (see RequireEmptyKeySupport).
         private static readonly Dictionary<ResourceFormatType, TypeInfo> ResourceTypes = new()
         {
             { ResourceFormatType.Resx,      new TypeInfo( hasKey: true,  canBeMangled: true  ) },
@@ -50,7 +51,9 @@ namespace nresx.Core.Tests
             { ResourceFormatType.Yml,       new TypeInfo( hasKey: true,  canBeMangled: true  ) },
             { ResourceFormatType.Po,        new TypeInfo( hasKey: true,  canBeMangled: true  ) },
             { ResourceFormatType.PlainText, new TypeInfo( hasKey: false, canBeMangled: true  ) },
-            { ResourceFormatType.Json,      new TypeInfo( hasKey: true,  canBeMangled: true  ) },
+            { ResourceFormatType.Json,      new TypeInfo( hasKey: true,  canBeMangled: true, preservesEmptyKey: false ) },
+            { ResourceFormatType.Xlf,       new TypeInfo( hasKey: true,  canBeMangled: true  ) },
+            { ResourceFormatType.Xliff,     new TypeInfo( hasKey: true,  canBeMangled: true  ) },
             { ResourceFormatType.Xlsx,      new TypeInfo( hasKey: true,  canBeMangled: false ) }
         };
 
@@ -150,11 +153,15 @@ namespace nresx.Core.Tests
         {
             var opt = options ?? new CommandRunOptions();
             var types = ResourceTypes
-                .Where( t => !opt.SkipFilesWithoutKey || t.Value.HasKey )
-                .Where( t => !opt.RequireMangleable   || t.Value.CanBeMangled )
+                .Where( t => !opt.SkipFilesWithoutKey    || t.Value.HasKey )
+                .Where( t => !opt.RequireMangleable      || t.Value.CanBeMangled )
+                .Where( t => !opt.RequireEmptyKeySupport || t.Value.PreservesEmptyKey )
                 .Select( t => t.Key )
                 .ToArray();
-            return types[new Random( (int) DateTime.Now.Ticks ).Next( 0, types.Length - 1 )];
+            // Random.Shared: one thread-safe source - per-call `new Random( ticks )` seeding
+            // made same-tick draws identical. Upper bound is exclusive, so types.Length
+            // includes the last format (the old `Length - 1` never selected it) (RSX-227).
+            return types[Random.Shared.Next( 0, types.Length )];
         }
     }
 }
