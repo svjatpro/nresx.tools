@@ -54,8 +54,41 @@ namespace nresx.Core.Formatters
         {
             var elements = new List<ResourceElementJson>();
             ParseJson( reader, elements, out var type );
+            QualifyKeysByPath( elements );
 
             return elements;
+        }
+
+        // Elements from different subtrees can share a leaf name ("a.title" vs "b.title"),
+        // which used to surface as false Duplicate findings and strict-load failures on
+        // ordinary nested files (RSX-251). Qualify keys with the path RELATIVE to the
+        // common prefix of all elements, dot-joined (the i18next convention): files whose
+        // elements live under one subtree keep their plain leaf keys, mixed files get
+        // unique "section.leaf" keys.
+        private static void QualifyKeysByPath( List<ResourceElementJson> elements )
+        {
+            if ( elements.Count == 0 )
+                return;
+
+            var paths = elements
+                .Select( el => ( el.Path ?? string.Empty ).Split( new[] { '.' }, System.StringSplitOptions.RemoveEmptyEntries ) )
+                .ToList();
+
+            var common = paths[0].Length;
+            foreach ( var p in paths.Skip( 1 ) )
+            {
+                var i = 0;
+                while ( i < common && i < p.Length && paths[0][i] == p[i] ) i++;
+                common = i;
+                if ( common == 0 ) break;
+            }
+
+            for ( var e = 0; e < elements.Count; e++ )
+            {
+                var relative = paths[e].Skip( common ).ToArray();
+                if ( relative.Length > 0 )
+                    elements[e].Key = string.Join( ".", relative.Append( elements[e].Key ) );
+            }
         }
 
         private bool ParseElementNode( JObject node, string path, JsonElementType elType, out ResourceElementJson element )
@@ -105,8 +138,8 @@ namespace nresx.Core.Formatters
             {
                 reader.Read();
                 var children = new List<JToken>();
+                var plainProps = new List<( string name, JToken value )>();
                 var hasElements = false;
-                var hasElProperties = false;
 
                 while ( reader.TokenType != JsonToken.EndObject )
                 {
@@ -115,32 +148,13 @@ namespace nresx.Core.Formatters
 
                     var item = ParseJson( reader, elements, out var childType );
 
-                    // element property
-                    if ( childType == NodeType.Value && PropertiesMap.Contains( propName?.Trim().ToLower() ) )
+                    // leaf property - element-vs-container decision is made AFTER the
+                    // object completes; deciding per-property used to silently drop every
+                    // plain key that followed a metadata-named one ("comment" etc.) in a
+                    // mixed container (RSX-251)
+                    if ( childType == NodeType.Value )
                     {
-                        hasElProperties = true;
-                        children.Add( new JProperty( propName, item ) );
-                    }
-                    // plain structure "key: value"
-                    else if ( !hasElProperties && childType == NodeType.Value && !PropertiesMap.Contains( propName?.Trim().ToLower() ) )
-                    {
-                        if( ( Options?.Path == null || Options?.Path == path ) )
-                        {
-                            hasElements = true;
-                            elements.Add( new ResourceElementJson
-                            {
-                                Key = propName,
-                                Value = item.Value<string>()?.ReplaceNewLine(),
-
-                                KeyPropertyName = KeyNames.First(),
-                                ValuePropertyName = ValueNames.First(),
-                                CommentPropertyName = CommentNames.First(),
-
-                                Path = path,
-                                Type = ResourceElementType.String,
-                                ElementType = JsonElementType.KeyValue
-                            } );
-                        }
+                        plainProps.Add( ( propName, item ) );
                     }
                     // object or "key : object"
                     else if ( childType == NodeType.Element && item.Type == JTokenType.Object )
@@ -153,8 +167,45 @@ namespace nresx.Core.Formatters
                     reader.Read();
                 }
 
+                // an ELEMENT node holds ONLY metadata-named leaves and at least one value
+                // property; anything else is a key:value container - a container may
+                // legitimately contain keys named "comment", "text", ... (RSX-251)
+                var isElementNode =
+                    plainProps.Count > 0 &&
+                    plainProps.All( p => PropertiesMap.Contains( p.name?.Trim().ToLower() ) ) &&
+                    plainProps.Any( p => ValueNames.Contains( p.name?.Trim().ToLower() ) );
+
+                if ( isElementNode )
+                {
+                    foreach ( var ( name, value ) in plainProps )
+                        children.Add( new JProperty( name, value ) );
+                }
+                else
+                {
+                    foreach ( var ( name, value ) in plainProps )
+                    {
+                        if ( Options?.Path == null || Options?.Path == path )
+                        {
+                            hasElements = true;
+                            elements.Add( new ResourceElementJson
+                            {
+                                Key = name,
+                                Value = value.Value<string>()?.ReplaceNewLine(),
+
+                                KeyPropertyName = KeyNames.First(),
+                                ValuePropertyName = ValueNames.First(),
+                                CommentPropertyName = CommentNames.First(),
+
+                                Path = path,
+                                Type = ResourceElementType.String,
+                                ElementType = JsonElementType.KeyValue
+                            } );
+                        }
+                    }
+                }
+
                 JToken obj;
-                if ( hasElements )
+                if ( !isElementNode && hasElements )
                 {
                     obj = new JArray();
                     foreach ( var child in children )
@@ -175,7 +226,7 @@ namespace nresx.Core.Formatters
                     foreach ( var child in children )
                         ( (JObject) obj ).Add( child );
 
-                    type = hasElProperties ? NodeType.Element : NodeType.Object;
+                    type = isElementNode ? NodeType.Element : NodeType.Object;
                 }
 
                 return obj;

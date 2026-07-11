@@ -38,7 +38,10 @@ namespace nresx.CommandLine.Commands
             var template = Template ?? "\\k: \\v";
             if ( !string.IsNullOrWhiteSpace( source ) )
             {
-                var res = new ResourceFile( source );
+                // Lenient: list SHOWS the file's content; judging it is validate's job.
+                // Strict load used to crash with an unhandled ValidationException on files
+                // with duplicate keys (RSX-251/RSX-245).
+                var res = new ResourceFile( source, new ResourceFileOption { LoadMode = LoadMode.Lenient } );
 
                 foreach ( var el in res.Elements )
                 {

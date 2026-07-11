@@ -55,9 +55,11 @@ namespace nresx.Core.Extensions
         {
             var result = new List<ResourceElementError>();
             var keys = new HashSet<string>();
-            var keyBases = new HashSet<string>();
 
-            foreach ( var element in elements )
+            var elementList = elements as IList<ResourceElement> ?? elements.ToList();
+            var allKeys = new HashSet<string>( elementList.Select( el => el.Key ) );
+
+            foreach ( var element in elementList )
             {
                 // detect duplicates
                 if ( keys.Contains( element.Key ) )
@@ -70,22 +72,16 @@ namespace nresx.Core.Extensions
                     keys.Add( element.Key );
                 }
 
-                // detect possible duplicates: i.e. "Key.Content" vs "Key.Text"
+                // detect possible duplicates: a dotted key whose base also exists as a full
+                // key ("Entry1" + "Entry1.Text" - likely the same logical entry). Keys that
+                // merely SHARE a base ("section.title" + "section.description") are ordinary
+                // dot-namespaced siblings, not duplicates (RSX-251).
                 var baseIndex = element.Key.LastIndexOf( '.' );
-                var keyBase = baseIndex switch
+                if ( baseIndex > 0 )
                 {
-                    -1 => element.Key,
-                    0 => element.Key,
-                    > 0 => element.Key.Substring( 0, baseIndex ),
-                    _ => element.Key
-                };
-                if ( !keyBases.Contains( keyBase ) )
-                {
-                    keyBases.Add( keyBase );
-                }
-                else
-                {
-                    result.Add( new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, element.Key ) );
+                    var keyBase = element.Key.Substring( 0, baseIndex );
+                    if ( allKeys.Contains( keyBase ) )
+                        result.Add( new ResourceElementError( ResourceElementErrorType.PossibleDuplicate, element.Key ) );
                 }
 
                 // detect empty key

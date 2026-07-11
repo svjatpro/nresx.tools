@@ -1,0 +1,17 @@
+{
+  "projectName": "Impulse",
+  "comment": "A plain key that happens to be named like element metadata",
+  "record_one": "{{count}} record",
+  "record_other": "{{count}} records",
+  "statusSection": {
+    "title": "Status",
+    "description": "Current status of the record"
+  },
+  "actionsSection": {
+    "title": "Actions",
+    "confirm": {
+      "title": "Confirm action",
+      "message": "Are you sure?"
+    }
+  }
+}

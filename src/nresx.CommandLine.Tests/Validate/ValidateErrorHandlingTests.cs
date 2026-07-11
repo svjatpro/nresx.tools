@@ -78,6 +78,23 @@ namespace nresx.CommandLine.Tests.Validate
             args.ConsoleOutput.Should().Contain( "Found 0 issues (1 file checked)" );
         }
 
+        // RSX-251: an ordinary nested i18next file used to flood false Duplicate errors
+        // in validate and crash list with an unhandled ValidationException.
+        [Test]
+        public void NestedJsonValidatesCleanAndLists()
+        {
+            var file = GetTestPath( "json/i18next.json" );
+
+            var validated = TestHelper.RunCommandLine( $"validate {file}" );
+            validated.ExitCode.Should().Be( ExitSuccess );
+            validated.ConsoleOutput.Should().Contain( "Found 0 issues (1 file checked)" );
+
+            var listed = TestHelper.RunCommandLine( $"list {file}" );
+            listed.ExitCode.Should().Be( ExitSuccess );
+            listed.ConsoleOutput.Should().Contain( line => line.StartsWith( "statusSection.title:" ) );
+            listed.ConsoleOutput.Should().Contain( line => line.StartsWith( "comment:" ) );
+        }
+
         [Test]
         public void UnknownFormatFileReportsFormatError()
         {

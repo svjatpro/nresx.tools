@@ -31,6 +31,27 @@ namespace nresx.Core.Tests.ResourceFiles.Json
             ValidateElements( res );
         }
 
+        // RSX-251: nested/mixed i18next-shaped files. Keys from different subtrees are
+        // qualified with the path relative to the common prefix (dot convention), plain
+        // keys named like element metadata ("comment") stay elements of the container,
+        // and the strict default load no longer throws false-duplicate errors.
+        [Test]
+        public async Task ParseNestedMixedJson()
+        {
+            var res = new ResourceFile( GetTestPath( @"json/i18next.json" ) );
+
+            var keys = res.Elements.Select( el => el.Key ).ToList();
+            keys.Should().OnlyHaveUniqueItems();
+            keys.Should().BeEquivalentTo(
+                "projectName", "comment", "record_one", "record_other",
+                "statusSection.title", "statusSection.description",
+                "actionsSection.title", "actionsSection.confirm.title", "actionsSection.confirm.message" );
+
+            res.Elements.First( el => el.Key == "comment" ).Value
+                .Should().Be( "A plain key that happens to be named like element metadata" );
+            res.Elements.First( el => el.Key == "record_one" ).Value.Should().Be( "{{count}} record" );
+        }
+
         [Test]
         public async Task ParsePropertyNames()
         {
