@@ -25,6 +25,9 @@ namespace nresx.Core.Tests
             "Unknown output format: '{0}'. Supported: text, json";
         protected const string RecursiveHintMessage =
             "did you mean to add -r to search subdirectories?";
+        // Mirror of CommandExtensions.MissingOptionMessage (RSX-245).
+        protected const string MissingOptionMessage =
+            "Required option '{0}' is missing.";
 
         // Mirror of the exit-code constants in nresx.CommandLine BaseCommand.cs (RSX-151).
         protected const int ExitSuccess = 0;

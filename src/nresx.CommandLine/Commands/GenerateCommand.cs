@@ -47,8 +47,8 @@ namespace nresx.CommandLine.Commands
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
-                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true ) 
-                .Single( DestinationFiles, out var destFile, mandatory: !DryRun )
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true, optionName: "source" ) 
+                .Single( DestinationFiles, out var destFile, mandatory: !DryRun, optionName: "destination" )
                 .Validate( this );
             if ( !optionsParsed )
                 return;

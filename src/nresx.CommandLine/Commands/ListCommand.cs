@@ -29,7 +29,7 @@ namespace nresx.CommandLine.Commands
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
-                .Single( SourceFiles, out var source, mandatory: true )
+                .Single( SourceFiles, out var source, mandatory: true, optionName: "source" )
                 .Validate( this );
             if ( !optionsParsed )
                 return;

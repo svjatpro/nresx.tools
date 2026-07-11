@@ -128,6 +128,11 @@ namespace nresx.CommandLine.Helpers
             bool createNew = false,
             bool dryRun = false )
         {
+            // A pathspec that is an existing directory means "everything in it" - users
+            // naturally type `nresx validate public/locales/uk` (RSX-245).
+            if ( Directory.Exists( filePattern ) )
+                filePattern = Path.Combine( filePattern, "*" );
+
             var isFileName = filePattern.IsRegularName();
             var rootPath = Path.GetDirectoryName( filePattern );
             var rootDir = new DirectoryInfo( string.IsNullOrWhiteSpace( rootPath ) ? Environment.CurrentDirectory : rootPath );

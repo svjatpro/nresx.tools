@@ -29,7 +29,7 @@ namespace nresx.CommandLine.Commands
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
-                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true, optionName: "source" )
                 .Validate( this );
             if ( !optionsParsed )
                 return;
@@ -54,11 +54,13 @@ namespace nresx.CommandLine.Commands
             var issues = new List<( string file, string severityLabel, ResourceElementError error )>();
             var totalErrors = 0;
             var totalWarnings = 0;
+            var totalFiles = 0;
 
             // Cross-file validation lives in nresx.Core (RSX-235); the command collects the
             // findings, then renders them in the selected output format (RSX-232).
             ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
+                totalFiles += group.Files.Count;
                 foreach ( var issue in group.Validate() )
                 {
                     var error = issue.Error;
@@ -80,13 +82,15 @@ namespace nresx.CommandLine.Commands
             if ( outputJson )
                 RenderJson( issues, totalErrors, totalWarnings );
             else
-                RenderText( issues, totalErrors, totalWarnings );
+                // suppress the clean-run confirmation when a search error was already
+                // reported (Successful false) - "0 issues" after a fatal line is noise
+                RenderText( issues, totalErrors, totalWarnings, totalFiles, printCleanSummary: Successful );
 
             if ( anyFailure )
                 Successful = false;
         }
 
-        private static void RenderText( List<( string file, string severityLabel, ResourceElementError error )> issues, int errors, int warnings )
+        private static void RenderText( List<( string file, string severityLabel, ResourceElementError error )> issues, int errors, int warnings, int files, bool printCleanSummary )
         {
             foreach ( var ( file, severityLabel, error ) in issues )
             {
@@ -97,7 +101,16 @@ namespace nresx.CommandLine.Commands
             }
 
             if ( issues.Count > 0 )
+            {
                 Console.WriteLine( BuildSummary( issues.Count, errors, warnings ) );
+            }
+            else if ( printCleanSummary )
+            {
+                // A clean run must still confirm that something was actually checked -
+                // silence is indistinguishable from "nothing matched" (RSX-245).
+                string Plural( int n, string word ) => n == 1 ? word : word + "s";
+                Console.WriteLine( $"Found 0 issues ({files} {Plural( files, "file" )} checked)" );
+            }
         }
 
         // Schema v1 (RSX-232); guard extends it with sarif and more rules later (RSX-158).

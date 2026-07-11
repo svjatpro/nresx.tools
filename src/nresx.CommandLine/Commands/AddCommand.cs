@@ -37,7 +37,7 @@ namespace nresx.CommandLine.Commands
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
-                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true )
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true, optionName: "source" )
                 .Validate( this );
             if ( !optionsParsed )
                 return;
