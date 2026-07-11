@@ -43,6 +43,8 @@ namespace nresx.CommandLine.Commands
             "fatal: element with key '{0}' was not found in '{1}'. Use 'nresx list' to see existing keys, or pass --new-element to add it.";
         protected const string UnknownCommandErrorMessage =
             "Unknown command: '{0}'";
+        protected const string UnknownOutputFormatErrorMessage =
+            "Unknown output format: '{0}'. Supported: text, json";
 
         #endregion
 
@@ -178,7 +180,9 @@ namespace nresx.CommandLine.Commands
             {
                 var paths = new List<string>();
 
-                // query all resource files
+                // query all resource files; route search errors to stderr + exit code the
+                // same way ForEachSourceFile does - without a handler a bad mask or missing
+                // directory crashed the process with an unhandled exception (RSX-248).
                 for ( var i = 0; i < sourceFiles.Count; i++ )
                 {
                     var sourcePattern = sourceFiles[i];
@@ -186,11 +190,43 @@ namespace nresx.CommandLine.Commands
                         sourcePattern,
                         context =>
                         {
-                            if ( context.FileExists &&
-                               ( ResourceFormatHelper.DetectFormatByExtension( context.FullName, out _ ) ||
-                                 context.SourcePathSpec.IsRegularName() ) )
+                            if ( !context.FileExists )
+                            {
+                                // an explicitly named file that does not exist is an error;
+                                // a mask that matched nothing is reported by SearchFiles itself
+                                if ( context.SourcePathSpec.IsRegularName() )
+                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, context.SourcePathSpec );
+                                return;
+                            }
+
+                            if ( ResourceFormatHelper.DetectFormatByExtension( context.FullName, out _ ) )
                             {
                                 paths.Add( context.FullName );
+                            }
+                            else if ( context.SourcePathSpec.IsRegularName() )
+                            {
+                                // explicitly named file in a format the registry does not know:
+                                // report it here - passing it on would crash ResourceGroup.Detect
+                                WriteError( ExitFormatError, FormatUndefinedErrorMessage );
+                            }
+                        },
+                        ( context, exception ) =>
+                        {
+                            switch ( exception )
+                            {
+                                case FileNotFoundException:
+                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
+                                    break;
+                                case DirectoryNotFoundException:
+                                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
+                                    break;
+                                case UnknownResourceFormatException:
+                                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
+                                    break;
+                                case FileLoadException:
+                                default:
+                                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
+                                    break;
                             }
                         },
                         recursive: Recursive && IsRecursiveAllowed,

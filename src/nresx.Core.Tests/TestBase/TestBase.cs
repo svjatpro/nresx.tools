@@ -21,6 +21,8 @@ namespace nresx.Core.Tests
             "fatal: destination file '{0}' already exists. Move or rename the existing file before running this command.";
         protected const string UnknownCommandErrorMessage =
             "Unknown command: '{0}'";
+        protected const string UnknownOutputFormatErrorMessage =
+            "Unknown output format: '{0}'. Supported: text, json";
 
         // Mirror of the exit-code constants in nresx.CommandLine BaseCommand.cs (RSX-151).
         protected const int ExitSuccess = 0;

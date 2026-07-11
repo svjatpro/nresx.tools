@@ -58,6 +58,13 @@ right):
   run: nresx validate "src/Resources/*.resx" -r --basic-lan en-US
 ```
 
+**Machine-readable findings** (feed a bot or annotate the PR):
+
+```yaml
+- name: Validate translations
+  run: nresx validate "src/Resources/*.resx" -r --format json > i18n-report.json
+```
+
 **Pre-commit hook** (catches issues before they reach CI):
 
 ```sh

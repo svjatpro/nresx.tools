@@ -359,15 +359,21 @@ namespace nresx.Core.Tests
             // child exits with a gap between the final write and EOF, duplicating lines in
             // ConsoleOutput (RSX-243, flaky FormatSingleFile failures on Linux).
             var outputLock = new object();
-            async System.Threading.Tasks.Task ReadLinesAsync( StreamReader reader )
+            async System.Threading.Tasks.Task ReadLinesAsync( StreamReader reader, List<string> stdOnly = null )
             {
                 string line;
                 while ( ( line = await reader.ReadLineAsync() ) != null )
-                    lock ( outputLock ) p.ConsoleOutput.Add( line );
+                {
+                    lock ( outputLock )
+                    {
+                        p.ConsoleOutput.Add( line );
+                        stdOnly?.Add( line );
+                    }
+                }
             }
 
             process.Start();
-            var stdoutTask = ReadLinesAsync( process.StandardOutput );
+            var stdoutTask = ReadLinesAsync( process.StandardOutput, p.StdOutput );
             var stderrTask = ReadLinesAsync( process.StandardError );
 
             // 30s cap (debug: unlimited): recursive commands walking the shared .test_output

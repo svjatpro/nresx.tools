@@ -17,6 +17,10 @@ namespace nresx.Core.Tests
 
         public string CommandLine { get; set; }
         public readonly List<string> ConsoleOutput = new();
+        // stdout lines only (ConsoleOutput merges stdout+stderr by arrival order and stays
+        // that way - existing tests depend on it). Use for machine-readable output
+        // assertions, e.g. `validate --format json` (RSX-232).
+        public readonly List<string> StdOutput = new();
         public int ExitCode { get; set; }
     }
 }

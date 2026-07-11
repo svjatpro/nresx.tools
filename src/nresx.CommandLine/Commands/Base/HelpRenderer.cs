@@ -27,11 +27,18 @@ namespace nresx.CommandLine.Commands.Base
 
             // command-specific options first, then the inherited common options
             var options = new List<(string flags, string help)>();
+            var seen = new HashSet<string>( StringComparer.Ordinal );
             for ( var t = commandType; t != null && t != typeof(object); t = t.BaseType )
             {
                 foreach ( var prop in t.GetProperties( BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly ) )
                 {
                     if ( prop.GetCustomAttribute( typeof(OptionAttribute) ) is not OptionAttribute opt || opt.Hidden )
+                        continue;
+
+                    // a derived class may shadow an inherited option to re-describe it
+                    // (e.g. validate's -f/--format, RSX-232); derived-first walk order
+                    // means the most-derived declaration wins
+                    if ( !seen.Add( $"{opt.ShortName}|{opt.LongName}" ) )
                         continue;
 
                     var hasShort = !string.IsNullOrEmpty( opt.ShortName );

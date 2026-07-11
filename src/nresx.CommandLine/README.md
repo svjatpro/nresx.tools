@@ -366,6 +366,7 @@ nresx validate
   [-r | --recursive]
   [--basic-lan <language code>]
   [--warnings-as-errors]
+  [-f | --format text|json]
 ```
 
 #### Options
@@ -373,7 +374,8 @@ nresx validate
 **-s | --source**  Resource file(s) to process, can be a pathspec, or a list of pathspec\
 **-r | --recursive**  Process resource files in subdirectories\
 **--basic-lan**  Base language code (e.g. `en`, `en-US`). Overrides auto-detection of the source-language file in a translation group\
-**--warnings-as-errors**  Treat warnings as errors when setting the exit code
+**--warnings-as-errors**  Treat warnings as errors when setting the exit code\
+**-f | --format**  Output format: `text` (default, human-readable) or `json` (machine-readable)
 
 #### Checks and severity
 
@@ -396,6 +398,29 @@ summary line: `Found N issues (X errors, Y warnings)`.
 The exit code is non-zero when any error-severity finding is present; warnings
 alone exit 0 unless `--warnings-as-errors` is set.
 
+#### JSON output
+
+`--format json` prints exactly one JSON document to stdout (fatal errors such as
+a bad pathspec still go to stderr); exit codes are unchanged. A clean run gives
+the same document with an empty `issues` array.
+
+```json
+{
+  "tool": "nresx",
+  "version": "1.0.0",
+  "issues": [
+    {
+      "file": "locales/strings.de.resx",
+      "severity": "warning",
+      "rule": "MissedElement",
+      "key": "Greeting",
+      "message": null
+    }
+  ],
+  "summary": { "issues": 1, "errors": 0, "warnings": 1 }
+}
+```
+
 The base file for the `NotTranslated` check is picked per group: the explicit
 `--basic-lan` match if given, else the neutral file (no culture in the name),
 else the English file, else the first by culture name. Single-file groups skip
@@ -413,6 +438,9 @@ nresx validate dir1\*.resw -r
 
 # CI gate: any finding fails the build, and 'uk' is the source language
 nresx validate *.resx -r --basic-lan uk --warnings-as-errors
+
+# machine-readable output for CI tooling / bots
+nresx validate *.resx -r --format json
 ```
 
 ## Generate
