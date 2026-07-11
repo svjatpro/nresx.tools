@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
@@ -32,6 +33,17 @@ namespace nresx.CommandLine.Commands
         protected override bool IsCreateNewFileAllowed => true;
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
+
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will format all elements in res1.resx file as 'fr_<value>'\n" +
+            "nresx format Resources\\fr-CA\\res1.resx --start-with --language-code",
+            "# will revert previous formatting - remove 'fr_' prefix from all elements\n" +
+            "nresx format Resources\\fr-CA\\res1.resx --start-with --language-code --delete",
+            "# will format all elements in all *.resx file starting from Resources\\ dir as 'cultureName_<value>'\n" +
+            "#  with appropriate culture: all elements in fr-CA\\res1.resx will be formatted as 'fr-CA_<value>' etc.\n" +
+            "nresx format Resources\\*.resx --start-with --culture-code --recursive",
+        ];
 
         protected override void ExecuteCommand()
         {

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
@@ -16,6 +17,14 @@ namespace nresx.CommandLine.Commands
         public string NewKey { get; set; }
 
         protected override bool IsRecursiveAllowed => true;
+
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will rename single element in the \"file1\" resource file\n" +
+            "nresx rename file1 -k key1 -n key2",
+            "# will rename single element in all *.resx files, starting from current directory\n" +
+            "nresx rename *.resx -k key1 -n key2 --recursive",
+        ];
 
         protected override void ExecuteCommand()
         {

@@ -10,7 +10,7 @@ namespace nresx.Core.Tests
     {
         // Mirror of the templates in nresx.CommandLine BaseCommand.cs - update both together when wording changes (RSX-150).
         protected const string FilesNotFoundErrorMessage =
-            "fatal: path mask '{0}' did not match any files. Check the path is correct, or use -r to search subdirectories.";
+            "fatal: path mask '{0}' did not match any files. Check the path is correct.";
         protected const string FileLoadErrorMessage =
             "fatal: failed to load resource file '{0}'. The file may be corrupt or in an unrecognized format - pass -f <format> to override format detection.";
         protected const string DirectoryNotFoundErrorMessage =
@@ -23,6 +23,8 @@ namespace nresx.Core.Tests
             "Unknown command: '{0}'";
         protected const string UnknownOutputFormatErrorMessage =
             "Unknown output format: '{0}'. Supported: text, json";
+        protected const string RecursiveHintMessage =
+            "did you mean to add -r to search subdirectories?";
 
         // Mirror of the exit-code constants in nresx.CommandLine BaseCommand.cs (RSX-151).
         protected const int ExitSuccess = 0;

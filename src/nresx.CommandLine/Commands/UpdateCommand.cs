@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
@@ -20,6 +21,17 @@ namespace nresx.CommandLine.Commands
 
         protected override bool IsCreateNewElementAllowed => true;
         protected override bool IsRecursiveAllowed => true;
+
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will update single element with new value in the \"file1\" resource file\n" +
+            "nresx update file1 -k key1 -v value1",
+            "# will update single element with new value and comment resource file\n" +
+            "nresx update file1 -k key1 -c \"the comment1\" -v \"value1\"",
+            "# will update single element in all resource files, which match the pathspec,\n" +
+            "#  beginning from current directory, including all subdirectories\n" +
+            "nresx update *.resw -r -k key1 -v value1",
+        ];
 
         protected override void ExecuteCommand()
         {

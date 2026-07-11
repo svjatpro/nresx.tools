@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Core;
@@ -16,6 +17,14 @@ namespace nresx.CommandLine.Commands
 
         [Option( 't', "template", HelpText = "Resource element output template.\n \\k - element key, \\v - element value, \\c - element comment" )]
         public string Template { get; set; }
+
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# Will list all elements from the <file1> in \"<key>: <value>\" format:\n" +
+            "nresx list <file1>",
+            "# will list all elements from the <file1> in \"some prefix <key>: <value>, (<comment>)\" format:\n" +
+            "nresx list <file1> -t \"some prefix \\k: \\v, (\\c)\"",
+        ];
 
         protected override void ExecuteCommand()
         {

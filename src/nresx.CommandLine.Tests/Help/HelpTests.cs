@@ -65,6 +65,30 @@ public class HelpTests : TestBase
             } );
     }
 
+    // Every working command ships Examples in its detailed help (RSX-233, issue #3).
+    [TestCase( "convert" )]
+    [TestCase( "info" )]
+    [TestCase( "list" )]
+    [TestCase( "format" )]
+    [TestCase( "copy" )]
+    [TestCase( "add" )]
+    [TestCase( "remove" )]
+    [TestCase( "update" )]
+    [TestCase( "rename" )]
+    [TestCase( "validate" )]
+    [TestCase( "generate" )]
+    public void EveryCommandHelpHasExamples( string verb )
+    {
+        $"{verb} --help"
+            .ValidateRun( args =>
+            {
+                args.ExitCode.Should().Be( ExitSuccess );
+                args.ConsoleOutput.Should().Contain( "Options:" );
+                args.ConsoleOutput.Should().Contain( "Examples:" );
+                args.ConsoleOutput.Should().Contain( line => line.Contains( $"nresx {verb}" ) || line.Contains( "nresx <file1>" ) );
+            } );
+    }
+
     [Test]
     public void HelpForCommandMatchesCommandFlag()
     {

@@ -37,6 +37,13 @@ namespace nresx.CommandLine.Commands
 
         #endregion
 
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will search all source files in current dir and all subdirs, extract all appropriate texts,\n" +
+            "#  replace them with placeholder code and generate new resource file with extracted elements\n" +
+            "nresx generate * <file1> -r",
+        ];
+
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()

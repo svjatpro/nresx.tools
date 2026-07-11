@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
 using nresx.Core.Extensions;
@@ -21,6 +22,17 @@ namespace nresx.CommandLine.Commands
         protected override bool IsCreateNewFileAllowed => true;
         protected override bool IsFormatAllowed => true;
         protected override bool IsRecursiveAllowed => true;
+
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will insert single element with \"key1\" key and \"value1\" value to the \"file1\" resource file\n" +
+            "nresx add file1 -k key1 -v value1",
+            "# will insert single element with a comment\n" +
+            "nresx add file1 -k key1 -v value1 -c \"the comment1\"",
+            "# will insert single element to all resource files, which match the pathspec,\n" +
+            "#  beginning from current directory, including all subdirectories\n" +
+            "nresx add *.resw -r -k key1 -v value1",
+        ];
 
         protected override void ExecuteCommand()
         {

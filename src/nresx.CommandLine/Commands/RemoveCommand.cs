@@ -28,6 +28,16 @@ namespace nresx.CommandLine.Commands
         //[Option( "duplicates", HelpText = "Remove all empty elements - key or value" )]
         //public bool Duplicates { get; set; }
 
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will remove single element with \"key1\" key from the \"file1\" resource file\n" +
+            "nresx remove <file1> -k <key1>",
+            "# will remove from \"file1\" all items, which have empty value\n" +
+            "nresx remove <file1> --empty-value",
+            "# will remove from all *.yaml files in current dir, including subdirectories, all items, which have empty key or value\n" +
+            "nresx remove *.yaml -r --empty",
+        ];
+
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()

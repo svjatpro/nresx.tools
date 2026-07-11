@@ -30,7 +30,7 @@ namespace nresx.CommandLine.Commands
         #region error message templates
 
         protected const string FilesNotFoundErrorMessage =
-            "fatal: path mask '{0}' did not match any files. Check the path is correct, or use -r to search subdirectories.";
+            "fatal: path mask '{0}' did not match any files. Check the path is correct.";
         protected const string FileLoadErrorMessage =
             "fatal: failed to load resource file '{0}'. The file may be corrupt or in an unrecognized format - pass -f <format> to override format detection.";
         protected const string DirectoryNotFoundErrorMessage =
@@ -45,8 +45,55 @@ namespace nresx.CommandLine.Commands
             "Unknown command: '{0}'";
         protected const string UnknownOutputFormatErrorMessage =
             "Unknown output format: '{0}'. Supported: text, json";
+        protected const string RecursiveHintMessage =
+            "did you mean to add -r to search subdirectories?";
 
         #endregion
+
+        // Default search-error reporting shared by the ForEach* helpers: the standard
+        // fatal message per exception type, plus an actionable -r hint when a wildcard
+        // search matched nothing but subdirectories exist (RSX-233, issue #3).
+        protected void WriteSearchError( FilesSearchContext context, Exception exception, string sourcePattern )
+        {
+            switch ( exception )
+            {
+                case FileNotFoundException:
+                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
+                    WriteRecursiveHintIfUseful( sourcePattern );
+                    break;
+                case DirectoryNotFoundException:
+                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
+                    break;
+                case UnknownResourceFormatException:
+                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
+                    break;
+                case FileLoadException:
+                default:
+                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
+                    break;
+            }
+        }
+
+        // The hint must be actionable: only for wildcard pathspecs (-r does not search
+        // subdirectories for an exact file name), only when -r wasn't already given, the
+        // command supports it, and the searched directory actually has subdirectories.
+        private void WriteRecursiveHintIfUseful( string sourcePattern )
+        {
+            if ( Recursive || !IsRecursiveAllowed || sourcePattern.IsRegularName() )
+                return;
+
+            var dir = Path.GetDirectoryName( sourcePattern );
+            var root = string.IsNullOrWhiteSpace( dir ) ? Environment.CurrentDirectory : dir;
+            try
+            {
+                if ( Directory.Exists( root ) && Directory.EnumerateDirectories( root ).Any() )
+                    Console.Error.WriteLine( RecursiveHintMessage );
+            }
+            catch
+            {
+                // the hint is best-effort - never fail the command over it
+            }
+        }
 
         // Writes a fatal error to stderr and marks the command unsuccessful so the
         // process exits non-zero. The exit code argument categorizes the failure
@@ -210,25 +257,7 @@ namespace nresx.CommandLine.Commands
                                 WriteError( ExitFormatError, FormatUndefinedErrorMessage );
                             }
                         },
-                        ( context, exception ) =>
-                        {
-                            switch ( exception )
-                            {
-                                case FileNotFoundException:
-                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
-                                    break;
-                                case DirectoryNotFoundException:
-                                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
-                                    break;
-                                case UnknownResourceFormatException:
-                                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
-                                    break;
-                                case FileLoadException:
-                                default:
-                                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
-                                    break;
-                            }
-                        },
+                        ( context, exception ) => WriteSearchError( context, exception, sourcePattern ),
                         recursive: Recursive && IsRecursiveAllowed,
                         createNew: CreateNewFile && IsCreateNewFileAllowed,
                         dryRun: DryRun && IsDryRunAllowed );
@@ -276,22 +305,7 @@ namespace nresx.CommandLine.Commands
                             if ( ( context.FilesProcessed + context.FilesFailed ) > 0 )
                                 Console.WriteLine( new string( '-', 30 ) );
 
-                            switch ( exception )
-                            {
-                                case FileNotFoundException:
-                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
-                                    break;
-                                case DirectoryNotFoundException:
-                                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
-                                    break;
-                                case UnknownResourceFormatException:
-                                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
-                                    break;
-                                case FileLoadException:
-                                default:
-                                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
-                                    break;
-                            }
+                            WriteSearchError( context, exception, sourcePattern );
                         } ),
                         recursive: Recursive && IsRecursiveAllowed,
                         createNew: CreateNewFile && IsCreateNewFileAllowed,
@@ -333,22 +347,7 @@ namespace nresx.CommandLine.Commands
                             if ( ( context.FilesProcessed + context.FilesFailed ) > 0 )
                                 Console.WriteLine( new string( '-', 30 ) );
 
-                            switch ( exception )
-                            {
-                                case FileNotFoundException:
-                                    WriteError( ExitNotFound, FilesNotFoundErrorMessage, sourcePattern );
-                                    break;
-                                case DirectoryNotFoundException:
-                                    WriteError( ExitNotFound, DirectoryNotFoundErrorMessage, sourcePattern );
-                                    break;
-                                case UnknownResourceFormatException:
-                                    WriteError( ExitFormatError, FormatUndefinedErrorMessage, sourcePattern );
-                                    break;
-                                case FileLoadException:
-                                default:
-                                    WriteError( ExitFormatError, FileLoadErrorMessage, context.FullName );
-                                    break;
-                            }
+                            WriteSearchError( context, exception, sourcePattern );
                         } ),
                         recursive: Recursive && IsRecursiveAllowed,
                         createNew: CreateNewFile && IsCreateNewFileAllowed,

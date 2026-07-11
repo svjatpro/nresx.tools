@@ -63,7 +63,7 @@ namespace nresx.CommandLine.Tests.Add
                 } )
                 .ValidateStdout( ( args, param ) =>
                 {
-                    args.ConsoleOutput[0].Should().Be( $"fatal: path mask '{param.file}' did not match any files. Check the path is correct, or use -r to search subdirectories." );
+                    args.ConsoleOutput[0].Should().Be( $"fatal: path mask '{param.file}' did not match any files. Check the path is correct." );
                 } );
         }
 

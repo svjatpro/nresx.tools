@@ -133,16 +133,20 @@ namespace nresx.CommandLine.Tests.Info
                 } );
         }
 
-        [TestCase( @"info nonexistent.resx" )]
-        [TestCase( @"info nonexistent*.resx" )]
-        [TestCase( @"info *nonexistent" )]
-        public void GetWrongFileSpec( string commandLine )
+        [TestCase( @"info nonexistent.resx", false )]
+        [TestCase( @"info nonexistent*.resx", true )] // wildcard => the -r hint follows (RSX-233)
+        [TestCase( @"info *nonexistent", true )]
+        public void GetWrongFileSpec( string commandLine, bool expectHint )
         {
             commandLine
                 .ValidateRun( _ => { } )
                 .ValidateStdout( args =>
                 {
-                    args.ConsoleOutput.Should().BeEquivalentTo( $"fatal: path mask '{commandLine[5..]}' did not match any files. Check the path is correct, or use -r to search subdirectories." );
+                    args.ConsoleOutput.Should().Contain( $"fatal: path mask '{commandLine[5..]}' did not match any files. Check the path is correct." );
+                    if ( expectHint )
+                        args.ConsoleOutput.Should().Contain( RecursiveHintMessage );
+                    else
+                        args.ConsoleOutput.Should().NotContain( RecursiveHintMessage );
                 } );
         }
 

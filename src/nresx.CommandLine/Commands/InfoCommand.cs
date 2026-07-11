@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using nresx.CommandLine.Commands.Base;
@@ -10,6 +11,14 @@ namespace nresx.CommandLine.Commands
     public class InfoCommand : BaseCommand, ICommand
     {
         protected override bool IsRecursiveAllowed => true;
+
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# Will put information about two files to the stdout\n" +
+            "nresx <file1> <file2>",
+            "# Will put to the stdout information about all *.yaml files in the current directory, including all subdirectories\n" +
+            "nresx info *.resx -r",
+        ];
 
         protected override void ExecuteCommand()
         {

@@ -23,6 +23,14 @@ namespace nresx.CommandLine.Commands
         protected override bool IsCreateNewFileAllowed => true;
         protected override bool IsFormatAllowed => true;
 
+        protected override IEnumerable<string> HelpExamples =>
+        [
+            "# will copy all elements from the \"file1\" to \"file2\", if \"file2\" is not exist, it will be created\n" +
+            "nresx copy <file1> <file2>",
+            "# will copy all elements from the \"file1\" to \"file2\", duplicated elements will be overwritten\n" +
+            "nresx copy <file1> <file2> --overwrite",
+        ];
+
         protected override void ExecuteCommand()
         {
             var optionsParsed = Options()
