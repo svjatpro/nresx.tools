@@ -34,11 +34,13 @@ public class ResourceGroup
 
     /// <summary>
     /// Groups an explicit list of resource file paths into translation groups. Mirrors the CLI's
-    /// grouping heuristic: (1) files sharing a folder, format, and each carrying a culture extracted
-    /// from their file name are grouped together; (2) remaining files are grouped by culture-specific
-    /// sibling folders (grouped by grandparent directory); (3) anything left over becomes a
-    /// single-file group. Every file is loaded (in <see cref="LoadMode.Lenient"/> mode, so content
-    /// validation findings never throw).
+    /// grouping heuristic: (0) namespace-layout files, whose culture is derived from the containing
+    /// directory (<c>locales/&lt;lang&gt;/&lt;ns&gt;.&lt;ext&gt;</c>), pair up by identical file name
+    /// across the culture folders, so different namespaces in one language folder stay separate;
+    /// (1) files sharing a folder, format, and each carrying a culture extracted from their file
+    /// name are grouped together; (2) remaining files are grouped by culture-specific sibling folders
+    /// (grouped by grandparent directory); (3) anything left over becomes a single-file group. Every
+    /// file is loaded (in <see cref="LoadMode.Lenient"/> mode, so content validation findings never throw).
     /// </summary>
     /// <param name="paths">Explicit file paths. No wildcard expansion is performed - each path must exist.</param>
     /// <param name="baseLanguage">
@@ -53,6 +55,7 @@ public class ResourceGroup
         if ( paths == null ) throw new ArgumentNullException( nameof( paths ) );
 
         var resFiles = new List<(string fullName, ResourceFormatType format, CultureInfo? culture)>();
+        var nsFiles = new List<(string fullName, ResourceFormatType format, CultureInfo? culture)>();
         foreach ( var path in paths )
         {
             var fileInfo = new FileInfo( path );
@@ -60,11 +63,30 @@ public class ResourceGroup
                 throw new FileNotFoundException( $"Resource file '{path}' was not found.", path );
 
             ResourceFormatHelper.DetectFormatByExtension( fileInfo.FullName, out var format );
-            fileInfo.FullName.TryToExtractCultureFromPath( out var culture );
-            resFiles.Add( (fileInfo.FullName, format, culture) );
+            fileInfo.FullName.TryToExtractCultureFromPath( out var culture, out var cultureFromDir );
+
+            // Namespace layout (locales/<lang>/<ns>.<ext>): the culture comes from the directory, so
+            // sibling files in one culture folder are DIFFERENT namespaces, not translations of each
+            // other. These are grouped in pass 0 by matching name across culture folders; everything
+            // else (satellite pattern, no culture) goes through the folder/grandparent passes.
+            if ( culture != null && cultureFromDir && format != ResourceFormatType.NA )
+                nsFiles.Add( (fileInfo.FullName, format, culture) );
+            else
+                resFiles.Add( (fileInfo.FullName, format, culture) );
         }
 
         var rawGroups = new List<List<(string fullName, ResourceFormatType format, CultureInfo? culture)>>();
+
+        // pass 0: namespace files pair up by (parent-of-culture-dir, format, file name) - common.json
+        // in uk/ and en/ join one group; common.json and accounting.json in the same lang dir stay
+        // apart. A lone namespace (single-language project) becomes its own single-file group.
+        foreach ( var grp in nsFiles.GroupBy( r => (
+            parent: Path.GetFullPath( Path.Combine( Path.GetDirectoryName( r.fullName )!, ".." ) ),
+            r.format,
+            name: Path.GetFileName( r.fullName ) ) ) )
+        {
+            rawGroups.Add( grp.ToList() );
+        }
 
         // pass 1: files in the same folder, same format, each with a detected culture
         resFiles = GroupBy( resFiles, r => Path.GetDirectoryName( r.fullName ), rawGroups );

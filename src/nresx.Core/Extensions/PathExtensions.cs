@@ -30,6 +30,18 @@ namespace nresx.Core.Extensions
 
         public static bool TryToExtractCultureFromPath( this string path, out CultureInfo culture )
         {
+            return path.TryToExtractCultureFromPath( out culture, out _ );
+        }
+
+        /// <summary>
+        /// Extracts the culture from a resource file path, also reporting whether it came from the
+        /// file name (satellite pattern, e.g. <c>strings.de.resx</c>) or from the containing
+        /// directory (namespace pattern, e.g. <c>locales/de/common.json</c>). The distinction lets
+        /// grouping treat sibling files in one culture directory as separate namespaces rather than
+        /// mutual translations.
+        /// </summary>
+        public static bool TryToExtractCultureFromPath( this string path, out CultureInfo culture, out bool fromDirectory )
+        {
             CultureInfo TryGetCulture( Func<bool> validator, Func<string> getCode )
             {
                 if ( !validator() )
@@ -48,10 +60,19 @@ namespace nresx.Core.Extensions
             var fileParts = fileName.Split( new[] {'.', '_', ' '}, StringSplitOptions.RemoveEmptyEntries );
             var dir = path.GetDirectoryName();
 
-            culture = 
+            fromDirectory = false;
+            var byName =
                 TryGetCulture( () => fileParts.Length > 0, () => fileParts.First() ) ??
-                TryGetCulture( () => fileParts.Length > 1, () => fileParts.Last() ) ??
-                TryGetCulture( () => dir != null && ( dir.Length == 5 || dir.Length == 2 ), () => dir );
+                TryGetCulture( () => fileParts.Length > 1, () => fileParts.Last() );
+            if ( byName != null )
+            {
+                culture = byName;
+            }
+            else
+            {
+                culture = TryGetCulture( () => dir != null && ( dir.Length == 5 || dir.Length == 2 ), () => dir );
+                fromDirectory = culture != null;
+            }
 
             return culture != null;
         }

@@ -48,6 +48,41 @@ namespace nresx.Core.Tests.Grouping
         }
 
         [Test]
+        public void Detect_NamespaceLayout_GroupsByNameAcrossCultureDirs()
+        {
+            // locales/<lang>/<ns>.resx: culture comes from the folder; same namespace across
+            // languages pairs up, different namespaces stay in separate groups.
+            var root = UniqueKey();
+            var enCommon = CreateResx( $"{root}/locales/en/common.resx" );
+            var ukCommon = CreateResx( $"{root}/locales/uk/common.resx" );
+            var enAccounting = CreateResx( $"{root}/locales/en/accounting.resx" );
+            var ukAccounting = CreateResx( $"{root}/locales/uk/accounting.resx" );
+
+            var groups = ResourceGroup.Detect( new[] { enCommon, ukCommon, enAccounting, ukAccounting } );
+
+            groups.Should().HaveCount( 2 );
+            groups.Should().OnlyContain( g => g.Files.Count == 2 );
+            groups.Should().ContainSingle( g =>
+                g.Files.All( f => f.FileName == new FileInfo( enCommon ).Name ) );
+            groups.Should().ContainSingle( g =>
+                g.Files.All( f => f.FileName == new FileInfo( enAccounting ).Name ) );
+        }
+
+        [Test]
+        public void Detect_NamespaceLayout_SingleLanguage_EachFileOwnGroup()
+        {
+            // uk-only project: every namespace file is its own group of one (no cross-file grouping).
+            var root = UniqueKey();
+            var common = CreateResx( $"{root}/locales/uk/common.resx" );
+            var accounting = CreateResx( $"{root}/locales/uk/accounting.resx" );
+
+            var groups = ResourceGroup.Detect( new[] { common, accounting } );
+
+            groups.Should().HaveCount( 2 );
+            groups.Should().OnlyContain( g => g.Files.Count == 1 && g.BaseFile == null );
+        }
+
+        [Test]
         public void Detect_MixedLeftovers_BecomeSingleFileGroups()
         {
             var groupDir = UniqueKey();

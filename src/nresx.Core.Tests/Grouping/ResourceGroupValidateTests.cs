@@ -118,6 +118,27 @@ namespace nresx.Core.Tests.Grouping
         }
 
         [Test]
+        public void Validate_SingleLanguageNamespaces_NoCrossFileMissedElement()
+        {
+            // Two namespace files in one culture folder with disjoint keys. They are DIFFERENT
+            // namespaces, not translations, so neither key set may be flagged missing in the other.
+            var root = UniqueKey();
+            var common = GetOutputPath( Path.Combine( root, "locales", "uk", "common.resx" ) );
+            var accounting = GetOutputPath( Path.Combine( root, "locales", "uk", "accounting.resx" ) );
+            TestHelper.CopyTemporaryFile( destPath: common );
+            TestHelper.CopyTemporaryFile( destPath: accounting );
+
+            var resAcc = new ResourceFile( accounting );
+            for ( var i = 0; i < resAcc.Elements.Count(); i++ )
+                resAcc.Elements[i]!.Key = UniqueKey();
+            resAcc.Save( accounting );
+
+            var issues = Validate( new[] { common, accounting } );
+
+            issues.Should().NotContain( i => i.Error.ErrorType == ResourceElementErrorType.MissedElement );
+        }
+
+        [Test]
         public void Validate_PerFileEmptyValue_FlaggedAsWarning()
         {
             var file = GetOutputPath( Path.Combine( UniqueKey(), $"{UniqueKey()}.resx" ) );
