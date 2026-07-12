@@ -329,6 +329,35 @@ namespace nresx.Core.Formatters
             return true;
         }
 
+        // Chooses the output shape when the caller did not force one. On a json->json roundtrip
+        // the loader recorded each element's shape (ElementType), so a uniform source shape is
+        // preserved. Elements arriving from another format (resx, po, ...) carry no recorded shape:
+        // default to flat key:value - the common i18next shape - and upgrade to key:object only when
+        // a comment needs somewhere to live, so it is not silently dropped (RSX-253). This also
+        // replaces the old unconditional KeyObject default that turned every flat file into
+        // "key": { "value": ... } on the way back out.
+        private static JsonElementType DetermineElementType( List<ResourceElement> elements, ResourceFileOptionJson? jsonOption )
+        {
+            if ( jsonOption != null && jsonOption.ElementType != JsonElementType.None )
+                return jsonOption.ElementType;
+
+            // Preserve a uniform recorded shape for the two flat-ish layouts (key:value, key:object).
+            // The array-of-objects Object layout wraps elements in a "strings" array and always
+            // requires an explicit ElementType, so it is not inferred implicitly.
+            var recorded = elements
+                .Select( el => ( el as ResourceElementJson )?.ElementType ?? JsonElementType.None )
+                .Where( t => t != JsonElementType.None )
+                .Distinct()
+                .ToList();
+            if ( recorded.Count == 1 && recorded[0] != JsonElementType.Object && elements.All( el => el is ResourceElementJson ) )
+                return recorded[0];
+
+            if ( elements.Any( el => !string.IsNullOrWhiteSpace( el.Comment ) ) )
+                return JsonElementType.KeyObject;
+
+            return JsonElementType.KeyValue;
+        }
+
         public void SaveResourceFile(
             Stream stream,
             IEnumerable<ResourceElement> elements,
@@ -350,15 +379,18 @@ namespace nresx.Core.Formatters
                 }
             }
 
+            var elementList = elements.ToList();
+            var shape = DetermineElementType( elementList, jsonOption );
+
             JArray arrayRoot = null;
-            if ( jsonOption?.ElementType == JsonElementType.Object )
+            if ( shape == JsonElementType.Object )
             {
                 arrayRoot = new JArray();
                 elementsRoot.Add( "strings", arrayRoot );
             }
-            
+
             // add elements
-            foreach ( var el in elements )
+            foreach ( var el in elementList )
             {
                 var elJson = el as ResourceElementJson;
                 var key = jsonOption?.KeyName ?? elJson?.KeyPropertyName ?? KeyNames.First();
@@ -366,7 +398,7 @@ namespace nresx.Core.Formatters
                 var comment = jsonOption?.CommentName ?? elJson?.CommentPropertyName ?? CommentNames.First();
                 JObject node;
 
-                switch ( jsonOption?.ElementType ?? JsonElementType.KeyObject )
+                switch ( shape )
                 {
                     case JsonElementType.KeyObject:
                         node = new JObject { { value, el.Value } };
