@@ -426,9 +426,29 @@ The base file for the `NotTranslated` check is picked per group: the explicit
 else the English file, else the first by culture name. Single-file groups skip
 the cross-file checks.
 
+#### Zero-config project analysis
+
+Run `nresx validate` with no source in a project root and it analyzes the
+current directory instead of asking for a pathspec:
+
+- **Already localized** - reports the formats, languages and layout it found
+  (namespace tree `locales/<lang>/<file>`, satellite `name.<lang>.<ext>`, or
+  flat), then validates the locale files. More than a handful of findings
+  collapse to a per-rule breakdown so the report stays short. Files that match a
+  resource extension but fail to load are listed, never silently skipped.
+- **Not yet localized** - scans the source (`.cs`, `.xaml`) and reports how many
+  user-facing strings could become resource tokens, pointing at `nresx generate`.
+  A very large codebase reports the scan counts only.
+
+Any error-severity finding still fails the command, so a bare `nresx validate`
+works as a CI gate too.
+
 #### Examples
 
 ```sh
+# zero-config: analyze the current directory (localized or not-yet-localized)
+nresx validate
+
 # will validate elements within a single resource file: empty or duplicated elements
 nresx validate <file1>
 

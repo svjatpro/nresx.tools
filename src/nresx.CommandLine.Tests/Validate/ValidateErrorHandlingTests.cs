@@ -42,8 +42,8 @@ namespace nresx.CommandLine.Tests.Validate
         }
 
         // Bare invocation used to fail SILENTLY with exit 2 (no message at all) - found
-        // dogfooding on a real project (RSX-245): the user's literal first move.
-        [TestCase( @"validate" )]
+        // dogfooding on a real project (RSX-245): the user's literal first move. Bare
+        // `validate` now runs the zero-config project analyzer instead (RSX-250, tested below).
         [TestCase( @"info" )]
         public void MissingSourceReportsUsageError( string commandLine )
         {
@@ -51,6 +51,23 @@ namespace nresx.CommandLine.Tests.Validate
 
             args.ExitCode.Should().Be( ExitUsageError );
             args.ConsoleOutput.Should().Contain( string.Format( MissingOptionMessage, "source" ) );
+        }
+
+        // Bare `nresx validate` in a directory with no resource files runs the zero-config
+        // analyzer: it must NOT error on a missing source, and must report the not-localized
+        // state instead of staying silent (RSX-250).
+        [Test]
+        public void BareValidate_RunsProjectAnalyzer_NotLocalized()
+        {
+            var dir = Path.Combine( TestData.OutputFolder, TestData.UniqueKey() );
+            Directory.CreateDirectory( dir );
+
+            var args = TestHelper.RunCommandLine( "validate",
+                options: new CommandRunOptions { WorkingDirectory = Path.GetFullPath( dir ) } );
+
+            args.ExitCode.Should().Be( ExitSuccess );
+            args.ConsoleOutput.Should().NotContain( string.Format( MissingOptionMessage, "source" ) );
+            args.ConsoleOutput.Should().Contain( line => line.Contains( "Not localized" ) );
         }
 
         // A pathspec that is an existing directory means "everything in it" (RSX-245).

@@ -28,8 +28,10 @@ namespace nresx.CommandLine.Commands
 
         protected override void ExecuteCommand()
         {
+            // Source is optional: a bare `nresx validate` (no source, no options) runs the
+            // zero-config project analyzer over the current directory instead of erroring (RSX-250).
             var optionsParsed = Options()
-                .Multiple( SourceFiles, out var sourceFiles, mandatory: true, multipleIndirect: true, optionName: "source" )
+                .Multiple( SourceFiles, out var sourceFiles, mandatory: false, multipleIndirect: true, optionName: "source" )
                 .Validate( this );
             if ( !optionsParsed )
                 return;
@@ -48,6 +50,12 @@ namespace nresx.CommandLine.Commands
                         WriteError( ExitUsageError, UnknownOutputFormatErrorMessage, Format );
                         return;
                 }
+            }
+
+            if ( sourceFiles.Count == 0 )
+            {
+                RunProjectAnalysis();
+                return;
             }
 
             var anyFailure = false;
@@ -89,6 +97,86 @@ namespace nresx.CommandLine.Commands
             if ( anyFailure )
                 Successful = false;
         }
+
+        // Zero-config path: analyze the current directory and print a short, truthful report
+        // for both already-localized and not-yet-localized projects (RSX-250). Any real
+        // validation errors still fail the command so a bare `validate` works as a CI gate too.
+        private void RunProjectAnalysis()
+        {
+            var analysis = new Analysis.ProjectAnalyzer().Analyze( Environment.CurrentDirectory );
+            RenderProjectAnalysis( analysis );
+
+            if ( analysis.Errors > 0 || ( analysis.Warnings > 0 && WarningsAsErrors ) )
+                Successful = false;
+        }
+
+        private static void RenderProjectAnalysis( Analysis.ProjectAnalysis a )
+        {
+            string Plural( int n, string word ) => n == 1 ? word : word + "s";
+
+            if ( !a.Localized )
+            {
+                Console.WriteLine( "Not localized: no resource files found." );
+                if ( a.SourceFileCount == 0 )
+                {
+                    Console.WriteLine( "No parseable source files (.cs, .xaml) found either." );
+                    return;
+                }
+
+                if ( a.SourceTooLarge )
+                {
+                    Console.WriteLine( $"Scanned {a.SourceFileCount} source {Plural( a.SourceFileCount, "file" )} " +
+                        $"(~{a.SourceBytes / 1024} KB) - too large to extract in-line." );
+                    Console.WriteLine( "Run `nresx generate * <file.resx> -r --dry-run` to preview extractable tokens." );
+                    return;
+                }
+
+                Console.WriteLine( $"Scanned {a.SourceFileCount} source {Plural( a.SourceFileCount, "file" )}; " +
+                    $"~{a.PotentialTokens} potential {Plural( a.PotentialTokens, "token" )} to localize." );
+                Console.WriteLine( "Run `nresx generate * <file.resx> -r` to extract them into a resource file." );
+                return;
+            }
+
+            Console.WriteLine( $"Localized project: {a.ResourceFileCount} resource {Plural( a.ResourceFileCount, "file" )} " +
+                $"in {a.GroupCount} {Plural( a.GroupCount, "group" )}." );
+            Console.WriteLine( $"  formats:   {string.Join( ", ", a.Formats )}" );
+            Console.WriteLine( a.Languages.Count > 0
+                ? $"  languages: {string.Join( ", ", a.Languages )}"
+                : "  languages: none detected (single language / no culture in paths)" );
+            Console.WriteLine( $"  layout:    {a.Layout}" );
+
+            if ( a.UnreadableFiles.Count > 0 )
+            {
+                Console.WriteLine( $"  skipped {a.UnreadableFiles.Count} unreadable {Plural( a.UnreadableFiles.Count, "file" )}:" );
+                foreach ( var file in a.UnreadableFiles.Take( ProjectAnalyzerListLimit ) )
+                    Console.WriteLine( $"    {file.GetShortPath()}" );
+                if ( a.UnreadableFiles.Count > ProjectAnalyzerListLimit )
+                    Console.WriteLine( $"    ... and {a.UnreadableFiles.Count - ProjectAnalyzerListLimit} more" );
+            }
+
+            Console.WriteLine();
+            if ( a.TotalIssues == 0 )
+            {
+                Console.WriteLine( "Validation: no issues found." );
+                return;
+            }
+
+            if ( a.TotalIssues <= Analysis.ProjectAnalyzer.IssueListLimit )
+            {
+                foreach ( var line in a.IssueLines )
+                    Console.WriteLine( line );
+            }
+            else
+            {
+                // Collapse to totals + per-rule breakdown so a big or fixture-heavy tree stays short.
+                foreach ( var rule in a.IssuesByRule.OrderByDescending( kv => kv.Value ) )
+                    Console.WriteLine( $"  {rule.Key}: {rule.Value} " + Plural( rule.Value, "issue" ) );
+            }
+            Console.WriteLine( $"Found {a.TotalIssues} {Plural( a.TotalIssues, "issue" )} " +
+                $"({a.Errors} {Plural( a.Errors, "error" )}, {a.Warnings} {Plural( a.Warnings, "warning" )})." );
+        }
+
+        private const int ProjectAnalyzerListLimit = 10;
 
         private static void RenderText( List<( string file, string severityLabel, ResourceElementError error )> issues, int errors, int warnings, int files, bool printCleanSummary )
         {
@@ -142,6 +230,10 @@ namespace nresx.CommandLine.Commands
 
         protected override IEnumerable<string> HelpExamples =>
         [
+            "# zero-config: analyze the current directory - reports the localization layout,\n" +
+            "#  languages and validation result for a localized project, or the potential tokens\n" +
+            "#  to extract for a not-yet-localized one\n" +
+            "nresx validate",
             "# will validate elements within a single resource file: empty or duplicated elements\n" +
             "nresx validate <file1>",
             "# will validate all matched resource files, including cross-file checks within\n" +
