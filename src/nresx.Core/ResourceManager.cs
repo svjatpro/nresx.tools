@@ -14,14 +14,27 @@ namespace nresx.Core
     /// </summary>
     public class ResourceManager
     {
-        /// <summary>Returns the library version string (e.g. <c>v1.0.0</c>).</summary>
+        /// <summary>Returns the library version string (e.g. <c>v1.0.0-beta.2</c>).</summary>
         public static string GetVersion()
         {
-            var assembly = Assembly.GetAssembly( typeof( ResourceManager  ) );
-            var ver = assembly.GetName().Version;
-            var version = $"v{ver.Major}.{ver.Minor}.{ver.Revision}";
+            var assembly = Assembly.GetAssembly( typeof( ResourceManager ) );
 
-            return version;
+            // AssemblyInformationalVersion carries the full semver, including any
+            // prerelease suffix (e.g. 1.0.0-beta.2). SourceLink may append
+            // "+<commit-hash>" build metadata - trim it for display.
+            var info = assembly?
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion;
+            if ( !string.IsNullOrEmpty( info ) )
+            {
+                var plus = info.IndexOf( '+' );
+                if ( plus >= 0 ) info = info.Substring( 0, plus );
+                return $"v{info}";
+            }
+
+            // Fallback: numeric assembly version (no prerelease suffix possible).
+            var ver = assembly.GetName().Version;
+            return $"v{ver.Major}.{ver.Minor}.{ver.Build}";
         }
 
         /// <summary>

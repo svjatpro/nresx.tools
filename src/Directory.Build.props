@@ -1,0 +1,16 @@
+<Project>
+
+  <!-- Single source of truth for the product version across every project
+       under src/: the nresx and nresx.Core NuGet packages AND the version
+       string the published exe reports at `nresx version`.
+
+       Semver prerelease is expressed via VersionSuffix (=> 1.0.0-beta.2).
+       For a final release, clear VersionSuffix (leaving just VersionPrefix).
+       MSBuild composes Version = VersionPrefix[-VersionSuffix] and derives
+       PackageVersion / AssemblyInformationalVersion from it. -->
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix>beta.2</VersionSuffix>
+  </PropertyGroup>
+
+</Project>

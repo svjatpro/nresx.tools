@@ -24,16 +24,19 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try
 {
-    $cliProj   = Join-Path $repoRoot 'src/nresx.CommandLine/nresx.CommandLine.csproj'
-    $outRoot   = Join-Path $repoRoot 'build/release'
-    $stageRoot = Join-Path $repoRoot 'build/release/_stage'
+    $cliProj    = Join-Path $repoRoot 'src/nresx.CommandLine/nresx.CommandLine.csproj'
+    $versionPro = Join-Path $repoRoot 'src/Directory.Build.props'
+    $outRoot    = Join-Path $repoRoot 'build/release'
+    $stageRoot  = Join-Path $repoRoot 'build/release/_stage'
 
-    # Read version from the csproj for the build banner. The zip filename
-    # itself is version-less so the GitHub releases/latest/download/<name>.zip
-    # URL pattern stays stable across releases.
-    [xml]$cliXml = Get-Content $cliProj
-    $version = ($cliXml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1).Trim()
-    if (-not $version) { throw "could not read <Version> from $cliProj" }
+    # Read the version from the shared props file for the build banner (single
+    # source of truth for all projects). The zip filename itself is version-less
+    # so the GitHub releases/latest/download/<name>.zip URL stays stable.
+    [xml]$verXml = Get-Content $versionPro
+    $prefix = ($verXml.Project.PropertyGroup.VersionPrefix | Where-Object { $_ } | Select-Object -First 1)
+    $suffix = ($verXml.Project.PropertyGroup.VersionSuffix | Where-Object { $_ } | Select-Object -First 1)
+    if (-not $prefix) { throw "could not read <VersionPrefix> from $versionPro" }
+    $version = "$($prefix.Trim())" + $(if ($suffix) { "-$($suffix.Trim())" } else { '' })
 
     Write-Host "==> Publishing nresx v$version for: $($rids -join ', ')"
 

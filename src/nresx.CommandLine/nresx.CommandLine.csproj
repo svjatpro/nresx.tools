@@ -17,7 +17,7 @@
   <!-- NuGet package metadata -->
   <PropertyGroup>
     <PackageId>nresx</PackageId>
-    <Version>1.0.0</Version>
+    <!-- Version comes from src/Directory.Build.props (VersionPrefix/VersionSuffix). -->
     <Authors>Sviatoslav Prokipets</Authors>
     <Copyright>Copyright (c) 2026 Sviatoslav Prokipets</Copyright>
     <Description>Command-line tool for working with localization resource files. Convert, validate, inspect, and manipulate resx/resw, po, json, yaml, xliff, ini, csv/tsv, android strings.xml, ios .strings, java .properties, flutter .arb, and xlsx files. Install with: dotnet tool install -g nresx</Description>
