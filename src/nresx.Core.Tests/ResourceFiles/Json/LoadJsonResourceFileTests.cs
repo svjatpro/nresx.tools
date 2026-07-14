@@ -52,6 +52,28 @@ namespace nresx.Core.Tests.ResourceFiles.Json
             res.Elements.First( el => el.Key == "record_one" ).Value.Should().Be( "{{count}} record" );
         }
 
+        // RSX-264: a truncated / malformed json must not hang the parser (the object/array loops
+        // used to spin forever at EOF) nor throw an InvalidCastException - it loads leniently so
+        // `validate` can report the file instead of crashing the whole run.
+        [TestCase( "{ \"a\": \"1\", \"b\": " )]      // truncated object
+        [TestCase( "{ \"list\": [ \"x\", \"y\" " )]  // truncated array
+        [TestCase( "{ \"a\": { \"b\": " )]           // truncated nested object
+        public void ParseTruncatedJsonDoesNotHangOrThrow( string content )
+        {
+            var path = Path.Combine( Path.GetTempPath(), $"nresx_trunc_{System.Guid.NewGuid():N}.json" );
+            File.WriteAllText( path, content );
+            try
+            {
+                var finished = Task.Run( () => { _ = new ResourceFile( path ); } )
+                    .Wait( System.TimeSpan.FromSeconds( 10 ) );
+                finished.Should().BeTrue( "a truncated json must load without hanging" );
+            }
+            finally
+            {
+                File.Delete( path );
+            }
+        }
+
         [Test]
         public async Task ParsePropertyNames()
         {

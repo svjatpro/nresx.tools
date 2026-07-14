@@ -61,6 +61,10 @@ namespace nresx.CommandLine.Tests.Validate
         {
             var dir = Path.Combine( TestData.OutputFolder, TestData.UniqueKey() );
             Directory.CreateDirectory( dir );
+            // a source file with a hardcoded string makes this a real not-localized project
+            // (an empty directory now reports "No project found" instead - RSX-264)
+            File.WriteAllText( Path.Combine( dir, "App.cs" ),
+                "namespace A { class App { string T => \"Welcome\"; } }" );
 
             var args = TestHelper.RunCommandLine( "validate",
                 options: new CommandRunOptions { WorkingDirectory = Path.GetFullPath( dir ) } );
@@ -68,6 +72,7 @@ namespace nresx.CommandLine.Tests.Validate
             args.ExitCode.Should().Be( ExitSuccess );
             args.ConsoleOutput.Should().NotContain( string.Format( MissingOptionMessage, "source" ) );
             args.ConsoleOutput.Should().Contain( line => line.Contains( "Not localized" ) );
+            args.ConsoleOutput.Should().Contain( line => line.Contains( "No resource files found" ) );
         }
 
         // A pathspec that is an existing directory means "everything in it" (RSX-245).

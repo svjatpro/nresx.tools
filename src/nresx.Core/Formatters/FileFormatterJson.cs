@@ -141,10 +141,13 @@ namespace nresx.Core.Formatters
                 var plainProps = new List<( string name, JToken value )>();
                 var hasElements = false;
 
-                while ( reader.TokenType != JsonToken.EndObject )
+                // Only a PropertyName is valid at this position; anything else (EndObject, or None on
+                // a truncated/malformed file) ends the object. Guarding on PropertyName also makes the
+                // cast below safe and stops an infinite loop at EOF (RSX-264).
+                while ( reader.TokenType == JsonToken.PropertyName )
                 {
                     var propName = (string) reader.Value;
-                    reader.Read();
+                    if ( !reader.Read() ) break;
 
                     var item = ParseJson( reader, elements, out var childType );
 
@@ -238,12 +241,13 @@ namespace nresx.Core.Formatters
                 reader.Read();
                 var array = new JArray();
                 var hasElements = false;
-                while ( reader.TokenType != JsonToken.EndArray )
+                // Stop on EndArray, and on None so a truncated file cannot spin forever (RSX-264).
+                while ( reader.TokenType != JsonToken.EndArray && reader.TokenType != JsonToken.None )
                 {
                     array.Add( ParseJson( reader, elements, out var childType ) );
-                    if ( childType == NodeType.Element ) 
+                    if ( childType == NodeType.Element )
                         hasElements = true;
-                    reader.Read();
+                    if ( !reader.Read() ) break;
                 }
 
                 if ( hasElements )

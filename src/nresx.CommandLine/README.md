@@ -433,12 +433,19 @@ current directory instead of asking for a pathspec:
 
 - **Already localized** - reports the formats, languages and layout it found
   (namespace tree `locales/<lang>/<file>`, satellite `name.<lang>.<ext>`, or
-  flat), then validates the locale files. More than a handful of findings
-  collapse to a per-rule breakdown so the report stays short. Files that match a
-  resource extension but fail to load are listed, never silently skipped.
-- **Not yet localized** - scans the source (`.cs`, `.xaml`) and reports how many
-  user-facing strings could become resource tokens, pointing at `nresx generate`.
-  A very large codebase reports the scan counts only.
+  flat), lists the files when there are only a few, then validates the locale
+  files. More than a handful of findings collapse to a per-rule breakdown so the
+  report stays short. Files that match a resource extension but fail to load are
+  listed, never silently skipped.
+- **Not yet localized** - localization state and resource presence are reported
+  as two separate facts, so a project with resource files sitting only in
+  test/fixture folders is still called "not localized". Detection is strict:
+  a lone `version.properties`, a stray culture-suffixed `.txt` or a config
+  `appsettings.json` does not count as a resource. It then scans the source
+  (`.cs`, `.xaml`) and reports how many user-facing strings could become resource
+  tokens, pointing at `nresx generate`; a very large codebase reports the scan
+  counts only. A folder with neither resources nor recognized source reports
+  "no project found".
 
 Any error-severity finding still fails the command, so a bare `nresx validate`
 works as a CI gate too.

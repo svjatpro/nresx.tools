@@ -47,10 +47,23 @@ public class ResourceGroup
     /// Optional language code (e.g. <c>en</c> or <c>en-US</c>) that forces the base-file pick. When null,
     /// the base file is auto-detected: neutral (no culture) &gt; English &gt; first alphabetical by culture.
     /// </param>
+    /// <param name="onFileLoading">
+    /// Optional callback invoked with each file's full path immediately before it is loaded. Lets a
+    /// caller show progress while a large group of files is read (the load is the expensive phase).
+    /// </param>
+    /// <param name="onLoadError">
+    /// Optional handler invoked when a file fails to load, with its path and the exception. Return
+    /// <c>true</c> to skip that file and continue; return <c>false</c> to rethrow. When null (default)
+    /// a load failure propagates, so a single malformed file does not silently vanish.
+    /// </param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="paths"/> is null.</exception>
     /// <exception cref="FileNotFoundException">Thrown when any path does not exist.</exception>
     /// <exception cref="Exceptions.UnknownResourceFormatException">Thrown when a path's extension is not a recognized resource format.</exception>
-    public static IReadOnlyList<ResourceGroup> Detect( IEnumerable<string> paths, string? baseLanguage = null )
+    public static IReadOnlyList<ResourceGroup> Detect(
+        IEnumerable<string> paths,
+        string? baseLanguage = null,
+        Action<string>? onFileLoading = null,
+        Func<string, Exception, bool>? onLoadError = null )
     {
         if ( paths == null ) throw new ArgumentNullException( nameof( paths ) );
 
@@ -103,10 +116,25 @@ public class ResourceGroup
         var groups = new List<ResourceGroup>();
         foreach ( var raw in rawGroups )
         {
-            var members = raw
-                .Select( m => (file: new ResourceFile( m.fullName, lenient ), m.culture) )
-                .ToList();
+            var members = new List<(ResourceFile file, CultureInfo? culture)>();
+            foreach ( var m in raw )
+            {
+                onFileLoading?.Invoke( m.fullName );
+                ResourceFile file;
+                try
+                {
+                    file = new ResourceFile( m.fullName, lenient );
+                }
+                catch ( Exception ex ) when ( onLoadError != null )
+                {
+                    // a malformed file is skipped only if the caller opts in; otherwise it throws
+                    if ( onLoadError( m.fullName, ex ) ) continue;
+                    throw;
+                }
+                members.Add( (file, m.culture) );
+            }
 
+            if ( members.Count == 0 ) continue;
             var baseFile = PickBaseFile( members, baseLanguage );
             groups.Add( new ResourceGroup( members.Select( m => m.file ).ToList(), baseFile ) );
         }

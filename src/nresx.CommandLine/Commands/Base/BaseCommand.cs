@@ -221,7 +221,9 @@ namespace nresx.CommandLine.Commands
         protected void ForEachResourceGroup(
             List<string> sourceFiles,
             Action<GroupSearchContext, ResourceGroup> resourceAction,
-            string baseLanguage = null )
+            string baseLanguage = null,
+            Action<string> onFileLoading = null,
+            Func<string, Exception, bool> onLoadError = null )
         {
             if ( sourceFiles?.Count > 0 )
             {
@@ -263,7 +265,7 @@ namespace nresx.CommandLine.Commands
                         dryRun: DryRun && IsDryRunAllowed );
                 }
 
-                var groups = ResourceGroup.Detect( paths, baseLanguage );
+                var groups = ResourceGroup.Detect( paths, baseLanguage, onFileLoading, onLoadError );
                 var totalFiles = groups.Sum( g => g.Files.Count );
                 foreach ( var group in groups )
                 {

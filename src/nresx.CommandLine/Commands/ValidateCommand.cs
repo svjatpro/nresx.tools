@@ -65,10 +65,18 @@ namespace nresx.CommandLine.Commands
             var totalFiles = 0;
 
             // Cross-file validation lives in nresx.Core (RSX-235); the command collects the
-            // findings, then renders them in the selected output format (RSX-232).
+            // findings, then renders them in the selected output format (RSX-232). Progress ticks
+            // per file as it loads (the expensive phase) so the run never looks hung, and one
+            // malformed file is reported and skipped instead of crashing the whole run (RSX-264).
+            var progress = new ScanProgress( enabled: !outputJson );
+            var unreadable = new List<string>();
             ForEachResourceGroup( sourceFiles, ( context, group ) =>
             {
                 totalFiles += group.Files.Count;
+                if ( Verbose )
+                    foreach ( var file in group.Files )
+                        WriteVerbose( "validated: {0}", file.AbsolutePath );
+
                 foreach ( var issue in group.Validate() )
                 {
                     var error = issue.Error;
@@ -85,14 +93,28 @@ namespace nresx.CommandLine.Commands
                     if ( severity == ResourceElementErrorSeverity.Error || WarningsAsErrors )
                         anyFailure = true;
                 }
-            }, BasicLanguage );
+            }, BasicLanguage,
+               onFileLoading: _ => progress.Tick(),
+               onLoadError: ( path, ex ) =>
+               {
+                   unreadable.Add( $"{path.GetShortPath()} ({ex.GetType().Name})" );
+                   return true;
+               } );
+            progress.Clear();
+
+            // Surface unreadable files instead of silently dropping them (RSX-245 B3); a file we
+            // could not parse is a real problem, so the run fails but still reports the rest.
+            foreach ( var file in unreadable )
+                Console.Error.WriteLine( $"error: could not read {file}" );
+            if ( unreadable.Count > 0 )
+                anyFailure = true;
 
             if ( outputJson )
                 RenderJson( issues, totalErrors, totalWarnings );
             else
                 // suppress the clean-run confirmation when a search error was already
                 // reported (Successful false) - "0 issues" after a fatal line is noise
-                RenderText( issues, totalErrors, totalWarnings, totalFiles, printCleanSummary: Successful );
+                RenderText( issues, totalErrors, totalWarnings, totalFiles, printCleanSummary: Successful, verbose: Verbose );
 
             if ( anyFailure )
                 Successful = false;
@@ -112,31 +134,14 @@ namespace nresx.CommandLine.Commands
 
         private static void RenderProjectAnalysis( Analysis.ProjectAnalysis a )
         {
-            string Plural( int n, string word ) => n == 1 ? word : word + "s";
+            if ( a.Localized )
+                RenderLocalized( a );
+            else
+                RenderNotLocalized( a );
+        }
 
-            if ( !a.Localized )
-            {
-                Console.WriteLine( "Not localized: no resource files found." );
-                if ( a.SourceFileCount == 0 )
-                {
-                    Console.WriteLine( "No parseable source files (.cs, .xaml) found either." );
-                    return;
-                }
-
-                if ( a.SourceTooLarge )
-                {
-                    Console.WriteLine( $"Scanned {a.SourceFileCount} source {Plural( a.SourceFileCount, "file" )} " +
-                        $"(~{a.SourceBytes / 1024} KB) - too large to extract in-line." );
-                    Console.WriteLine( "Run `nresx generate * <file.resx> -r --dry-run` to preview extractable tokens." );
-                    return;
-                }
-
-                Console.WriteLine( $"Scanned {a.SourceFileCount} source {Plural( a.SourceFileCount, "file" )}; " +
-                    $"~{a.PotentialTokens} potential {Plural( a.PotentialTokens, "token" )} to localize." );
-                Console.WriteLine( "Run `nresx generate * <file.resx> -r` to extract them into a resource file." );
-                return;
-            }
-
+        private static void RenderLocalized( Analysis.ProjectAnalysis a )
+        {
             Console.WriteLine( $"Localized project: {a.ResourceFileCount} resource {Plural( a.ResourceFileCount, "file" )} " +
                 $"in {a.GroupCount} {Plural( a.GroupCount, "group" )}." );
             Console.WriteLine( $"  formats:   {string.Join( ", ", a.Formats )}" );
@@ -144,6 +149,16 @@ namespace nresx.CommandLine.Commands
                 ? $"  languages: {string.Join( ", ", a.Languages )}"
                 : "  languages: none detected (single language / no culture in paths)" );
             Console.WriteLine( $"  layout:    {a.Layout}" );
+            if ( a.SourceReferencesResources )
+                Console.WriteLine( "  reference: resource usage found in source" );
+
+            // Show the resource files themselves when there are only a few (RSX-264).
+            if ( a.ResourceFilePaths.Count > 0 )
+            {
+                Console.WriteLine( $"  files:" );
+                foreach ( var path in a.ResourceFilePaths )
+                    Console.WriteLine( $"    {path}" );
+            }
 
             if ( a.UnreadableFiles.Count > 0 )
             {
@@ -157,7 +172,15 @@ namespace nresx.CommandLine.Commands
             Console.WriteLine();
             if ( a.TotalIssues == 0 )
             {
-                Console.WriteLine( "Validation: no issues found." );
+                if ( !a.ResourceScanPartial )
+                {
+                    Console.WriteLine( "Validation: no issues found." );
+                    return;
+                }
+                // Bounded scan (RSX-264): absence of issues here is not authoritative.
+                Console.WriteLine( $"No issues in the first {a.ResourceFilesScanned} of {a.ResourceFileCount} " +
+                    $"resource {Plural( a.ResourceFileCount, "file" )} - partial scan." );
+                Console.WriteLine( $"For a full check, run `nresx validate \"{GlobHint( a )}\" -r`." );
                 return;
             }
 
@@ -172,32 +195,117 @@ namespace nresx.CommandLine.Commands
                 foreach ( var rule in a.IssuesByRule.OrderByDescending( kv => kv.Value ) )
                     Console.WriteLine( $"  {rule.Key}: {rule.Value} " + Plural( rule.Value, "issue" ) );
             }
-            Console.WriteLine( $"Found {a.TotalIssues} {Plural( a.TotalIssues, "issue" )} " +
-                $"({a.Errors} {Plural( a.Errors, "error" )}, {a.Warnings} {Plural( a.Warnings, "warning" )})." );
+            Console.WriteLine( a.ResourceScanPartial
+                ? $"Found at least {a.TotalIssues} {Plural( a.TotalIssues, "issue" )} " +
+                    $"({a.Errors} {Plural( a.Errors, "error" )}, {a.Warnings} {Plural( a.Warnings, "warning" )}) " +
+                    $"in the first {a.ResourceFilesScanned} of {a.ResourceFileCount} resource {Plural( a.ResourceFileCount, "file" )}."
+                : $"Found {a.TotalIssues} {Plural( a.TotalIssues, "issue" )} " +
+                    $"({a.Errors} {Plural( a.Errors, "error" )}, {a.Warnings} {Plural( a.Warnings, "warning" )})." );
+            Console.WriteLine( $"For the full report, run `nresx validate \"{GlobHint( a )}\" -r`." );
         }
+
+        private static void RenderNotLocalized( Analysis.ProjectAnalysis a )
+        {
+            if ( a.NoProject )
+            {
+                Console.WriteLine( "No project found here: no resource files, and no recognized source files (.cs, .xaml)." );
+                return;
+            }
+
+            // Localization state and resource presence are two separate facts (RSX-264).
+            Console.WriteLine( "Not localized." );
+            if ( a.FixtureResourceFileCount > 0 )
+                Console.WriteLine( $"Found {a.FixtureResourceFileCount} localization {Plural( a.FixtureResourceFileCount, "file" )} " +
+                    $"under test/fixtures (formats: {string.Join( ", ", a.FixtureFormats )}), but the project itself is not localized." );
+            else
+                Console.WriteLine( "No resource files found." );
+
+            if ( a.SourceFileCount == 0 )
+                return;
+
+            if ( a.SourceScanPartial )
+            {
+                // Budgeted scan (RSX-264): report what was found so far without hanging on a big repo.
+                Console.WriteLine( $"Scanned the first {a.SourceFilesScanned} of {a.SourceFileCount} source " +
+                    $"{Plural( a.SourceFileCount, "file" )} (partial); ~{a.PotentialTokens} potential " +
+                    $"{Plural( a.PotentialTokens, "token" )} found so far." );
+                Console.WriteLine( "To localize, run `nresx generate * <file.resx> -r` to extract them (narrow the path for a full scan)." );
+                return;
+            }
+
+            Console.WriteLine( $"Scanned {a.SourceFileCount} source {Plural( a.SourceFileCount, "file" )}; " +
+                $"~{a.PotentialTokens} potential {Plural( a.PotentialTokens, "token" )} to localize." );
+            Console.WriteLine( "To localize, run `nresx generate * <file.resx> -r` to extract them into a resource file." );
+        }
+
+        // A representative recursive glob for the "full report" hint, using the dominant format.
+        private static string GlobHint( Analysis.ProjectAnalysis a )
+        {
+            var ext = a.Formats.FirstOrDefault() ?? ".resx";
+            return $"**/*{ext}";
+        }
+
+        private static string Plural( int n, string word ) => n == 1 ? word : word + "s";
 
         private const int ProjectAnalyzerListLimit = 10;
 
-        private static void RenderText( List<( string file, string severityLabel, ResourceElementError error )> issues, int errors, int warnings, int files, bool printCleanSummary )
+        private static void RenderText( List<( string file, string severityLabel, ResourceElementError error )> issues, int errors, int warnings, int files, bool printCleanSummary, bool verbose )
         {
-            foreach ( var ( file, severityLabel, error ) in issues )
+            if ( issues.Count == 0 )
             {
-                var detail = !string.IsNullOrWhiteSpace( error.ElementKey )
-                    ? error.ElementKey
-                    : ( error.Message ?? string.Empty );
-                Console.WriteLine( $"{file}: {severityLabel}: {error.ErrorType}: {detail}" );
+                if ( printCleanSummary )
+                    // A clean run must still confirm that something was actually checked -
+                    // silence is indistinguishable from "nothing matched" (RSX-245).
+                    Console.WriteLine( $"Found 0 issues ({files} {Plural( files, "file" )} checked)" );
+                return;
             }
 
-            if ( issues.Count > 0 )
+            // List every finding when verbose or when there are only a few; otherwise collapse to a
+            // per-rule breakdown so a big run stays readable, and point at --verbose (RSX-264).
+            if ( verbose || issues.Count <= Analysis.ProjectAnalyzer.IssueListLimit )
             {
+                foreach ( var ( file, severityLabel, error ) in issues )
+                {
+                    var detail = !string.IsNullOrWhiteSpace( error.ElementKey )
+                        ? error.ElementKey
+                        : ( error.Message ?? string.Empty );
+                    Console.WriteLine( $"{file}: {severityLabel}: {error.ErrorType}: {detail}" );
+                }
                 Console.WriteLine( BuildSummary( issues.Count, errors, warnings ) );
+                return;
             }
-            else if ( printCleanSummary )
+
+            foreach ( var rule in issues.GroupBy( i => i.error.ErrorType )
+                         .OrderByDescending( g => g.Count() ) )
+                Console.WriteLine( $"  {rule.Key}: {rule.Count()} " + Plural( rule.Count(), "issue" ) );
+            Console.WriteLine( BuildSummary( issues.Count, errors, warnings ) );
+            Console.WriteLine( "To list each result, add --verbose." );
+        }
+
+        // Live single-line progress on stderr, only when stderr is a real terminal (RSX-264). Kept
+        // off when output is redirected/piped (tests, JSON, CI) so it never pollutes captured output.
+        private sealed class ScanProgress
+        {
+            private static readonly char[] Frames = { '|', '/', '-', '\\' };
+            private readonly bool _active;
+            private int _count;
+
+            public ScanProgress( bool enabled )
             {
-                // A clean run must still confirm that something was actually checked -
-                // silence is indistinguishable from "nothing matched" (RSX-245).
-                string Plural( int n, string word ) => n == 1 ? word : word + "s";
-                Console.WriteLine( $"Found 0 issues ({files} {Plural( files, "file" )} checked)" );
+                _active = enabled && !Console.IsErrorRedirected;
+            }
+
+            public void Tick()
+            {
+                if ( !_active ) return;
+                _count++;
+                Console.Error.Write( $"\r{Frames[_count % Frames.Length]} scanning: {_count} files..." );
+            }
+
+            public void Clear()
+            {
+                if ( !_active ) return;
+                Console.Error.Write( "\r" + new string( ' ', 32 ) + "\r" );
             }
         }
 
